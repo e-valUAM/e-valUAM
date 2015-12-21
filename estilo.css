@@ -1,0 +1,53 @@
+
+header
+{
+	margin: 10px;
+}
+
+nav
+{
+	margin-bottom: 10px;
+}
+
+footer
+{
+	margin-top: 20px;
+	margin-bottom: 50px;
+}
+
+#respuestas {
+	margin-top: 20px;
+}
+
+#logo_uam, #logo_ope {
+	max-height: 75px;
+}
+
+#imagen
+{
+	max-width: 800px;
+	max-height: 400px;
+}
+
+.mini_imagen
+{
+	max-width: 45px;
+	max-height: 45px;
+}
+
+
+#opciones
+{
+	float: left;
+	margin: 10px;
+}
+
+.correcta 
+{
+	/*color: #0F0;*/
+}
+
+.incorrecta
+{
+	color: #F00;
+}
