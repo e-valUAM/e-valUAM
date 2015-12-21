@@ -77,7 +77,8 @@
 		$time = time();
 
 		$_SESSION['restante'] = ceil(($_SESSION['final'] - $time) / 60); 
-
+		
+		$duda = NULL;
 		if ($_SESSION["acepta_duda"])
 			$duda = ($_REQUEST['duda'] == 't' ? 't' : 'f');
 
