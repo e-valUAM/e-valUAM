@@ -100,7 +100,7 @@
 								    echo "\t\t<td>".$line['nombre']."</td>\n";
 								    echo "\t\t<td>".$line['duracion']."</td>\n";
 								    if ($line['tipo_examen'] == 'clasico')
-									echo "\t\t<td><a class=\"btn btn-primary\" href=\"examen.php?idExamen=".$line['id']."\">Continuar</a></td>";
+									echo "\t\t<td><a class=\"btn btn-primary\" href=\"examen_old.php?idExamen=".$line['id']."\">Continuar</a></td>";
 								    else
 									echo "\t\t<td><a class=\"btn btn-primary\" href=\"Examen.php?idExamen=".$line['id']."\">Continuar</a></td>";
 								    echo "\t</tr>\n";
@@ -114,7 +114,6 @@
 					<p>Si quieres cambiar tu contraseña, pulsa <a href="./cambiarContrasenya.php">aquí.</a></p>
 				</div>
 			</div>
-		</main> 
+		</main>
 	</body>
 </html>
-
