@@ -1,5 +1,5 @@
 <?php
-	
+
 	include 'funciones.php';
 
 	session_start();
@@ -15,11 +15,11 @@
 		$_SESSION['sigueExamen?'] = true;
 
 		// Ciertos parametros vienen de la base de datos.
-		$result =  pg_query_params($con, 
+		$result =  pg_query_params($con,
 			'SELECT num_preguntas, num_por_nodo, num_dificultades, num_respuestas, duracion, materias.id as materias_id, acepta_duda
-			FROM examenes, materias 
-			WHERE examenes.id =  $1 and id_materia = materias.id', 
-			array($_SESSION['idExamen'])) 
+			FROM examenes, materias
+			WHERE examenes.id =  $1 and id_materia = materias.id',
+			array($_SESSION['idExamen']))
 		or die('La consulta fallo: ' . pg_last_error());
 
 		$line = pg_fetch_array($result, null, PGSQL_ASSOC);
@@ -31,12 +31,12 @@
 		$_SESSION['num_preguntas'] = $line['num_preguntas'];
 		$_SESSION['numRespondidas'] = 0;
 		$_SESSION['numCorrectas'] = 0;
-			
+
 		$_SESSION['num_dificultades'] = $line['num_dificultades'];
 		$_SESSION['num_respuestas'] = $line['num_respuestas'];
 		$_SESSION['nivel'] = 1;
-		$_SESSION['numEnNivel'] = 0;  
-			
+		$_SESSION['numEnNivel'] = 0;
+
 		$_SESSION['num_por_nodo'] = $line['num_por_nodo'];
 		$_SESSION['numEnNodo'] = 0;
 		$_SESSION['numCorrectasEnNodo'] = 0;
@@ -55,12 +55,12 @@
 			'INSERT INTO alumnos_por_examen VALUES ($1, $2, $3);',
 			array($_SESSION['idUsuario'], $_SESSION['idExamen'], date(DATE_ISO8601)))
 		or die('La actualizacion falló: '.pg_last_error());
-		
-		$result =  pg_query_params($con, 
+
+		$result =  pg_query_params($con,
 			'SELECT id
-			FROM alumnos_por_examen 
+			FROM alumnos_por_examen
 			WHERE id_alumno = $1 and id_examen = $2 and timestamp = $3
-			LIMIT 1', 
+			LIMIT 1',
 			array($_SESSION['idUsuario'], $_SESSION['idExamen'], date(DATE_ISO8601, $time)))
 		or die('La consulta fallo: ' . pg_last_error());
 
@@ -68,16 +68,16 @@
 		$_SESSION['idAlumnoExamen'] = $row['id'];
 		pg_free_result($result);
 
-	} 
-	else if ($_SESSION['sigueExamen?']) 
+	}
+	else if ($_SESSION['sigueExamen?'])
 	{
 		// Aquí se llega después de responder a una pregunta
 		// Primero guardamos la respuesta
 		$idRespuesta = $_SESSION['respuestas'][$_REQUEST['respuesta']];
 		$time = time();
 
-		$_SESSION['restante'] = ceil(($_SESSION['final'] - $time) / 60); 
-		
+		$_SESSION['restante'] = ceil(($_SESSION['final'] - $time) / 60);
+
 		$duda = NULL;
 		if ($_SESSION["acepta_duda"])
 			$duda = ($_REQUEST['duda'] == 't' ? 't' : 'f');
@@ -104,7 +104,7 @@
 
 			if ($_SESSION['numRespondidas'] == $_SESSION['num_preguntas']) {
 				$_SESSION['sigueExamen?'] = false;
-				header("Location: ./finExamen.php");
+				header("Location: ./finExamen_old.php");
 				exit;
 			}
 		} else {
@@ -141,13 +141,13 @@
 
 			if ($_SESSION['numRespondidas'] == $_SESSION['num_preguntas']) {
 				$_SESSION['sigueExamen?'] = false;
-				header("Location: ./finExamen.php");
+				header("Location: ./finExamen_old.php");
 				exit;
 			}
 
 		}
 
-		
+
 	} else {
 		header("Location: /error.php");
 		exit;
@@ -195,7 +195,7 @@
 							document.getElementById("tiempo").innerHTML = minRes + " minutos restantes.";
 				} else {
 					goodExit();
-					window.location = "./finExamen.php";
+					window.location = "./finExamen_old.php";
 					return
 				}
 
@@ -268,9 +268,9 @@
 			</div>
 		</div>
 
-		<?php 
+		<?php
 			if (isset($_SESSION['feedback'])) {
-				if ($_SESSION['correcta']) { 
+				if ($_SESSION['correcta']) {
 		?>
 			<div class="container-fluid">
 			<div class="alert alert-success" role="alert">
@@ -279,7 +279,7 @@
 			  <span class="sr-only">Cerrar</span>
 			</button><p>¡Correcto! <?php echo $_SESSION['feedback'];?></p></div>
 			</div>
-		<?php 
+		<?php
 				} else {
 		?>
 			<div class="container-fluid">
@@ -289,7 +289,7 @@
 			  <span class="sr-only">Cerrar</span>
 			</button><p>No… <?php echo $_SESSION['feedback'];?></p></div>
 			</div>
-		<?php 
+		<?php
 				}
 			}
 			unset($_SESSION['feedback']);
@@ -300,25 +300,25 @@
 			<div class="row">
 				<div class="col-md-12">
 					<?php
-						$result =  pg_query_params($con, 
-							'	(SELECT id, texto, imagen, audio, feedback 
-								FROM preguntas 
+						$result =  pg_query_params($con,
+							'	(SELECT id, texto, imagen, audio, feedback
+								FROM preguntas
 								WHERE id_materia = $1 and dificultad = $2 and borrada = FALSE
 								)
-							EXCEPT  
+							EXCEPT
 								(SELECT preguntas.id, preguntas.texto, preguntas.imagen, preguntas.audio, preguntas.feedback
-								FROM (preguntas INNER JOIN respuestas ON preguntas.id = id_pregunta) 
+								FROM (preguntas INNER JOIN respuestas ON preguntas.id = id_pregunta)
 									INNER JOIN respuestas_por_alumno ON respuestas.id = id_respuesta
 								WHERE id_alumno = $3 and id_alumno_examen = $4
 								)
-							', 
+							',
 							array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
 						or die('La consulta de la pregunta falló: ' . pg_last_error());
 
 						// Examen de Santiago
 						if (pg_num_rows($result) == 0) {
 							$_SESSION['sigueExamen?'] = false;
-							header("Location: ./finExamen.php");
+							header("Location: ./finExamen_old.php");
 							exit;
 						}
 
@@ -345,12 +345,12 @@
 					<?php
 						$letras = array("A", "B", "C", "D", "E", "F", "G", "H");
 
-						$result =  pg_query_params($con, 
-							'SELECT id, texto, correcta, imagen, audio 
-							FROM respuestas 
+						$result =  pg_query_params($con,
+							'SELECT id, texto, correcta, imagen, audio
+							FROM respuestas
 							WHERE id_pregunta = $1
-							ORDER BY RANDOM()', 
-							array($pregunta['id'])) 
+							ORDER BY RANDOM()',
+							array($pregunta['id']))
 						or die('La consulta fallo: ' . pg_last_error());
 
 						switch ($_SESSION['num_respuestas']) {
@@ -388,7 +388,7 @@
 							}
 							echo "</div>";
 
-							
+
 							if ($respuestas['correcta'] == "t")
 								$_SESSION['correcta'] = $letras[$i];
 
@@ -399,7 +399,7 @@
 		</main>
 
 		<footer class="container-fluid">
-			<form action="examen.php" method="post" onsubmit="goodExit()">
+			<form action="examen_old.php" method="post" onsubmit="goodExit()">
 				<?php if ($_SESSION['acepta_duda']) { ?>
 					<div class="row">
 						<div class="col-md-12">
