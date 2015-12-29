@@ -93,7 +93,7 @@
 
 								// Imprimiendo los resultados en HTML
 								while ($line = pg_fetch_array($result, null)) {
-								    if ($_SESSION['idUsuario'] >= 1213 && $_SESSION['idUsuario'] <= 1264 && $line['id'] == 44)
+								    if ($_SESSION['idUsuario'] >= 1213 && $_SESSION['idUsuario'] <= 1264 && $line['id'] != 46)
 									continue;
 
 								    echo "\t<tr>\n";
