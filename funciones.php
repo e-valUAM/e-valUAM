@@ -1,5 +1,5 @@
 <?php
-	require '../db_pass/db_string.php';
+	require '/var/www/db_pass/db_string.php';
 
 	function mostrar_header() {
 		echo "<header class=\"container-fluid\">";
@@ -15,7 +15,10 @@
 	}
 
 	function connect() {
-		$con = pg_connect($db_string);
+		if (strtos($_SERVER['PHP_SELF'], "develop") === FALSE)
+			$con = pg_connect($db_string);
+		else
+			$con = pg_connect($db_develop_string);
 		
 		if (!$con)
 			return NULL;
