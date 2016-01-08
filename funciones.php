@@ -15,7 +15,7 @@
 	}
 
 	function connect() {
-		con = pg_connect($db_string);
+		$con = pg_connect($db_string);
 		
 		if (!$con)
 			return NULL;
