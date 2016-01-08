@@ -1,4 +1,5 @@
 <?php
+	require '../db_pass/db_string.php';
 
 	function mostrar_header() {
 		echo "<header class=\"container-fluid\">";
@@ -14,13 +15,11 @@
 	}
 
 	function connect() {
-                $con = pg_connect("host=localhost dbname=e-valUAM user=db_e-valUAM password=guybrush");
-
-                if (!$con)
-                        return NULL;
-                else
-                    	return $con;
-
-        }
-
+		con = pg_connect($db_string);
+		
+		if (!$con)
+			return NULL;
+		else
+			return $con;
+	}
 ?>
