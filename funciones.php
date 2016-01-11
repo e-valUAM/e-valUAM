@@ -15,11 +15,8 @@
 	}
 
 	function connect() {
-		if (strtos($_SERVER['PHP_SELF'], "develop") === FALSE)
-			$con = pg_connect($db_string);
-		else
-			$con = pg_connect($db_develop_string);
-		
+		global $db_string;	
+		$con = pg_connect($db_string);
 		if (!$con)
 			return NULL;
 		else
