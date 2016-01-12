@@ -21,5 +21,21 @@
 			return NULL;
 		else
 			return $con;
+	} 
+
+	function devurandom_rand() {
+		$fp = fopen('/dev/urandom','rb');
+		$bytes = '';
+		if ($fp !== FALSE) {
+			$bytes .= fread($fp, 4);        
+			fclose($fp);
+		}
+
+		if ($bytes === false || strlen($bytes) != 4) {
+			throw new RuntimeException("Unable to get 4 bytes");
+		}
+
+		return $bytes;
 	}
+
 ?>
