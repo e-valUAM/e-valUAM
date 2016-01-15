@@ -8,7 +8,7 @@
 
 	if (isset($_REQUEST['alumno'])) { // Se trata de la llamada AJAX
 		$result =  pg_query_params($con,
-			'SELECT texto, respuesta1, respuesta2, respuesta3, respuesaok, imagen, dificultad
+			'SELECT texto, respuesta1, respuesta2, respuesta3, respuestaok, imagen, dificultad
 			FROM preguntas_alumnos 
 			WHERE id_alumno = $1
 			ORDER BY dificultad',
@@ -23,7 +23,7 @@
 				echo '<div class="col-md-12">';
 				echo '<h1>' . $pregunta['texto'] . '</h1>';
 				if ($pregunta['imagen'] != NULL) {
-					echo '<img src="../multimedia/alumnos/' . $pregunta['texto'] . '" class="img-responsive" alt="Responsive image">';
+					echo '<img src="../multimedia/alumnos/' . urlencode($pregunta['imagen']) . '" class="img-responsive" alt="Imagen asociada a la pregunta">';
 				}
 				echo '<p><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Correcta:</span> ' . $pregunta['respuestaok'] . '</p>';
 				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta1'] . '</p>';
@@ -33,6 +33,7 @@
 				echo '</div></div>';
 			}
 		}
+		exit;
 	}
 ?>
 
@@ -50,13 +51,13 @@
 		<script type="text/javascript">
 			function cargarPreguntas(id) {
 				$('#errorMessage').removeClass('show').addClass('hidden');
-				$.ajax('visorPreguntasAlumnos.php?alumno=' + id).
+				$.ajax('visorPreguntasAlumnos.php?alumno=' + id)
 				.done(function(data) {
-					$('#preguntasAlumno').text(data);
-				};)
+					$('#preguntasAlumno').html(data);
+				})
 				.fail(function() {
 					$('#errorMessage').removeClass('hidden').addClass('show');
-				};)
+				})
 			}
 		</script>
 	</head>
@@ -73,7 +74,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-12"><div class="alert alert-danger" role="alert"><strong>Ups...</strong> Algo ha salido mal. Prueba de nuevo más tarde.</div></div>
+				<div class="col-md-12 hidden" id="errorMessage"><div class="alert alert-danger" role="alert"><strong>Ups...</strong> Algo ha salido mal. Prueba de nuevo más tarde.</div></div>
 			</div>
 			<div class="row" id="seleccionAlumno">
 				<div class="col-md-6">
