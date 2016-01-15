@@ -23,7 +23,7 @@
 				echo '<div class="col-md-12">';
 				echo '<h1>' . $pregunta['texto'] . '</h1>';
 				if ($pregunta['imagen'] != NULL) {
-					echo '<img src="../multimedia/alumnos/' . urlencode($pregunta['imagen']) . '" class="img-responsive" alt="Imagen asociada a la pregunta">';
+					echo '<img src="../multimedia/alumnos/' . $_REQUEST['alumno'] . '/' . rawurlencode($pregunta['imagen']) . '" class="img-responsive" alt="Imagen asociada a la pregunta">';
 				}
 				echo '<p><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Correcta:</span> ' . $pregunta['respuestaok'] . '</p>';
 				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta1'] . '</p>';
