@@ -26,14 +26,7 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h2>Novedades</h2>
-					<h3>Solucionado el error de los ficheros multimedia</h3>
-					<p class="text-primary">Varios equipos habéis tenido problemas con la subida de algunos ficheros. El error viene provocado por el uso de la ñ o algún otro caracter no pertenciente al alfabeto inglés en el nombre. Evitad usar ñ, acentos, ü, ç o cualquier otro símbolo extraño en los nombres de los ficheros.</p>
-					<p class="text-primary">No os preocupéis por los ficheros que ya están subidos. Los hemos corregido nosotros automáticamente.</p>
-					<p class="text-primary">Si algún fichero os sigue dando problemas, no dudéis en contactarnos.</p>
-					<h3>Añadida opción para ver las preguntas sin crear un examen</h3>
-					<p class="text-primary">En respuesta a una petición que nos habéis hecho varios, desde ahora se pueden ver cómo están quedando todas las preguntas que vais haciendo de una manera más sencilla.</p>
-					<p class="text-primary">Basta con que en el apartado de <strong><a href="gestionPreguntas.php">Preguntas</a></strong> pulséis en el nuevo botón que desde ahora está arriba del todo, justo debajo de dónde se elige la materia.</p>
-					<p class="text-primary">Se os mostrarán en una página todas las preguntas, sus respuestas y todos los ficheros que vayan con la pregunta o las respuestas</p>
+					<p>Para acceder a las preguntas enviada por los alumnos, <a href="visorPreguntasAlumnos.php">pulsa aquí.</a></p>
 					<br>
 					<br>
 
