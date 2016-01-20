@@ -5,8 +5,15 @@
 	session_start();
 
 	// Calculamos la nota
-	$valor_pregunta = 1 / $_SESSION['num_respuestas'];
-	$nota = (10.0 / ($_SESSION['num_preguntas'] * (1 - $valor_pregunta))) * ($_SESSION['numCorrectas'] - ($_SESSION['num_preguntas'] * $valor_pregunta));
+	if($_SESSION['num_respuestas'] <= 1)
+		$prob_fallo = 0;
+	else
+		$prob_fallo = 1.0 / ($_SESSION['num_respuestas'] -1);
+
+	$valor_pregunta = 10.0 / $_SESSION['num_preguntas'];
+	$num_fallos = $_SESSION['num_preguntas'] - $_SESSION['numCorrectas'];
+
+	$nota = $valor_pregunta * ($_SESSION['numCorrectas'] - $prob_fallo * $num_fallos);
 
 	// Puede salir negativa, porque compensamos al poder responder al azar, pero 0 es el mínimo
 	if ($nota < 0)

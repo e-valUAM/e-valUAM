@@ -4,7 +4,16 @@
 	
 	session_start();
 
-	$nota = (10.0 / ($_SESSION['num_preguntas'] * (2/3))) * ($_SESSION['numCorrectas'] - ($_SESSION['num_preguntas'] * (1/3)));
+	// Calculamos la nota
+	if($_SESSION['num_respuestas'] <= 1)
+		$prob_fallo = 0;
+	else
+		$prob_fallo = 1.0 / ($_SESSION['num_respuestas'] -1);
+
+	$valor_pregunta = 10.0 / $_SESSION['num_preguntas'];
+	$num_fallos = $_SESSION['num_preguntas'] - $_SESSION['numCorrectas'];
+
+	$nota = $valor_pregunta * ($_SESSION['numCorrectas'] - $prob_fallo * $num_fallos);
 
 	if ($nota < 0) 
 		$nota = 0;
