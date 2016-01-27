@@ -29,29 +29,31 @@
 	or die('La actualizacion falló: '.pg_last_error());
 
 	// Miramos si debe actualizarse el saco
-	$result = pg_query_params($con,
-	'SELECT nota FROM alumnos_por_examen WHERE id_alumno = $1 AND id_examen = $2;',
-	array($_SESSION['idUsuario'], $_SESSION['idExamen']))
-	or die('La actualizacion falló: '.pg_last_error());
 
-	// Miramos cuandos 9 ha habido
-	$nueves = 0;
-	while ($res = pg_fetch_array($result, null, PGSQL_ASSOC)) {
-		if ($res['nota'] >= 9)
-			$nueves++;
-	}
-
-	pg_free_result($result);
-
-
-	// Si hay 0 o 1 nueve, está en el saco 1. Si 2 o 3, saco 2. 4 o 5, saco 3.
-	if (($_SESSION['saco'] < 3) && (($_SESSION['saco'] * 2) < $nueves)) {
-		pg_query_params($con,
-		'UPDATE saco_por_examen SET num_saco = $1 WHERE id_alumno = $2 and id_examen = $3;',
-		array($_SESSION['saco'] + 1, $_SESSION['idUsuario'], $_SESSION['idExamen']))
+	if($_SESSION['tipo_examen']=='saco'){
+		$result = pg_query_params($con,
+		'SELECT nota FROM alumnos_por_examen WHERE id_alumno = $1 AND id_examen = $2;',
+		array($_SESSION['idUsuario'], $_SESSION['idExamen']))
 		or die('La actualizacion falló: '.pg_last_error());
-	}
 
+		// Miramos cuandos 9 ha habido
+		$nueves = 0;
+		while ($res = pg_fetch_array($result, null, PGSQL_ASSOC)) {
+			if ($res['nota'] >= 9)
+				$nueves++;
+		}
+
+		pg_free_result($result);
+
+
+		// Si hay 0 o 1 nueve, está en el saco 1. Si 2 o 3, saco 2. 4 o 5, saco 3.
+		if (($_SESSION['saco'] < 3) && (($_SESSION['saco'] * 2) < $nueves)) {
+			pg_query_params($con,
+			'UPDATE saco_por_examen SET num_saco = $1 WHERE id_alumno = $2 and id_examen = $3;',
+			array($_SESSION['saco'] + 1, $_SESSION['idUsuario'], $_SESSION['idExamen']))
+			or die('La actualizacion falló: '.pg_last_error());
+		}
+	}
 
 
 ?>

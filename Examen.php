@@ -13,8 +13,32 @@
 		// Nos ponemos como locos a inicializar todo
 		$_SESSION['idExamen'] = $_REQUEST['idExamen'];
 		$_SESSION['sigueExamen?'] = true;
+	
+	//Comprobamos que el examen este abierto y guardamos su tipo
+
+		$result = pg_query_params($con, 'SELECT tipo_examen FROM examenes WHERE id = $1 AND disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id', array($_SESSION['idExamen']))
+		or die('No puedes acceder a este examen: ' . pg_last_error());
+
+		//Si el alumno llega aqui es porque el examen está cerrado o no existe
+		if(pg_num_rows($result) == 0){
+			header("Location: ./eleccionExamen.php");
+	   		exit;
+		}
+
+		$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+		pg_free_result($result);
+		$_SESSION['tipo_examen'] = $line['tipo_examen'];
+		
+		//Error al hacer la query
+		if($_SESSION['tipo_examen'] == NULL){
+			header("Location: ./eleccionExamen.php");
+	   		exit;
+		}
+		
+
 
 		// Ciertos parametros vienen de la base de datos.
+
 		$result =  pg_query_params($con,
 			'SELECT num_preguntas, num_dificultades, num_respuestas, duracion, materias.id as materias_id, acepta_duda
 			FROM examenes, materias
@@ -38,9 +62,8 @@
 		$_SESSION['numEnNivel'] = 0;
 
 		$_SESSION['acepta_duda'] = ($line['acepta_duda'] == 't' ? TRUE : FALSE);
-
+		
 		unset($_REQUEST['idExamen']);
-
 		pg_free_result($result);
 
 		//Por ultimo, guardamos en la base de datos que este examen comienza
@@ -66,29 +89,36 @@
 
 
 		// Sacamos el saco que le toca al alumno para este examen
-		$result =  pg_query_params($con,
-			'SELECT num_saco
-			FROM saco_por_examen
-			WHERE id_alumno = $1 and id_examen = $2
-			LIMIT 1',
-			array($_SESSION['idUsuario'], $_SESSION['idExamen']))
-		or die('La consulta fallo: ' . pg_last_error());
+		//Si se trata de un examen de saco
 
-		$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+		if($_SESSION['tipo_examen'] == 'saco'){
 
-		if (!$row) {
-			pg_query_params($con,
-				'INSERT INTO saco_por_examen (id_alumno, id_examen)
-				VALUES ($1, $2)',
+			$result =  pg_query_params($con,
+				'SELECT num_saco
+				FROM saco_por_examen
+				WHERE id_alumno = $1 and id_examen = $2
+				LIMIT 1',
 				array($_SESSION['idUsuario'], $_SESSION['idExamen']))
 			or die('La consulta fallo: ' . pg_last_error());
-			$row['num_saco'] = 1;
+
+			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+
+			if (!$row) {
+				pg_query_params($con,
+					'INSERT INTO saco_por_examen (id_alumno, id_examen)
+					VALUES ($1, $2)',
+					array($_SESSION['idUsuario'], $_SESSION['idExamen']))
+				or die('La consulta fallo: ' . pg_last_error());
+				$row['num_saco'] = 1;
+			}
+
+			$_SESSION['saco'] = $row['num_saco'];
+			pg_free_result($result);
 		}
 
-		$_SESSION['saco'] = $row['num_saco'];
-		pg_free_result($result);
-
 	}
+
+	//Caso resto de preguntas
 	else if ($_SESSION['sigueExamen?'])
 	{
 		// Aquí se llega después de responder a una pregunta
@@ -115,8 +145,7 @@
 		} else {
 			$_SESSION['correcta'] = FALSE;
 		}
-
-		$_SESSION['numRespondidas']++;
+			$_SESSION['numRespondidas']++;
 
 		// Si la respuesta es correcta, lo anotamos y comprobamos si salta de nivel
 		if ($_SESSION['correcta']) {
@@ -125,7 +154,6 @@
 
 			if ($_SESSION['numEnNivel'] == $_SESSION['num_preguntas'] / $_SESSION['num_dificultades']) {
 				$_SESSION['nivel']++;
-
 				$_SESSION['numEnNivel'] = 0;
 			}
 		}
@@ -134,7 +162,7 @@
 		if ($_SESSION['numRespondidas'] == $_SESSION['num_preguntas']) {
 			$_SESSION['sigueExamen?'] = false;
 			header("Location: ./FinExamen.php");
-			exit;
+			exit;	
 		}
 
 	} else {
@@ -142,16 +170,11 @@
 		exit;
 	}
 
-	if (!$_SESSION['envio_preguntas'] && $_SESSION['saco'] > 1) {
+	//Al subir de saco te mandaba a enviar preguntas
+	/*if ($_SESSION['tipo_examen'] == 'saco' && !$_SESSION['envio_preguntas'] && $_SESSION['saco'] > 1) {
 		header("Location: ./enviarPreguntas.php");
 		exit;
-	}
-
-	/*
-	<p><?php echo $_REQUEST['respuesta']." ".$_SESSION['correcta']; ?></p>
-			<p><?php echo $_SESSION['numRespondidas']; ?></p>
-			*/
-
+	}*/
 ?>
 
 
@@ -189,7 +212,7 @@
 							document.getElementById("tiempo").innerHTML = minRes + " minutos restantes.";
 				} else {
 					goodExit();
-					window.location = "./FinExamen.php";
+					window.location = "./FinExamen.php?";
 					return
 				}
 
@@ -294,20 +317,42 @@
 			<div class="row">
 				<div class="col-md-12">
 					<?php
-						$result =  pg_query_params($con,
+						// La query varia en funcion del tipo de examen
+						if($_SESSION['tipo_examen']=='clasico'){
+
+
+							$result =  pg_query_params($con,
 							'	(SELECT id, texto, imagen, audio, feedback
 								FROM preguntas
-								WHERE id_materia = $1 AND dificultad = $2 AND borrada = FALSE AND saco = $3
+								WHERE id_materia = $1 and dificultad = $2 and borrada = FALSE
 								)
 							EXCEPT
 								(SELECT preguntas.id, preguntas.texto, preguntas.imagen, preguntas.audio, preguntas.feedback
 								FROM (preguntas INNER JOIN respuestas ON preguntas.id = id_pregunta)
 									INNER JOIN respuestas_por_alumno ON respuestas.id = id_respuesta
-								WHERE id_alumno = $4 and id_alumno_examen = $5
+								WHERE id_alumno = $3 and id_alumno_examen = $4
 								)
 							',
-							array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['saco'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
+							array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
 						or die('La consulta de la pregunta falló: ' . pg_last_error());
+						}
+						else{ //Caso examen Saco
+
+							$result =  pg_query_params($con,
+								'	(SELECT id, texto, imagen, audio, feedback
+									FROM preguntas
+									WHERE id_materia = $1 AND dificultad = $2 AND borrada = FALSE AND saco = $3
+									)
+								EXCEPT
+									(SELECT preguntas.id, preguntas.texto, preguntas.imagen, preguntas.audio, preguntas.feedback
+									FROM (preguntas INNER JOIN respuestas ON preguntas.id = id_pregunta)
+										INNER JOIN respuestas_por_alumno ON respuestas.id = id_respuesta
+									WHERE id_alumno = $4 and id_alumno_examen = $5
+									)
+								',
+								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['saco'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
+							or die('La consulta de la pregunta falló: ' . pg_last_error());
+						}
 
 						// Examen de Santiago
 						if (pg_num_rows($result) == 0) {
