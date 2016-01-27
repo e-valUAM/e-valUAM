@@ -5,14 +5,30 @@
 		echo "<header class=\"container-fluid\">";
 			echo "<div class=\"row\">";
 				echo "<div class=\"col-md-3\">";
-					echo "<img class=\"img-responsive\" id=\"logo_uam\" src=\"./multimedia/logos/uam.jpg\">";
+				echo "<img class=\"img-responsive\" id=\"logo_uam\" src=\"./multimedia/logos/uam.jpg\">";
 				echo "</div>";
 				echo "<div class=\"col-md-3 col-md-offset-6\">";
-					echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\">";
+				echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\">";
 				echo "</div>";
 			echo "</div>";
 		echo "</header>";
 	}
+
+	function mostrar_header_link() {
+		echo "<header class=\"container-fluid\">";
+			echo "<div class=\"row\">";
+				echo "<div class=\"col-md-3\">";
+					echo "<a href='http://www.uam.es/ss/Satellite/es/home/'>";
+					echo "<img class=\"img-responsive\" id=\"logo_uam\" src=\"./multimedia/logos/uam.jpg\"></a>";
+				echo "</div>";
+				echo "<div class=\"col-md-3 col-md-offset-6\">";
+					echo "<a href='https://www.uam.es/europea/'>";
+					echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\"></a>";
+				echo "</div>";
+			echo "</div>";
+		echo "</header>";
+	}
+
 
 	function connect() {
 		global $db_string;	
