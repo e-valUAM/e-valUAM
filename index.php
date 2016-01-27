@@ -14,7 +14,7 @@
 	</head>
 
 	<body>
-		<?php mostrar_header(); ?>
+		<?php mostrar_header_link(); ?>
 
 		<main class="container-fluid">
 			<div class="row">
@@ -24,7 +24,7 @@
 					<p>Si no tienes una cuenta de usuario, o si has olvidado la clave, pregunta a tu profesor al respecto.</p>
 					<?php
 						if (isset($_REQUEST['error']) && $_REQUEST['error'] == 'si')
-							echo "<div class=\"alert alert-danger\" role=\"alert\"><p>Los datos introducidos no coinciden. Prueba de nuevo.</p></div>";
+							echo "<div class=\"alert alert-danger\" id='cajon-datos' role=\"alert\"><p>Los datos introducidos no coinciden. Prueba de nuevo.</p></div>";
 					?>
 				</div>
 			</div>
@@ -32,11 +32,11 @@
 			<div class="row">
 				<div class="col-md-12">
 					<form action="eleccionExamen.php" method="post">
-						<div class="form-group">
+						<div class="form-group" id="cajon-datos">
 							<label for="nombre">Nombre de usuario</label>
 							<input type="text" class="form-control" name="nombre" placeholder="Introduce tu nombre de usuario">
 						</div>
-						<div class="form-group">
+						<div class="form-group" id="cajon-datos">
 							<label for="nombre">Contraseña</label>
 							<input type="password" class="form-control" name="contrasenya" placeholder="Tu contraseña">
 						</div>

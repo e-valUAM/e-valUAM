@@ -29,7 +29,7 @@
 			?>
 				<div class="row">
 					<div class="col-md-12">
-						<div class="alert alert-danger" role="alert">
+						<div class="alert alert-danger" id=cajon-datos role="alert">
 							<p class="error">Los datos introducidos no son válidos. Prueba de nuevo.</p>
 						</div>
 					</div>
@@ -40,11 +40,11 @@
 			<div class="row">
 				<div class="col-md-12">
 					<form role="form" action="profesor.php" method="post">
-						<div class="form-group">
+						<div class="form-group" id=cajon-datos>
 							<label for="nombre">Nombre de usuario</label>
 							<input type="text" class="form-control" name="nombre" placeholder="Introduce tu nombre de usuario">
 						</div>
-						<div class="form-group">
+						<div class="form-group" id=cajon-datos>
 							<label for="nombre">Contraseña</label>
 							<input type="password" class="form-control" name="contrasenya" placeholder="Tu contraseña">
 						</div>
