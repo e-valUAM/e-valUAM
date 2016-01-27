@@ -16,7 +16,13 @@
 	
 	//Comprobamos que el examen este abierto y guardamos su tipo
 
-		$result = pg_query_params($con, 'SELECT tipo_examen FROM examenes WHERE id = $1 AND disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id', array($_SESSION['idExamen']))
+		$result = pg_query_params($con, 'SELECT tipo_examen 
+			FROM examenes 
+			WHERE id = $1 AND disponible = true 
+			AND comienzo < now() 
+			AND now() < comienzo + tiempo_disponible 
+			AND borrado = false 
+			ORDER BY id', array($_SESSION['idExamen']))
 		or die('No puedes acceder a este examen: ' . pg_last_error());
 
 		//Si el alumno llega aqui es porque el examen está cerrado o no existe
