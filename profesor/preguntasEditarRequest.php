@@ -87,6 +87,13 @@
 		  </label>
 		</div>
 
+		<div class="checkbox">
+		  <label>
+			<input onchange="changeParametros(this)" type="checkbox" id="parametros" value="t" disabled>
+			¿La pregunta tiene parámetros?
+		  </label>
+		</div>
+
 		<div class="form-group" id="titulo">
 			<label class="control-label" for="titulo">Título: </label>
 			<input class="form-control" id="tituloText" type="text" name="titulo" placeholder="Título de la pregunta" value="<?php echo $data['texto']; ?>">
@@ -151,11 +158,13 @@
 				FROM respuestas
 				WHERE id_pregunta = $1 AND correcta = False',
 				array($_REQUEST['idPregunta']));
-
-				$i = 2;
-				while ($respuesta = pg_fetch_array($result, null, PGSQL_ASSOC)) {
-					echo respuestaNum($i, $respuesta['texto'], $respuesta['imagen'], $respuesta['audio']);
-					$i += 1;
+				if($dataMateria['num_respuestas']> 1){
+					$i = 2;
+					while ($respuesta = pg_fetch_array($result, null, PGSQL_ASSOC)) {
+						echo 'He entrado aqui'.$dataMateria['numrespuestas'];
+						echo respuestaNum($i, $respuesta['texto'], $respuesta['imagen'], $respuesta['audio']);
+						$i += 1;
+					}
 				}
 
 			?>

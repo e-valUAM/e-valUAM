@@ -55,7 +55,7 @@
 						</div>
 						<div class="checkbox">
 						  <label>
-						    <input type="checkbox" name="disponible" value="t">
+						    <input type="checkbox" name="disponible" value="t" checked>
 						    <strong>¿Está el examen visible?</strong>
 						  </label>
 						</div>

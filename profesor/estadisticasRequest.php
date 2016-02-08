@@ -16,11 +16,29 @@
 	
 
 	if (pg_num_rows($result) == 1) {
+		
+		$result = pg_query_params(
+			$con,
+			'SELECT num_respuestas FROM materias WHERE id = $1',
+			array(intval($_REQUEST['id'])))
+		or die('La consulta fallo al buscar numero de respuestas');
+		$nresp = pg_fetch_array($result, null, PGSQL_ASSOC);
+
+		if($nresp['num_respuestas']==1){
+			$result =  pg_query_params(
+				$con, 
+				'SELECT * FROM ratio_fallo_por_pregunta_abierta($1, $2) NATURAL JOIN preguntas;',
+				array(intval($_REQUEST['min']), intval($_REQUEST['id'])))
+			or die('La consulta fallo al calcular el ratio de fallo en preguntas abiertas');
+		} else {
+
 		$result =  pg_query_params(
 			$con, 
 			'SELECT * FROM ratio_fallo_por_pregunta($1, $2) NATURAL JOIN preguntas;',
 			array(intval($_REQUEST['min']), intval($_REQUEST['id'])))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('La consulta fallo al calcular el ratio de fallo por pregunta');
+
+		}
 
 		echo "<h2>Resultados</h2>";
 
