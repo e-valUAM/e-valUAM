@@ -6,7 +6,7 @@
 	date_default_timezone_set('Europe/Madrid');
 
 	$con = connect()
-	or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde. Si ves al técnico dile que "'. pg_last_error().'"');
+	or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
 	// Este primer if es en caso de que sea el comienzo del examen
 	if (isset($_REQUEST['idExamen'])) {
@@ -17,7 +17,7 @@
 	//Comprobamos que el examen este abierto y guardamos su tipo
 
 		$result = pg_query_params($con, 'SELECT tipo_examen FROM examenes WHERE id = $1 AND disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id', array($_SESSION['idExamen']))
-		or die('No puedes acceder a este examen: ' . pg_last_error());
+		or die('Se ha producido un error al buscar el examen. Prueba de nuevo más tarde.');
 
 		//Si el alumno llega aqui es porque el examen está cerrado o no existe
 		if(pg_num_rows($result) == 0){
@@ -44,7 +44,7 @@
 			FROM examenes, materias
 			WHERE examenes.id =  $1 and id_materia = materias.id',
 			array($_SESSION['idExamen']))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('Se ha producido un error. Comprueba que el examen al que intentas acceder es correcto');
 
 		$line = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -73,7 +73,7 @@
 		pg_query_params($con,
 			'INSERT INTO alumnos_por_examen VALUES ($1, $2, $3);',
 			array($_SESSION['idUsuario'], $_SESSION['idExamen'], date(DATE_ISO8601)))
-		or die('La actualizacion falló: '.pg_last_error());
+		or die('Error al guardar en la base de datos el inicio del examen. Intentalo más tarde.');
 
 		$result =  pg_query_params($con,
 			'SELECT id
@@ -81,7 +81,7 @@
 			WHERE id_alumno = $1 and id_examen = $2 and timestamp = $3
 			LIMIT 1',
 			array($_SESSION['idUsuario'], $_SESSION['idExamen'], date(DATE_ISO8601, $time)))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('Error al asignar un id para realizar el examen');
 
 		$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 		$_SESSION['idAlumnoExamen'] = $row['id'];
@@ -99,7 +99,7 @@
 				WHERE id_alumno = $1 and id_examen = $2
 				LIMIT 1',
 				array($_SESSION['idUsuario'], $_SESSION['idExamen']))
-			or die('La consulta fallo: ' . pg_last_error());
+			or die('Error al asignar el saco de preguntas del examen');
 
 			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -108,7 +108,7 @@
 					'INSERT INTO saco_por_examen (id_alumno, id_examen)
 					VALUES ($1, $2)',
 					array($_SESSION['idUsuario'], $_SESSION['idExamen']))
-				or die('La consulta fallo: ' . pg_last_error());
+				or die('Error al insertar el saco de preguntas en la base de datos');
 				$row['num_saco'] = 1;
 			}
 
@@ -140,6 +140,7 @@
 				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6);',
 				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $_REQUEST['respuestaA'], date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
 			or die('La actualizacion falló: '.pg_last_error());
+
 			// Guardada la respuesta, actualizamos las variables que definen el examen
 			// Comprobamos si la respuesta ha sido correcta
 			if (strcmp($_REQUEST['respuestaA'], $_SESSION['correcta']) == 0) {
@@ -518,15 +519,13 @@
 						echo '<form role="form">';
 						echo '	<div class="form-group col-md-6 col-md-offset-1">';
 						echo '		<label class="control-label" for="respuestaA">Respuesta: </label>';
-						echo '		<input class="form-control" type="text" id="ex3" name="respuestaA" placeholder="Introduzca su respuesta" size=15>';
-
+						echo '		<input class="form-control" type="text" id="ex3" name="respuestaA" placeholder="Introduzca su respuesta">';
 						echo '<button type="submit" class="btn btn-primary aria-label="Left Align">Enviar</button>';
 						echo '	</div>';
 						echo '</form>';
-						echo '<button type="button" class="btn btn-default" data-toggle="popover" title="Procura escribir las respuestas en minúsculas y utilizar . para separar decimales">
- 								 <span class="glyphicon glyphicon-question-sign" style="display: inline" aria-hidden="true"></span>
+						echo '<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Utiliza . para separar decimales">
 								 <span class="sr-only">Información</span>
-							</button>';
+							</span>';
 
 						}
 						else{ //Respuestas tipo test
