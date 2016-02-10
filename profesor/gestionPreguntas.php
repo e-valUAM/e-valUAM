@@ -246,6 +246,7 @@
 
 							input.change(disablecheckbox);
 
+
 							cambiarSelectNumDificultades();
 
 							updateIdMateria();
@@ -345,6 +346,8 @@
 						<?php
 							echo "var numRespuestas = ". json_encode($numRespuestas) . ";\n";
 						?>
+
+						disablecheckbox();
 
 						var input = $('select[name="idMateria"]');
 
