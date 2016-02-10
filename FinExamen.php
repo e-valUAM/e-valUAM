@@ -184,7 +184,7 @@
 
 
 <?php
-	unset($_REQUEST['idExamen']);
+	unset($_SESSION['tipo_examen']);
 	unset($_SESSION['sigueExamen?']);
 	unset($_SESSION['idExamen']);
 	unset($_SESSION['tipo_examen']);
