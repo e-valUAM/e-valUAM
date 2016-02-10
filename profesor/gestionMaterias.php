@@ -17,7 +17,7 @@
 		$guardado = False;
 
 		if ($_REQUEST['numDificultades'] >= 1 && $_REQUEST['numDificultades'] <= 4 &&
-			$_REQUEST['numPreguntas'] >= 2 && $_REQUEST['numPreguntas'] <= 5) {
+			$_REQUEST['numPreguntas'] >= 1 && $_REQUEST['numPreguntas'] <= 5) {
 			
 			//$feedback = ($_REQUEST['feedback'] == 't' ? 't' : 'f');
 
@@ -102,7 +102,8 @@
 					</div>
 					<div class="form-group">
 						<label class="control-label" for="numPreguntas">Elige el número de respuestas que tendrá cada pregunta: </label>
-						<select class="form-control" name="numPreguntas">
+						<select class="form-control" name="numPreguntas" >
+							<option value="1">Respuesta abierta</option>
 							<option value="2">2</option>
 							<option value="3" selected>3</option>
 							<option value="4">4</option>
@@ -153,7 +154,11 @@
 							while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) { 
 								echo "<tr><td>".$data['nombre']."</td>";
 								echo "<td>".$data['num_dificultades']."</td>";
-								echo "<td>".$data['num_respuestas']."</td>";
+
+								if($data['num_respuestas'] != 1)
+									echo "<td>".$data['num_respuestas']."</td>";
+								else
+									echo "<td>Respuesta abierta</td>";
 								//echo "<td>".($data['count'] != "1" ? $data['count'] : 0)."</td>";
 								/*
 								if ($data['feedback'] == 't') {
@@ -205,7 +210,7 @@
 									numPreguntas: numPreguntas
 								}, type: "POST"})
 							.done(function(msg) {
-								if (msg == '1')
+								if (msg == 'Ok')
 									location.reload(); 
 							})
 							.fail(function(jqXHR, textStatus) {

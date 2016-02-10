@@ -58,7 +58,7 @@
 		<?php mostrar_navegacion_profesor(); ?>
 
 		<section id="instucciones">
-			<p>En esta página se pueden recuperar el examen que ha hecho cada alumno para cada examen.</p>
+			<p>En esta página se puede recuperar el examen que ha hecho cada alumno para cada examen.</p>
 			<p>Primero deberas seleccionar un examen y a continuación un alumno.</p>
 			<p>En una ventana nueva se abrirá su examen.</p>
 		</section>

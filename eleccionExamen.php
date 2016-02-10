@@ -75,6 +75,13 @@
 				</div>
 			</div>
 
+		<?php
+			if (isset($_REQUEST['error']) && $_REQUEST['error'] == 'si')
+				echo "<div class=\"alert alert-danger\" id='cajon-datos' role=\"alert\">
+						<p>Se ha producido un error en el examen</p>
+					  </div>";
+		?>
+
 			<div class="row">
 				<div class="col-md-12">
 					<p class="lead">En la tabla siguiente encontrarás un listado de todas las pruebas disponibles actualmente. Selecciona una prueba y pulsa continuar. En ese momento empezará la prueba.</p>

@@ -120,30 +120,52 @@
 					if ($row['mostrar_resultados'] == 'parcial') {
 						echo "<div class=\"row\"><div class=\"col-md-12\"><p>Tu nota es ".$nota.".</p></div></div>";
 					} else if ($row['mostrar_resultados'] == 'completo') {
-						$result =  pg_query_params(
-							$con,
-							'SELECT p.texto AS preg, r2.correcta AS cor, r2.texto AS res, r2.timestamp AS time, p.imagen AS img
-							FROM preguntas AS p INNER JOIN
-							(respuestas AS r INNER JOIN respuestas_por_alumno AS rpa ON r.id = rpa.id_respuesta) AS r2 ON p.id = r2.id_pregunta
-							WHERE r2.id_alumno_examen = $1
-							ORDER BY time',
-							array(intval($_SESSION['idAlumnoExamen'])))
-						or die('La consulta fallo: ' . pg_last_error());
+						
+							if($_SESSION['num_respuestas'] != 1 ){
+								$result =  pg_query_params(
+								$con,
+								'SELECT p.texto AS preg, r2.correcta AS cor, r2.texto AS res, r2.timestamp AS time, p.imagen AS img
+								FROM preguntas AS p INNER JOIN
+								(respuestas AS r INNER JOIN respuestas_por_alumno AS rpa ON r.id = rpa.id_respuesta) AS r2 ON p.id = r2.id_pregunta
+								WHERE r2.id_alumno_examen = $1
+								ORDER BY time',
+								array(intval($_SESSION['idAlumnoExamen'])))
+							or die('La consulta fallo: ' . pg_last_error());
+						} else{
+							$result =  pg_query_params(
+								$con,
+					'SELECT p.texto AS preg, resp.correcta AS cor, resp.texto AS res, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS rpa
+								FROM preguntas AS p INNER JOIN
+								(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 ) AS resp 									ON p.id = resp.id_pregunta
+								ORDER BY time;',
+								array(intval($_SESSION['idAlumnoExamen'])))
+							or die('La consulta fallo: ' . pg_last_error());
+
+						}
 
 						echo "<div class=\"row\"><div class=\"col-md-12\"><h1>Resultados:</h1>";
 						echo "<p>Tu nota es ".number_format($nota, 2).".</p>";
 						echo "<p>A continuación verás tus respuestas. Aparecerán en rojo aquellas que sean incorrectas.</p></div></div>";
-
+						
+						
 						for ($i = 1; $res = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
 							echo "<div class=\"row\"><div class=\"col-md-12\"><section class=\"respuestas\">";
 								echo "<p class=\"lead\">[Preg. #".$i."] ".$res['preg'].":</p>";
 								if (strlen($res['img']) >= 5) {
 										echo "<img id=\"imagen\" src=\"./multimedia/".$_SESSION['materias_id']."/".$res['img']."\"/>"; //ID EXAMEN
 									}
-								if ($res['cor'] == 't') {
-									echo "<p class=\"correcta\">".$res['res']."</p>";
-								} else {
-									echo "<p class=\"incorrecta\">".$res['res']."</p>";
+								if($_SESSION['num_respuestas'] != 1 ){//Tipo test
+									if ($res['cor'] == 't') {
+										echo "<p class=\"correcta\">".$res['res']."</p>";
+									} else {
+										echo "<p class=\"incorrecta\">".$res['res']."</p>";
+									}
+								}else { //Respuesta abierta
+									if (strcmp($res['res'],$res['rpa']) == 0) {
+										echo "<p class=\"correcta\"> ".$res['rpa']."</p>";
+									} else {
+										echo "<p class=\"incorrecta\"> ".$res['rpa']."</p>";
+									}
 								}
 							echo "</section></div></div>";
 						}
@@ -165,5 +187,6 @@
 	unset($_SESSION['tipo_examen']);
 	unset($_SESSION['sigueExamen?']);
 	unset($_SESSION['idExamen']);
+	unset($_SESSION['tipo_examen']);
 	//session_destroy();
 ?>
