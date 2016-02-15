@@ -4,19 +4,20 @@
 	$error_captcha = FALSE;
 
 	// Si llegamos a la página con el POST, es que se ha rellenado ya el formulario
-	if (isset($_POST['email']) && isset($_POST['g-recaptcha-response']) {
+	if (isset($_POST['email']) && isset($_POST['g-recaptcha-response'])) {
 		require '/var/www/db_pass/recaptcha.php';
 		
 		// Verificamos el captcha
 		$ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
 		curl_setopt($ch, CURLOPT_POST, TRUE);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, array('secret' => $secret, 'response' => $_POST['g-recaptcha-response']));
-
-		$result = curl_exec($ch);
-
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	
+		$result = json_decode(curl_exec($ch));
 		curl_close($ch);
+		//echo $result;
 
-		if ($result) {
+		if ($result->{'success'}) {
 			// Hemos validado el captcha correctamente
 			$con = connect() or die ('Error. Prueba de nuevo más tarde');
 
@@ -54,11 +55,14 @@
 							'X-Mailer: PHP/' . phpversion();
 
 					mail($_POST['email'], 'Recuperación de contraseña', $message, $headers);
+
+					set_mensaje('ok', 'Se te ha mandado un correo electrónico con instrucciones. Comprueba tu bandeja de entrada.');
+					header('Location: index.php');
+					exit;
 				} 
 			}
-		} else {
-			$error_captcha = TRUE;
-		}			
+		} 
+		set_mensaje('error', 'Se ha producido un error. Prueba de nuevo.');
 	}
 
 ?>
@@ -82,12 +86,16 @@
 		<main class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
-					<form action="recuperarContrasanya.php" method="post">
-						<div class="form-group">
-							<label for="exampleInputEmail1">Dirección de email</label>
-    							<input type="email" class="form-control" id="email" placeholder="Email">
+					<h1>Recuperación de contraseña</h1>
+					<p>Para obtener una nueva contraseña, escribe tu dirección de correo electrónico pulsa el botón de "No soy un robot" y pulsa continuar.</p>
+					<form action="recuperarContrasenya.php" method="post">
+						<div class="form-group" id="cajon-datos">
+							<label for="email">Dirección de email</label>
+    							<input type="email" class="form-control" name="email">
 						</div>
-						<div class="g-recaptcha" data-sitekey="6LdlFxUTAAAAANXsSWJGN4EieWQTq0HiLNY9nH5L"></div>
+						<div class="form-group">
+							<div class="g-recaptcha" data-sitekey="6LdlFxUTAAAAANXsSWJGN4EieWQTq0HiLNY9nH5L"></div>
+						</div>
 						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
 				</div>

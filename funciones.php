@@ -16,7 +16,7 @@
 				case 'aviso':
 					$tipo = 'alert-warning';
 					break;
-				case 'info'
+				case 'info':
 					$tipo = 'alert-info';
 					break;
 			}
@@ -41,8 +41,8 @@
 				echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\">";
 				echo "</div>";
 			echo "</div>";
-		echo "</header>";
 		mostrar_mensaje();
+		echo "</header>";
 	}
 
 	function mostrar_header_link() {
@@ -57,8 +57,8 @@
 					echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\"></a>";
 				echo "</div>";
 			echo "</div>";
-		echo "</header>";
 		mostrar_mensaje();
+		echo "</header>";
 	}
 
 
