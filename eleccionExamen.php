@@ -61,7 +61,7 @@
 	</head>
 
 	<body>
-		<?php mostrar_header(); ?>
+		<?php mostrar_header_link(); ?>
 
 		<main class="container-fluid">
 			<div class="row">
@@ -75,6 +75,13 @@
 				</div>
 			</div>
 
+		<?php
+			if (isset($_REQUEST['error']) && $_REQUEST['error'] == 'si')
+				echo "<div class=\"alert alert-danger\" id='cajon-datos' role=\"alert\">
+						<p>Se ha producido un error en el examen</p>
+					  </div>";
+		?>
+
 			<div class="row">
 				<div class="col-md-12">
 					<p class="lead">En la tabla siguiente encontrarás un listado de todas las pruebas disponibles actualmente. Selecciona una prueba y pulsa continuar. En ese momento empezará la prueba.</p>
@@ -82,13 +89,13 @@
 						<thead>
 							<tr>
 								<th>Nombre</th>
-								<th>Duraccion (min)</th>
+								<th>Duración (min)</th>
 								<th>Seleccionar</th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php
-								$result = pg_query($con, 'SELECT nombre, duracion, id, tipo_examen FROM examenes WHERE disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id')
+								$result = pg_query($con, 'SELECT nombre, duracion, id FROM examenes WHERE disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id')
 								or die('La consulta de los examenes fallo: ' . pg_last_error());
 
 								// Imprimiendo los resultados en HTML
@@ -99,10 +106,7 @@
 								    echo "\t<tr>\n";
 								    echo "\t\t<td>".$line['nombre']."</td>\n";
 								    echo "\t\t<td>".$line['duracion']."</td>\n";
-								    if ($line['tipo_examen'] == 'clasico')
-									echo "\t\t<td><a class=\"btn btn-primary\" href=\"examen_old.php?idExamen=".$line['id']."\">Continuar</a></td>";
-								    else
-									echo "\t\t<td><a class=\"btn btn-primary\" href=\"Examen.php?idExamen=".$line['id']."\">Continuar</a></td>";
+								    echo "\t\t<td><a class=\"btn btn-primary\" href=\"Examen.php?idExamen=".$line['id']."\">Continuar</a></td>";
 								    echo "\t</tr>\n";
 								}
 

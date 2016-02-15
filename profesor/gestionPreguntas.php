@@ -36,6 +36,8 @@
 
 			$imagen = $_REQUEST['respuestaImagen2'] != '' ? $_REQUEST['respuestaImagen2'] : NULL;
 			$audio = $_REQUEST['respuestaAudio2'] != '' ? $_REQUEST['respuestaAudio2'] : NULL;
+			
+			if ($correcto && isset($_REQUEST['respuesta2'])) {
 
 			$result2 = pg_query_params($con,
 				'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
@@ -75,6 +77,7 @@
 							array($_REQUEST['respuesta5'], $row['id'], $imagen, $audio));
 
 						$correcto = $result5;
+						}
 					}
 				}
 			}
@@ -155,13 +158,15 @@
 									$numDificultades[$data['id']] = $data['num_dificultades'];
 									$numRespuestas[$data['id']] = $data['num_respuestas'];
 								}
+								
 							?>
+							
 						</select>
 						<script type="text/javascript">
 							function updateIdMateria() {
 								var input = $('select[name="idMateria"]  option:selected');
 								$("#idMateria").val(input.val());
-								$('#mostrarPreguntas').attr('href', './preguntasMostrar.php?idMateria=' + input.val() + '&nombreMateria=' + input.text());
+								$('#mostrarPreguntas').attr('href', './preguntasMostrar.php?idMateria=' + input.val() + '&nombreMateria=' + input.text());							
 							}
 							
 						</script>
@@ -203,17 +208,53 @@
 									case 1:
 										options = "<option value=\"1\">1</option>" + options;
 								}
+
+							
+
 								select.html(options);
 							}
 
+							function disablecheckbox()  {
+
+								if(parseInt(numRespuestas[input.val()]) === 1){
+									$('#imagenRespuestasCheckbox').removeClass('show').addClass('hidden');
+									$('#audioCheckbox').removeClass('show').addClass('hidden');
+									$('#imagenRespuestasCheckbox input').val(false);
+									$('#audioCheckbox input').val(false);
+									$('#imagenRespuestasCheckbox').attr('disabled',true);
+									$('#audioCheckbox').attr('disabled',true);
+									$('#divimagenRespuestasCheckbox').addClass('hidden');
+									$('#divaudioCheckbox').addClass('hidden');
+									$('#divparametros').removeClass('hidden');
+
+								} else{
+
+									$('#imagenRespuestasCheckbox').addClass('show').removeClass('hidden');
+									$('#audioCheckbox').addClass('show').removeClass('hidden');
+									$('#imagenRespuestasCheckbox').removeAttr('disabled');
+									$('#audioCheckbox').removeAttr('disabled');
+									$('#divimagenRespuestasCheckbox').removeClass('hidden');
+									$('#divaudioCheckbox').removeClass('hidden');
+									$('#divparametros').addClass('hidden');
+
+								}
+							
+							}
+
+
 							input.change(cambiarSelectNumDificultades);
+
+							input.change(disablecheckbox);
+
 
 							cambiarSelectNumDificultades();
 
 							updateIdMateria();
 							
 						</script>
-					</div>
+					</div>	
+
+							
 
 					<div class="checkbox">
 						<label>
@@ -221,22 +262,30 @@
 							¿La pregunta tiene una imagen principal?
 						</label>
 					</div>
+					
+						<div class="checkbox" id="divimagenRespuestasCheckbox">
+							<label>
+								<input type="checkbox" id="imagenRespuestasCheckbox" value="t" >
+								¿Las respuestas son imágenes?
+							</label>
+						</div>
 
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" id="imagenRespuestasCheckbox" value="t">
-							¿Las respuestas son imágenes?
-						</label>
-					</div>
+						<div class="checkbox" id="divaudioCheckbox">
+						  <label>
+							<input type="checkbox" id="audioCheckbox" value="t">
+							¿La pregunta va acompañada de audio?
+						  </label>
+						</div>
 
-					<div class="checkbox">
-					  <label>
-						<input type="checkbox" id="audioCheckbox" value="t">
-						¿La pregunta va acompañada de audio?
-					  </label>
-					</div>
+						
+						<div class="checkbox" id="divparametros">
+						  <label>
+							<input type="checkbox" id="parametros" value="t" disabled>
+							¿La pregunta tiene parámetros?
+						  </label>
+						</div>
 
-
+						
 					<script type="text/javascript">
 						$("#imagenRespuestasCheckbox").change(function() {
 							if(this.checked) {
@@ -274,8 +323,8 @@
 					</script>
 
 					<div class="form-group" id="titulo">
-						<label class="control-label" for="titulo">Título: </label>
-						<input class="form-control" type="text" name="titulo" placeholder="Título de la pregunta">
+						<label class="control-label" for="titulo">Pregunta: </label>
+						<input class="form-control" type="text" name="titulo" placeholder="Texto de la pregunta">
 					</div>
 
 					<!-- Imagen -->
@@ -297,6 +346,8 @@
 						<?php
 							echo "var numRespuestas = ". json_encode($numRespuestas) . ";\n";
 						?>
+
+						disablecheckbox();
 
 						var input = $('select[name="idMateria"]');
 
@@ -348,6 +399,7 @@
 									html = respuestaNum(3) + html;
 								case 2:
 									html = respuestaNum(2) + html;
+								case 1:
 									html = respuestaNum(1) + html;
 							}
 
@@ -372,7 +424,7 @@
 
 							$("#zona-respuestas").removeClass("has-error");
 							$("#titulo").removeClass("has-error");
-
+							
 							for (var i = 1; i <= numRespuestas[input.val()]; i++) {
 								if ($("input[name=respuesta" + i + "]").val() === "") {
 									$("#zona-respuestas").addClass("has-error");
@@ -450,6 +502,7 @@
 						data.respuestaImagen1 = $('#form_edicion #respuestaImagen1').val();
 						data.respuestaAudio1 = $('#form_edicion #respuestaAudio1').val();
 
+						if ($('#form_edicion #respuesta2').length) {
 						data.respuesta2 = $('#form_edicion #respuesta2').val();
 						data.respuestaImagen2 = $('#form_edicion #respuestaImagen2').val();
 						data.respuestaAudio2 = $('#form_edicion #respuestaAudio2').val();
@@ -468,11 +521,10 @@
 									data.respuesta5 = $('#form_edicion #respuesta5').val();
 									data.respuestaImagen5 = $('#form_edicion #respuestaImagen5').val();
 									data.respuestaAudio5 = $('#form_edicion #respuestaAudio5').val();
+									}
 								}
 							}
 						}
-
-						console.log(data);
 
 						$.ajax("preguntaEditar.php", {data: data, type: "POST"})
 							.done(function(msg) {

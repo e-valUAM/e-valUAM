@@ -1,4 +1,3 @@
-
 header
 {
 	margin: 10px;
@@ -13,6 +12,15 @@ footer
 {
 	margin-top: 20px;
 	margin-bottom: 50px;
+}
+
+#cajon-respuestas{
+	margin: auto;
+	max-width: 500px;
+}
+
+#cajon-datos{
+	max-width:400px;
 }
 
 #respuestas {

@@ -60,6 +60,19 @@
 	}
 	else if ($_REQUEST['tipo'] == 'datos')
 	{
+		//Buscamos el numero de respuestas que tiene el examen
+		$result =  pg_query_params(
+				$con, 
+				'SELECT mat.num_respuestas as num_resp 
+				FROM (alumnos_por_examen AS ape  INNER JOIN examenes AS ex ON ape.id_examen = ex.id) 
+				INNER JOIN materias as mat ON ex.id_materia = mat.id  
+				WHERE ape.id = $1',
+				array(intval($_REQUEST['id'])))
+			or die('La consulta sobre el numero de respuestas fallo: ' . pg_last_error());
+		
+
+			$res = pg_fetch_array($result, null, PGSQL_ASSOC);
+			$num_resp = $res['num_resp'];
 
 		$result = pg_query_params(
 			$con,
@@ -72,15 +85,32 @@
 		$res = pg_fetch_array($result, null, PGSQL_ASSOC);
 		$nota = $res['nota'];
 
+		if($num_resp != 1){
+
+			$result =  pg_query_params(
+				$con, 
+				'SELECT r2.duda AS duda, p.texto AS preg, r2.correcta AS cor, r2.texto AS res, r2.timestamp AS time, p.imagen AS img, id_materia
+				FROM preguntas AS p INNER JOIN 
+				(respuestas AS r INNER JOIN respuestas_por_alumno AS rpa ON r.id = rpa.id_respuesta) AS r2 ON p.id = r2.id_pregunta 
+				WHERE r2.id_alumno_examen = $1
+				ORDER BY time',
+				array(intval($_REQUEST['id'])))
+			or die('La consulta fallo: ' . pg_last_error());
+
+		} else {
+		
 		$result =  pg_query_params(
 			$con, 
-			'SELECT r2.duda AS duda, p.texto AS preg, r2.correcta AS cor, r2.texto AS res, r2.timestamp AS time, p.imagen AS img, id_materia
-			FROM preguntas AS p INNER JOIN 
-			(respuestas AS r INNER JOIN respuestas_por_alumno AS rpa ON r.id = rpa.id_respuesta) AS r2 ON p.id = r2.id_pregunta 
-			WHERE r2.id_alumno_examen = $1
-			ORDER BY time',
+			'SELECT p.texto AS preg, resp.texto AS resc, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS res, duda
+				FROM preguntas AS p INNER JOIN
+				(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 ) 
+				AS resp	ON p.id = resp.id_pregunta
+				ORDER BY time',
 			array(intval($_REQUEST['id'])))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('La consulta abierta fallo: ' . pg_last_error());
+
+
+		}
 
 		//<!-- <h1>Examen de <?php echo $_REQUEST['nombre']; ></h1> !-->
 	?>
@@ -112,7 +142,7 @@
 			<?php
 
 				echo "<h1>Resultados de #".$_REQUEST['name'].":</h1>";
-				echo "<p>La nota es ".$nota.".</p>";
+				echo "<p>La nota es ".number_format($nota, 2).".</p>";
 				echo "<p>A continuación aparecerán las respuestas. Aparecerán en rojo aquellas que sean incorrectas.</p>";
 				echo "</div></div>";
 
@@ -128,10 +158,16 @@
 							echo "<div class=\"alert alert-info\" role=\"alert\"><p>Dudó</p></div>";
 						}
 
+						if($num_resp == 1)
+							$res['cor'] = (($res['res'] != $res['resc']) ? f : t);
+
+
 						if ($res['cor'] == 't') {
-							echo "<p class=\"correcta\">".$res['res'].".</p>";
+							echo "<p class=\"correcta\">".$res['res']."</p>";
 						} else {
-							echo "<p class=\"incorrecta\">".$res['res'].".</p>";
+							echo "<p class=\"incorrecta\">".$res['res']."</p>";
+							if($num_resp == 1)
+								echo "<p class=\"corrrecta\">Correcta: ".$res['resc']."</p>";
 						}
 
 					echo "</div></section>";

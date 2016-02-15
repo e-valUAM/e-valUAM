@@ -26,21 +26,14 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h2>Novedades</h2>
-					<h3>Solucionado el error de los ficheros multimedia</h3>
-					<p class="text-primary">Varios equipos habéis tenido problemas con la subida de algunos ficheros. El error viene provocado por el uso de la ñ o algún otro caracter no pertenciente al alfabeto inglés en el nombre. Evitad usar ñ, acentos, ü, ç o cualquier otro símbolo extraño en los nombres de los ficheros.</p>
-					<p class="text-primary">No os preocupéis por los ficheros que ya están subidos. Los hemos corregido nosotros automáticamente.</p>
-					<p class="text-primary">Si algún fichero os sigue dando problemas, no dudéis en contactarnos.</p>
-					<h3>Añadida opción para ver las preguntas sin crear un examen</h3>
-					<p class="text-primary">En respuesta a una petición que nos habéis hecho varios, desde ahora se pueden ver cómo están quedando todas las preguntas que vais haciendo de una manera más sencilla.</p>
-					<p class="text-primary">Basta con que en el apartado de <strong><a href="gestionPreguntas.php">Preguntas</a></strong> pulséis en el nuevo botón que desde ahora está arriba del todo, justo debajo de dónde se elige la materia.</p>
-					<p class="text-primary">Se os mostrarán en una página todas las preguntas, sus respuestas y todos los ficheros que vayan con la pregunta o las respuestas</p>
+					<p>Para acceder a las preguntas enviada por los alumnos, <a href="visorPreguntasAlumnos.php">pulsa aquí.</a></p>
 					<br>
 					<br>
 
 					<h2>Introducción</h2>
 					<p>En e-valUAM todo se organiza en torno a tres conceptos principales: materias, preguntas y exámenes.</p>
 					<p>Una <strong>pregunta</strong> es exactamente lo que parece: una cuestión que los alumnos deberán responder. Tiene una respuesta correcta y varias incorrectas, además de poder contener imágenes o grabaciones de audio.</p>
-					<p>Las preguntas se dividen en <strong>niveles</strong>. Los niveles menores agrupan las preguntas más básicas mientras que los niveles más altos agrupan las preguntas avanzadas. Un alumno no responderá preguntas de un nivel alto hasta que no haya respondido correctamente suficientes preguntas del nivel anterior. El número de pregutnas que deberá responder dependerá del número de niveles total y del número de preguntas que tenga un examen (por ejemplo, si el examen tiene 30 preguntas y tres niveles, deberá responder correctamente 10 preguntas del primer nivel para empezar a ver pregutnas del segundo nivel, y otras 10 correctas para pasar al terer nivel).</p>
+					<p>Las preguntas se dividen en <strong>niveles</strong>. Los niveles menores agrupan las preguntas más básicas mientras que los niveles más altos agrupan las preguntas avanzadas. Un alumno no responderá preguntas de un nivel alto hasta que no haya respondido correctamente suficientes preguntas del nivel anterior. El número de pregutnas que deberá responder dependerá del número de niveles total y del número de preguntas que tenga un examen (por ejemplo, si el examen tiene 30 preguntas y tres niveles, deberá responder correctamente 10 preguntas del primer nivel para empezar a ver pregutnas del segundo nivel, y otras 10 correctas para pasar al tercer nivel).</p>
 					<p>Todas las preguntas pertenecen a una <strong>materia</strong>, que no es más que un conjunto de preguntas con un tema común y unas características iguales (número de niveles y número de respuestas)</p>
 					<p>Las preguntas se agrupan en materias para que un mismo conjunto de preguntas, es decir, para una misma materia, se puedan plantear varios exámenes distintos. Un <strong>examen</strong> define cuántas preguntas tendrán que responder los alumnos y en cuánto tiempo, además de un par de cuestiones adicionales, como si podrán ver los resultados al final o si podrán marcar si dudaban al responder la pregunta.</p>
 					<p>e-valUAM pretende facilitar la labor de los docentes al permitir crear un conjunto robusto y extenso de preguntas con el que se puedan ir creando exámenes o pruebas de autoevaluación para los alumnos de una manera rápida y sencilla. Permite ver cada examen, analizar qué preguntas estaban peor planteadas o qué partes del temario no llegaron bien a los alumnos.</p>
@@ -65,7 +58,7 @@
 						</li>
 						<li>
 							<h3>No encuentro respuesta a mi pregunta en esta página</h3>
-							<p>Escribe un correo electrónico a sacha.gomez@uam.es / pablo.molins@estudiante.uam.es y te responderemos lo antes posible.</p>
+							<p>Escribe un correo electrónico a sacha.gomez@uam.es / pablo.molins@uam.es y te responderemos lo antes posible.</p>
 						</li>
 					</ul>
 
