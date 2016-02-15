@@ -22,7 +22,7 @@
 
 			if ($con) {
 				// Comprbamos en la base de datos que hay un usuario con ese email
-				$result =  pg_query_params($con, 'SELECT * FROM alumnos WHERE nombre =  $1', array($_SESSION['email']))
+				$result =  pg_query_params($con, 'SELECT * FROM alumnos WHERE nombre =  $1', array($_POST['email']))
 				or die('Error. Prueba de nuevo más tarde.');
 
 				if (pg_num_rows($result) == 1) {
@@ -43,8 +43,8 @@
 							<body>
 								<p>Recientemente has solicitado una nueva contraseña para tu cuenta de e-valUAM.</p>
 								<p>En el siguiente enlace podrás recuperar tu contraseña: 
-								<a href="https://e-valuam.ii.uam.es/recuperarContrasenya.php?token=' . urlencode($token) . '">
-								https://e-valuam.ii.uam.es/recuperarContrasenya.php?token=' . urlencode($token) . '</a></p>
+								<a href="https://e-valuam.ii.uam.es/token.php?token=' . urlencode($token) . '&mail=' . urlencode($_POST['email']) . '">
+								https://e-valuam.ii.uam.es/token.php?token=' . urlencode($token) . '</a></p>
 								<p>Si no has sido tú, sencillamente ignora este mensaje.</p>
 							</body>
 						    </html>';
@@ -59,11 +59,7 @@
 		} else {
 			$error_captcha = TRUE;
 		}			
-	} else if (isset($_GET['token'])) { // Llamada para cambiar, definitivamente, la contraseña 
-		
-	} else if (isset($_POST['token']) && isset($_POST[''])) {
-		
-	}		
+	}
 
 ?>
 <!DOCTYPE html>
@@ -86,12 +82,13 @@
 		<main class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
-					<form action="recuperarContrasanye.php" method="post">
+					<form action="recuperarContrasanya.php" method="post">
 						<div class="form-group">
 							<label for="exampleInputEmail1">Dirección de email</label>
     							<input type="email" class="form-control" id="email" placeholder="Email">
 						</div>
 						<div class="g-recaptcha" data-sitekey="6LdlFxUTAAAAANXsSWJGN4EieWQTq0HiLNY9nH5L"></div>
+						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
 				</div>
 			</div>

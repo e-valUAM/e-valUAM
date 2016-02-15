@@ -1,6 +1,36 @@
 <?php
 	require '/var/www/db_pass/db_string.php';
 
+	session_start();
+
+	function mostrar_mensaje() {
+		if (isset($_SESSION['_mensaje'])) {
+			$tipo = '';
+			switch ($_SESSION['_mensaje']['tipo']) {
+				case 'ok':
+					$tipo = 'alert-success';
+					break;
+				case 'error':
+					$tipo = 'alert-danger';
+					break;
+				case 'aviso':
+					$tipo = 'alert-warning';
+					break;
+				case 'info'
+					$tipo = 'alert-info';
+					break;
+			}
+
+			echo '<div class="alert ' . $tipo . '" role="alert"><p>' . $_SESSION['_mensaje']['texto'] . '</p></div>';
+
+			$_SESSION['_mensaje'] = NULL;
+		}
+	}
+
+	function set_mensaje($tipo, $mensaje) {
+		$_SESSION['_mensaje'] = array('tipo' => $tipo, 'texto' => $mensaje);
+	}
+
 	function mostrar_header() {
 		echo "<header class=\"container-fluid\">";
 			echo "<div class=\"row\">";
@@ -12,6 +42,7 @@
 				echo "</div>";
 			echo "</div>";
 		echo "</header>";
+		mostrar_mensaje();
 	}
 
 	function mostrar_header_link() {
@@ -27,6 +58,7 @@
 				echo "</div>";
 			echo "</div>";
 		echo "</header>";
+		mostrar_mensaje();
 	}
 
 
