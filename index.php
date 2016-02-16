@@ -42,6 +42,7 @@
 						</div>
 						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
+				<br>	<p><a href="recuperarContrasenya.php">¿Has olvidado la contraseña?</a></p>
 				</div>
 			</div>
 		</main> 
