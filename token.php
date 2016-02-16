@@ -57,15 +57,15 @@
 					<h1>Cambio de contraseña</h1>
 					<p>Ahora puedes establecer tu nueva contraseña:</p>
 					<form action="token.php" onsubmit="return comprobarFormulario()" method="post">
-						<div class="form-group">
+						<div class="form-group" id="cajon-datos">
 							<label class="control-label" for="email">Dirección de email</label>
     							<input type="email" class="form-control" name="email" value="<?php echo $_GET['email']; ?>">
 						</div>
-						<div class="form-group pass">
+						<div class="form-group pass" id="cajon-datos">
 							<label class="control-label" for="nueva">Nueva contraseña</label>
 							<input type="password" class="form-control" name="nueva" id="nueva">
 						</div>
-						<div class="form-group pass">
+						<div class="form-group pass" id="cajon-datos">
 							<label class="control-label" for="nueva2">Repite la contraseña</label>
 							<input type="password" class="form-control" name="nueva2" id="nueva2">
 						</div>
