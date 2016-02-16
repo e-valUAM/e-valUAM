@@ -30,7 +30,7 @@
 		} else if ($_REQUEST['nueva1'] != $_REQUEST['nueva2']) {
 			$errorNuevas = TRUE;
 		} else {
-			$salt = file_get_contents("http://www.random.org/strings/?num=8&len=16&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new");
+			$salt = md5(devurandom_rand()); 
 			$hashed_password = crypt($_REQUEST['nueva1'], $salt);
 
 			if (pg_affected_rows(pg_query($con, "UPDATE alumnos SET pass = '".$hashed_password."', cambio_contrasenya = FALSE WHERE id = ".$_SESSION['idUsuario'])) == 0)

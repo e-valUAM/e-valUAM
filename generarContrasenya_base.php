@@ -76,7 +76,7 @@ if ($es_para_colegios === TRUE) {
 pg_query("BEGIN;");
 
 foreach ($password as $nombre => $pass) {
-	$salt = devurandom_rand(); 
+	$salt = md5(devurandom_rand()); 
 	$hashed_password = crypt($pass, $salt);
 	
 
