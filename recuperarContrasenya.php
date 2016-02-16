@@ -38,28 +38,43 @@
 					if (pg_affected_rows($result) != 1) {
 						die('Error. Prueba de nuevo más tarde.');
 					}
-					
-					// Y mandamos un mensaje con él
+
+					require __DIR__ . '/vendor/autoload.php';	
+					require '/var/www/db_pass/mail.php';					
+
 					$message = '<html><head><title>Recuperación de contraseña</title></head>
 							<body>
 								<p>Recientemente has solicitado una nueva contraseña para tu cuenta de e-valUAM.</p>
 								<p>En el siguiente enlace podrás recuperar tu contraseña: 
-								<a href="https://e-valuam.ii.uam.es/token.php?token=' . urlencode($token) . '&mail=' . urlencode($_POST['email']) . '">
+								<a href="https://e-valuam.ii.uam.es/token.php?token=' . urlencode($token) . '">
 								https://e-valuam.ii.uam.es/token.php?token=' . urlencode($token) . '</a></p>
 								<p>Si no has sido tú, sencillamente ignora este mensaje.</p>
 							</body>
 						    </html>';
-					$headers = 'MIME-Version: 1.0' . "\r\n" .
-							'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
-							'Reply-To: pablo.molins@uam.es' . "\r\n" .
-							'From: pablo.molins@uam.es' . "\r\n" .
-							'X-Mailer: PHP/' . phpversion();
 
-					mail($_POST['email'], 'Recuperación de contraseña', $message, $headers);
+					$mail = new PHPMailer;
 
-					set_mensaje('ok', 'Se te ha mandado un correo electrónico con instrucciones. Comprueba tu bandeja de entrada.');
-					header('Location: index.php');
-					exit;
+					$mail->isSMTP();    // Set mailer to use SMTP
+					$mail->Host = 'smtpinterno.uam.es';  // Specify main and backup SMTP servers
+					$mail->SMTPAuth = true;                               // Enable SMTP authentication
+					$mail->Username = $usuario_mail;              // SMTP username
+					$mail->Password = $clave_mail;                           // SMTP password
+					$mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+					$mail->Port = 587;                                    // TCP port to connect to
+
+					$mail->setFrom($usuario_mail, 'Administrador e-valUAM');
+					$mail->addAddress($_POST['email']);     // Add a recipient
+					$mail->isHTML(true);                                  // Set email format to HTML
+					$mail->Subject = 'Recuperación de contraseña e-valUAM';
+					$mail->Body    = $message;
+					$mail->AltBody = 'Recientemente has solicitado una nueva contraseña para tu cuenta de e-valUAM. En el siguiente enlace podrás recuperar tu contraseña: https://e-valuam.ii.uam.es/token.php?token=' . urlencode($token) . '&mail=' . urlencode($_POST['email']);
+					$mail->CharSet = 'UTF-8';
+
+					if($mail->send()) {
+						set_mensaje('ok', 'Se te ha mandado un correo electrónico con instrucciones. Comprueba tu bandeja de entrada.');
+						header('Location: index.php');
+						exit;
+					}
 				} 
 			}
 		} 
