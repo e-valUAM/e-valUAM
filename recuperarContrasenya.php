@@ -51,7 +51,8 @@
 						    </html>';
 					$headers = 'MIME-Version: 1.0' . "\r\n" .
 							'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
-							' Reply-To: pablo.molins@uam.es' . "\r\n" .
+							'Reply-To: pablo.molins@uam.es' . "\r\n" .
+							'From: pablo.molins@uam.es' . "\r\n" .
 							'X-Mailer: PHP/' . phpversion();
 
 					mail($_POST['email'], 'Recuperación de contraseña', $message, $headers);
@@ -87,7 +88,7 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h1>Recuperación de contraseña</h1>
-					<p>Para obtener una nueva contraseña, escribe tu dirección de correo electrónico pulsa el botón de "No soy un robot" y pulsa continuar.</p>
+					<p>Para obtener una nueva contraseña, escribe tu dirección de correo electrónico, pulsa el botón de "No soy un robot" y pulsa continuar.</p>
 					<form action="recuperarContrasenya.php" method="post">
 						<div class="form-group" id="cajon-datos">
 							<label for="email">Dirección de email</label>

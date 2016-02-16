@@ -21,7 +21,12 @@
 					break;
 			}
 
-			echo '<div class="alert ' . $tipo . '" role="alert"><p>' . $_SESSION['_mensaje']['texto'] . '</p></div>';
+			echo '<div class="alert alert-dismissible ' . $tipo . ' fade in mensajes" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  				<span aria-hidden="true">&times;</span>
+				</button>
+				<p>' . $_SESSION['_mensaje']['texto'] . '</p>
+			      </div>';
 
 			$_SESSION['_mensaje'] = NULL;
 		}
@@ -41,7 +46,11 @@
 				echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\">";
 				echo "</div>";
 			echo "</div>";
-		mostrar_mensaje();
+			echo '<div class="row">';
+				echo '<div class="col-md-6">';
+					mostrar_mensaje();
+				echo '</div>';
+			echo '</div>';
 		echo "</header>";
 	}
 
@@ -57,7 +66,11 @@
 					echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"./multimedia/logos/ope.bmp\"></a>";
 				echo "</div>";
 			echo "</div>";
-		mostrar_mensaje();
+			echo '<div class="row">';
+				echo '<div class="col-md-6">';
+					mostrar_mensaje();
+				echo '</div>';
+			echo '</div>';
 		echo "</header>";
 	}
 
