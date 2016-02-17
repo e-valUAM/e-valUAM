@@ -214,6 +214,9 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
 		<script type="text/javascript">
+			$(function () {
+			  $('[data-toggle="popover"]').popover()
+														})
 			var minRes = <?php echo $_SESSION['restante']; ?>;
 			var mostrar = getCookie('mostrar');
 
@@ -523,7 +526,8 @@
 						echo '<button type="submit" class="btn btn-primary aria-label="Left Align">Enviar</button>';
 						echo '	</div>';
 						echo '</form>';
-						echo '<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Utiliza . para separar decimales">
+						echo '<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Información" data-content="Utiliza . para separar decimales
+Escribe tus respuestas en minúscula" data-trigger=" click hover">
 								 <span class="sr-only">Información</span>
 							</span>';
 

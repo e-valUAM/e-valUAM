@@ -93,12 +93,7 @@
 					</div>
 					<div class="form-group">
 						<label class="control-label" for="numDificultades">Elige el número de niveles que tendrán los exámenes: </label>
-						<select class="form-control" name="numDificultades">
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3" selected>3</option>
-							<option value="4">4</option>
-						</select>
+						<input type="number" class="form-control" name="numDificultades" min="1" max="25" value="3">
 					</div>
 					<div class="form-group">
 						<label class="control-label" for="numPreguntas">Elige el número de respuestas que tendrá cada pregunta: </label>
