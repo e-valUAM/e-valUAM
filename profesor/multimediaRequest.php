@@ -3,7 +3,7 @@
 	$target_dir = "../multimedia/" . $_REQUEST['idMateria'] . "/";
 	$target_file = $target_dir . basename($_FILES["fichero"]["name"]);
 	$uploadOk = 1;
-	$imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
+	$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
 	// Allow certain file formats
 	if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
