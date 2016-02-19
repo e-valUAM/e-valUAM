@@ -40,7 +40,7 @@
 		// Ciertos parametros vienen de la base de datos.
 
 		$result =  pg_query_params($con,
-			'SELECT num_preguntas, num_dificultades, num_respuestas, duracion, materias.id as materias_id, acepta_duda
+			'SELECT num_preguntas, num_dificultades, num_respuestas, duracion, materias.id as materias_id, acepta_duda, acepta_feedback
 			FROM examenes, materias
 			WHERE examenes.id =  $1 and id_materia = materias.id',
 			array($_SESSION['idExamen']))
@@ -62,7 +62,8 @@
 		$_SESSION['numEnNivel'] = 0;
 
 		$_SESSION['acepta_duda'] = ($line['acepta_duda'] == 't' ? TRUE : FALSE);
-		
+		$_SESSION['acepta_feedback'] = ($line['acepta_feedback'] == 't' ? TRUE : FALSE);
+
 		unset($_REQUEST['idExamen']);
 		pg_free_result($result);
 
@@ -312,7 +313,7 @@
 		</div>
 
 		<?php
-			if (isset($_SESSION['feedback'])) {
+			if ($_SESSION['numRespondidas'] > 0 && ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback']))) {
 				if ($_SESSION['correcta']) {
 		?>
 			<div class="container-fluid">
@@ -320,7 +321,12 @@
 			<button type="button" class="close" data-dismiss="alert">
 			  <span aria-hidden="true">&times;</span>
 			  <span class="sr-only">Cerrar</span>
-			</button><p><?php echo $_SESSION['feedback'];?></p></div>
+			</button>
+			<?php if (isset($_SESSION['feedback'])) { ?>
+				<p><?php echo $_SESSION['feedback'];?></p></div>
+			<?php }  else { ?>
+				<p>Respuesta correcta.</p>
+			<?php } ?>
 			</div>
 		<?php
 				} else {

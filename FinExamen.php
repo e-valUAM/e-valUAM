@@ -74,9 +74,9 @@
 
 	<body>
 		<?php mostrar_header(); ?>
-
+		
 		<?php
-			if (isset($_SESSION['feedback'])) {
+			if ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback'])) {
 				if ($_SESSION['correcta']) {
 		?>
 			<div class="container-fluid">
@@ -84,7 +84,12 @@
 			<button type="button" class="close" data-dismiss="alert">
 			  <span aria-hidden="true">&times;</span>
 			  <span class="sr-only">Cerrar</span>
-			</button><p>¡Correcto! <?php echo $_SESSION['feedback'];?></p></div>
+			</button>
+			<?php if (isset($_SESSION['feedback'])) { ?>
+				<p><?php echo $_SESSION['feedback'];?></p></div>
+			<?php }  else { ?>
+				<p>Respuesta correcta.</p>
+			<?php } ?>
 			</div>
 		<?php
 				} else {
