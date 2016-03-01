@@ -16,7 +16,7 @@
 	if (isset($_REQUEST['nombreMateria'])) {
 		$guardado = False;
 
-		if ($_REQUEST['numDificultades'] >= 1 && $_REQUEST['numDificultades'] <= 4 &&
+		if ($_REQUEST['numDificultades'] >= 1 &&
 			$_REQUEST['numPreguntas'] >= 1 && $_REQUEST['numPreguntas'] <= 5) {
 			
 			//$feedback = ($_REQUEST['feedback'] == 't' ? 't' : 'f');

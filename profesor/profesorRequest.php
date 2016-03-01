@@ -151,7 +151,7 @@
 
 						echo "<h3>[Preg. #".$i."] ".$res['preg'].":</h3>";
 						if (strlen($res['img']) >= 5) {
-								echo "<img id=\"imagen\" src=\"../multimedia/".$res['id_materia']."/".$res['img']."\"/>"; //ID EXAMEN
+								echo "<img id=\"imagen\" src=\"../multimedia".$res['id_materia']."/".$res['img']."\"/>"; //ID EXAMEN
 						}
 
 						if ($res['duda'] == 't') {

@@ -17,7 +17,8 @@
 	$result =  pg_query_params($con, 
 		'SELECT texto, imagen, dificultad, id
 		FROM preguntas
-		WHERE id_materia = $1 AND borrada = FALSE',
+		WHERE id_materia = $1 AND borrada = FALSE
+		ORDER BY dificultad,id',
 		array($_REQUEST['idMateria']))
 	or die('La consulta fallo: ' . pg_last_error());
 

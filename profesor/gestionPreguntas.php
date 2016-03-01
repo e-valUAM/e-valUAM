@@ -199,6 +199,48 @@
 								select.empty();
 								var options = '';
 								switch (parseInt(numDificultades[input.val()])) {
+									case 25:
+										options = "<option value=\"25\">25</option>" + options;
+									case 24:
+										options = "<option value=\"24\">24</option>" + options;
+									case 23:
+										options = "<option value=\"23\">23</option>" + options;
+									case 22:
+										options = "<option value=\"22\">22</option>" + options;
+									case 21:
+										options = "<option value=\"21\">21</option>" + options;
+									case 20:
+										options = "<option value=\"20\">20</option>" + options;
+									case 19:
+										options = "<option value=\"19\">19</option>" + options;
+									case 18:
+										options = "<option value=\"18\">18</option>" + options;
+									case 17:
+										options = "<option value=\"17\">17</option>" + options;
+									case 16:
+										options = "<option value=\"16\">16</option>" + options;
+									case 15:
+										options = "<option value=\"15\">15</option>" + options;
+									case 14:
+										options = "<option value=\"14\">14</option>" + options;
+									case 13:
+										options = "<option value=\"13\">13</option>" + options;
+									case 12:
+										options = "<option value=\"12\">12</option>" + options;
+									case 11:
+										options = "<option value=\"11\">11</option>" + options;
+									case 10:
+										options = "<option value=\"10\">10</option>" + options;
+									case 9:
+										options = "<option value=\"9\">9</option>" + options;
+									case 8:
+										options = "<option value=\"8\">8</option>" + options;
+									case 7:
+										options = "<option value=\"7\">7</option>" + options;
+									case 6:
+										options = "<option value=\"6\">6</option>" + options;
+									case 5:
+										options = "<option value=\"5\">5</option>" + options;
 									case 4:
 										options = "<option value=\"4\">4</option>" + options;
 									case 3:
