@@ -39,14 +39,13 @@
 			<label class="control-label" for="nombreMateria">Nombre de la materia: </label>
 			<input class="form-control" type="text" id="nombreMateria" name="nombreMateria" size="20" placeholder="Nombre de la materia" value="<?php echo $data['nombre']; ?>">
 		</div>
+		
 		<div class="form-group">
-			<label class="control-label" for="numDificultades">Elige el número de niveles que tendrán los exámenes: </label>
-			<select class="form-control" id="numDificultades" name="numDificultades">
-				<option value="1" <?php if ($data['num_dificultades'] == 1) echo "selected"; ?>>1</option>
-				<option value="2" <?php if ($data['num_dificultades'] == 2) echo "selected"; ?>>2</option>
-				<option value="3" <?php if ($data['num_dificultades'] == 3) echo "selected"; ?>>3</option>
-				<option value="4" <?php if ($data['num_dificultades'] == 4) echo "selected"; ?>>4</option>
-			</select>
+				<label class="control-label" for="numDificultades">Elige el número de niveles que tendrán los exámenes: </label>
+				<input type="number" class="form-control" name="numDificultades" min="1" max="25" value="<?php echo $data['num_dificultades']; ?>">
+		</div>
+
+
 		</div>
 		<div class="form-group">
 			<label class="control-label" for="numPreguntas">Elige el número de respuestas que tendrá cada pregunta:</label>
@@ -72,7 +71,7 @@
 	</form>
 <?php 
 	} else {
-		if ($_REQUEST['numDificultades'] >= 1 && $_REQUEST['numDificultades'] <= 4 &&
+		if ($_REQUEST['numDificultades'] >= 1 &&
 			$_REQUEST['numPreguntas'] >= 1 && $_REQUEST['numPreguntas'] <= 5) {
 			
 			// $feedback = ($_REQUEST['feedback'] == 't' ? 't' : 'f');

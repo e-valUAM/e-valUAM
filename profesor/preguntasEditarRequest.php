@@ -39,32 +39,11 @@
 		<input type="hidden" id="idPregunta" name="idPregunta" value="<?php echo $_REQUEST['idPregunta']; ?>">
 
 		<div class="form-group">
-			<label class="control-label" for="dificultad">Elige la dificultad: </label>
-			<select class="form-control" id="dificultad" name="dificultad">
-			<?php 
-				echo "!".$dataMateria['num_dificultades'];
-
-				switch (intval($dataMateria['num_dificultades'])) {
-					case 4:
-						echo "<option value=\"4\"";
-						if ($data['dificultad'] == 4) echo " selected";
-						echo ">4</option>";
-					case 3:
-						echo "<option value=\"3\"";
-						if ($data['dificultad'] == 3) echo " selected";
-						echo ">3</option>";
-					case 2:
-						echo "<option value=\"2\"";
-						if ($data['dificultad'] == 2) echo " selected";
-						echo ">2</option>";
-					case 1:
-						echo "<option value=\"1\"";
-						if ($data['dificultad'] == 1) echo " selected";
-						echo ">1</option>";
-				}
-			?>
-			</select>
+				<label class="control-label" for="dificultad">Elige la dificultad: </label>
+				<input type="number" class="form-control" name="dificultad" id="dificultad" min="1" max="<?php echo intval($dataMateria['num_dificultades']); ?>" value="<?php echo $data['dificultad']; ?>">
 		</div>
+
+
 
 		<div class="checkbox">
 			<label>
