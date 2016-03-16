@@ -192,6 +192,7 @@
 	unset($_SESSION['tipo_examen']);
 	unset($_SESSION['sigueExamen?']);
 	unset($_SESSION['idExamen']);
-	unset($_SESSION['tipo_examen']);
+	unset($_SESSION['id_pregunta_anterior']);
+	unset($_SESSION['id_pregunta_anteanterior']);
 	//session_destroy();
 ?>

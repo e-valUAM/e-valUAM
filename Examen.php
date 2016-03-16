@@ -13,10 +13,16 @@
 		// Nos ponemos como locos a inicializar todo
 		$_SESSION['idExamen'] = $_REQUEST['idExamen'];
 		$_SESSION['sigueExamen?'] = true;
+
+		// Borramos posibles variables que pueden estar guardadas si
+		// No se ha cerrado bien el examen anterior
+
+		unset($_SESSION['id_pregunta_anterior']);
+		unset($_SESSION['id_pregunta_anteanterior']);
 	
 	//Comprobamos que el examen este abierto y guardamos su tipo
 
-		$result = pg_query_params($con, 'SELECT tipo_examen FROM examenes WHERE id = $1 AND disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id', array($_SESSION['idExamen']))
+		$result = pg_query_params($con, 'SELECT tipo_examen,feedback FROM examenes WHERE id = $1 AND disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id', array($_SESSION['idExamen']))
 		or die('Se ha producido un error al buscar el examen. Prueba de nuevo más tarde.');
 
 		//Si el alumno llega aqui es porque el examen está cerrado o no existe
@@ -28,7 +34,7 @@
 		$line = pg_fetch_array($result, null, PGSQL_ASSOC);
 		pg_free_result($result);
 		$_SESSION['tipo_examen'] = $line['tipo_examen'];
-		
+		$_SESSION['feedback_examen'] = $line['feedback'];
 		//Error al hacer la query
 		if($_SESSION['tipo_examen'] == NULL){
 			header("Location: ./eleccionExamen.php");
@@ -136,21 +142,23 @@
 		// Hacemos la query de inserción en funcion del examen
 		
 		if($_SESSION['num_respuestas'] == 1){ //Caso respuesta abierta
-		
+			/* limpiamos de espacios la respuesta */
+			$respuestaAbierta = trim($_REQUEST['respuestaA']);	
+
 			pg_query_params($con,
 				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6);',
-				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $_REQUEST['respuestaA'], date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
+				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $respuestaAbierta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
 			or die('La actualizacion falló: '.pg_last_error());
 
 			// Guardada la respuesta, actualizamos las variables que definen el examen
 			// Comprobamos si la respuesta ha sido correcta
-			if (strcmp($_REQUEST['respuestaA'], $_SESSION['correcta']) == 0) {
+			if (strcmp($respuestaAbierta, $_SESSION['correcta']) == 0) {
 				$_SESSION['correcta'] = TRUE;
 			} else {
 				$_SESSION['correcta'] = FALSE;
 			}
 				$_SESSION['numRespondidas']++;
-			unset($_SESSION['id_pregunta_anterior']);
+			
 
 		}
 		else{
@@ -322,10 +330,16 @@
 			  <span aria-hidden="true">&times;</span>
 			  <span class="sr-only">Cerrar</span>
 			</button>
+
 			<?php if (isset($_SESSION['feedback'])) { ?>
-				<p><?php echo $_SESSION['feedback'];?></p></div>
+					<p><?php echo $_SESSION['feedback'];?></p></div>
+					<?php if($_SESSION['feedback_examen']='t')
+							echo "<p>Pulse <a target=\"_blank\" href='Anterior.php'>aqui</a> para ver la pregunta anterior</p>";?>
+
 			<?php }  else { ?>
 				<p>Respuesta correcta.</p>
+				<?php if($_SESSION['feedback_examen']='t')
+							echo "<p>Pulse <a target=\"_blank\" href='Anterior.php'>aqui</a> para ver la pregunta anterior</p>";?>
 			<?php } ?>
 			</div>
 		<?php
@@ -336,7 +350,9 @@
 			<button type="button" class="close" data-dismiss="alert">
 			  <span aria-hidden="true">&times;</span>
 			  <span class="sr-only">Cerrar</span>
-			</button><p>Respuesta incorrecta.</p></div>
+			</button><p>Respuesta incorrecta.</p>
+			<?php if($_SESSION['feedback_examen']='t')
+							echo "<p>Pulse <a target=\"_blank\" href='Anterior.php'>aqui</a> para ver la pregunta anterior</p>";?></div>
 			</div>
 		<?php
 				}
@@ -438,6 +454,7 @@
 							echo "Tu navegador no soporta audio. Por favor, actualiza <a href=\"http://browsehappy.com/\">a un navegador más moderno.</a>";
 							echo "</audio>";
 						}
+						$_SESSION['id_pregunta_anteanterior']= $_SESSION['id_pregunta_anterior'];
 						$_SESSION['id_pregunta_anterior']=$pregunta['id'];
 						$_SESSION['feedback'] = $pregunta['feedback'];
 					?>
@@ -528,7 +545,7 @@
 						echo '<form role="form">';
 						echo '	<div class="form-group col-md-6 col-md-offset-1">';
 						echo '		<label class="control-label" for="respuestaA">Respuesta: </label>';
-						echo '		<input class="form-control" type="text" id="ex3" name="respuestaA" placeholder="Introduzca su respuesta">';
+						echo '		<input class="form-control" type="text" id="ex3" name="respuestaA" placeholder="Introduzca su respuesta" autocomplete="off">';
 						echo '<button type="submit" class="btn btn-primary aria-label="Left Align">Enviar</button>';
 						echo '	</div>';
 						echo '</form>';
@@ -568,7 +585,7 @@ Escribe tus respuestas en minúscula" data-trigger=" click hover">
 						pg_free_result($result);
 					?>
 				
-			</form>
+			</form> 
 		</footer>
 	</body>
 </html>

@@ -34,10 +34,10 @@
 				'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, true, $2, $3, $4);',
 				array($_REQUEST['respuesta1'], $row['id'], $imagen, $audio));
 
+			if ($correcto && isset($_REQUEST['respuesta2'])) {
+
 			$imagen = $_REQUEST['respuestaImagen2'] != '' ? $_REQUEST['respuestaImagen2'] : NULL;
 			$audio = $_REQUEST['respuestaAudio2'] != '' ? $_REQUEST['respuestaAudio2'] : NULL;
-			
-			if ($correcto && isset($_REQUEST['respuesta2'])) {
 
 			$result2 = pg_query_params($con,
 				'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
