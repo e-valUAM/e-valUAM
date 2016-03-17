@@ -92,6 +92,12 @@
 						    <strong>¿El examen acepta duda?</strong>
 						  </label>
 						</div>
+						<div class="checkbox">
+						  <label>
+						    <input type="checkbox" name="feedbackExamen" value="t">
+						    <strong>¿El examen muestra feedback?</strong>
+						  </label>
+						</div>
 						<div class="form-group">
 						    <label class="control-label" for="mostrarResultados">Mostrar los resultados al final: </label>
 							<select class="form-control" name="mostrarResultados">
