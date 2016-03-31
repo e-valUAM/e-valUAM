@@ -45,6 +45,7 @@
 				<br>	<p><a href="recuperarContrasenya.php">¿Has olvidado la contraseña?</a></p>
 				</div>
 			</div>
-		</main> 
+			<?php mostrar_licencia(); ?>
+		</main>
 	</body>
 </html>

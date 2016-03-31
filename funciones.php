@@ -3,6 +3,16 @@
 
 	session_start();
 
+
+	// Funciones para ayudar al desarrollo del front-end
+
+	// Hay que incluir <script src='https://www.google.com/recaptcha/api.js'></script> en el header de la página
+	function imprimir_captcha() {
+		echo '<div class="form-group">';
+			echo '<div class="g-recaptcha" data-sitekey="6LdlFxUTAAAAANXsSWJGN4EieWQTq0HiLNY9nH5L"></div>';
+		echo '</div>';
+	}
+
 	function mostrar_mensaje() {
 		if (isset($_SESSION['_mensaje'])) {
 			$tipo = '';
@@ -74,21 +84,31 @@
 		echo "</header>";
 	}
 
+	function mostrar_licencia() {
+		echo '<footer id="licencia" class="container-fluid">';
+			echo '<div class="col-md-12">';
+				echo '<p>Software desarrollado en la Universidad Autónoma de Madrid bajo una licencia <a href="http://www.gnu.org/licenses/agpl.html">GNU Affero General Public License</a>.</p>';
+				echo '<p>¿Quieres una copia del código o más información? <a href="contacto.php">Pulsa aquí.</a></p>';
+			echo '</div>';
+		echo '</footer>';
+	}
+
+	// Funciones back-end
 
 	function connect() {
-		global $db_string;	
+		global $db_string;
 		$con = pg_connect($db_string);
 		if (!$con)
 			return NULL;
 		else
 			return $con;
-	} 
+	}
 
 	function devurandom_rand() {
 		$fp = fopen('/dev/urandom','rb');
 		$bytes = '';
 		if ($fp !== FALSE) {
-			$bytes .= fread($fp, 4);        
+			$bytes .= fread($fp, 4);
 			fclose($fp);
 		}
 
@@ -97,6 +117,48 @@
 		}
 
 		return $bytes;
+	}
+
+	function verificar_captcha() {
+		require '/var/www/db_pass/recaptcha.php';
+
+		// Verificamos el captcha
+		$ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+		curl_setopt($ch, CURLOPT_POST, TRUE);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array('secret' => $secret, 'response' => $_POST['g-recaptcha-response']));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+		$result = json_decode(curl_exec($ch));
+		curl_close($ch);
+
+		return $result->{'success'};
+	}
+
+	function enviar_email($asunto, $destinatario, $mensaje, $html=FALSE, $mensaje_plano=NULL)
+	{
+		require __DIR__ . '/vendor/autoload.php';
+		require '/var/www/db_pass/mail.php';
+
+		$mail = new PHPMailer;
+
+		$mail->isSMTP();    // Set mailer to use SMTP
+		$mail->Host = 'smtpinterno.uam.es';  // Specify main and backup SMTP servers
+		$mail->SMTPAuth = true;                               // Enable SMTP authentication
+		$mail->Username = $usuario_mail;              // SMTP username
+		$mail->Password = $clave_mail;                           // SMTP password
+		$mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+		$mail->Port = 587;                                    // TCP port to connect to
+
+		$mail->setFrom($usuario_mail, 'Administrador e-valUAM');
+		$mail->addAddress($destinatario);     // Add a recipient
+		$mail->isHTML($html);                                  // Set email format to HTML
+		$mail->Subject = $asunto;
+		$mail->Body    = $mensaje;
+		if ($html)
+			$mail->AltBody = $mensaje_plano;
+		$mail->CharSet = 'UTF-8';
+
+		return $mail->send();
 	}
 
 ?>

@@ -119,5 +119,6 @@
 				</div>
 			</div>
 		</main>
+		<?php mostrar_licencia(); ?>
 	</body>
 </html>
