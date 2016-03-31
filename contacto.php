@@ -4,7 +4,7 @@
 
 	if (isset($_POST['email']) && isset($_POST['g-recaptcha-response'])) {
 		if (verificar_captcha()) {
-			$mensaje = "Nombre: {$_POST['nombre']}\nemail: {$_POST['email']}\nMensaje: {$_POST['mensaje']}";
+			$mensaje = "Nombre: {$_POST['nombre']}\nemail: {$_POST['email']}\nMensaje:\n{$_POST['mensaje']}";
 
 			$resultado = enviar_email('Formulario de contacto en e-valUAM', $usuario_mail, $mensaje);
 
@@ -63,7 +63,7 @@
 						</div>
 						<div class="form-group" id="cajon-datos">
 							<label for="mensaje">Mensaje</label>
-							<input type="text" class="form-control" name="mensaje" required>
+							<textarea class="form-control" name="mensaje" rows="5" required></textarea>
 						</div>
 						<?php imprimir_captcha();	?>
 						<button type="submit" class="btn btn-primary" value="Enviar">Enviar</button>

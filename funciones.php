@@ -1,8 +1,32 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+		
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 	require '/var/www/db_pass/db_string.php';
 
 	session_start();
-
 
 	// Funciones para ayudar al desarrollo del front-end
 
@@ -85,10 +109,10 @@
 	}
 
 	function mostrar_licencia() {
-		echo '<footer id="licencia" class="container-fluid">';
+		echo '<footer id="licencia" class="row">';
 			echo '<div class="col-md-12">';
-				echo '<p>Software desarrollado en la Universidad Autónoma de Madrid bajo una licencia <a href="http://www.gnu.org/licenses/agpl.html">GNU Affero General Public License</a>.</p>';
-				echo '<p>¿Quieres una copia del código o más información? <a href="contacto.php">Pulsa aquí.</a></p>';
+				echo '<p class="text-center text-muted"><small>Software publicado bajo una licencia <abbr title="GNU Affero General Public License"><a class="text-muted" href="http://www.gnu.org/licenses/agpl.html">GNU AGPL</a></abbr>.</small></p>';
+				echo '<p class="text-center"><small><a href="contacto.php">Más información y contacto.</a></small></p>';
 			echo '</div>';
 		echo '</footer>';
 	}
