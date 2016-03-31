@@ -1,5 +1,30 @@
-<?php 
-	
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<?php
+
 	include 'funciones_profesor.php';
 
 	check_login();
@@ -16,7 +41,7 @@
 		$guardado = False;
 		$imagen = $_REQUEST['imagenPrincipal'] != '' ? $_REQUEST['imagenPrincipal'] : NULL;
 		$audio = $_REQUEST['audioPrincipal'] != '' ? $_REQUEST['audioPrincipal'] : NULL;
-			
+
 		pg_query("BEGIN;");
 
 		//print_r(array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], intval($_REQUEST['idMateria']), $imagen, $audio, intval($_REQUEST['idPregunta'])));
@@ -24,7 +49,7 @@
 		$result = pg_query_params($con,
 			'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, id_antigua) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;',
 			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], intval($_REQUEST['idMateria']), $imagen, $audio, intval($_REQUEST['idPregunta'])));
-		
+
 		if ($result) {
 			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -82,12 +107,12 @@
 
 			if ($correcto) {
 				$guardado = True;
-					$result =  pg_query_params($con, 
+					$result =  pg_query_params($con,
 					'UPDATE preguntas
 					SET borrada = TRUE
 					WHERE id = $1',
 					array($_REQUEST['idPregunta']));
-				
+
 				if (!$result) {
 					echo "02";
 					pg_query("ROLLBACK;");

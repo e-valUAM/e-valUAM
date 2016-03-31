@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -10,28 +35,28 @@
 	}
 
 	$con = connect()
-    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde. Si ves al técnico dile que "'. pg_last_error().'"');
-	
-	if ($_REQUEST['tipo'] == 'alumnos') 
+    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.')
+
+	if ($_REQUEST['tipo'] == 'alumnos')
 	{
 
 	    $result =  pg_query_params(
-			$con, 
-			'SELECT 1=1 
+			$con,
+			'SELECT 1=1
 			FROM profesor_por_materia AS pm NATURAL JOIN examenes AS e
 			WHERE pm.id_alumno = $1 AND e.id = $2',
 			array($_SESSION['idUsuario'], intval($_REQUEST['id'])))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('Error. Prueba de nuevo más tarde.')
 
 		if (pg_num_rows($result) == 1) {
 			$result =  pg_query_params(
-				$con, 
+				$con,
 				'SELECT a.nombre AS nombre, a.id AS id_a, ape.timestamp AS tim, ape.id AS id, nota
-				FROM alumnos AS a INNER JOIN alumnos_por_examen AS ape ON a.id = ape.id_alumno 
-				WHERE id_examen = $1 
+				FROM alumnos AS a INNER JOIN alumnos_por_examen AS ape ON a.id = ape.id_alumno
+				WHERE id_examen = $1
 				ORDER BY tim DESC',
 				array(intval($_REQUEST['id'])))
-			or die('La consulta fallo: ' . pg_last_error());
+			or die('Error. Prueba de nuevo más tarde.')
 
 				echo "<h2>Alumnos</h2>";
 				echo "<form>";
@@ -62,14 +87,14 @@
 	{
 		//Buscamos el numero de respuestas que tiene el examen
 		$result =  pg_query_params(
-				$con, 
-				'SELECT mat.num_respuestas as num_resp 
-				FROM (alumnos_por_examen AS ape  INNER JOIN examenes AS ex ON ape.id_examen = ex.id) 
-				INNER JOIN materias as mat ON ex.id_materia = mat.id  
+				$con,
+				'SELECT mat.num_respuestas as num_resp
+				FROM (alumnos_por_examen AS ape  INNER JOIN examenes AS ex ON ape.id_examen = ex.id)
+				INNER JOIN materias as mat ON ex.id_materia = mat.id
 				WHERE ape.id = $1',
 				array(intval($_REQUEST['id'])))
-			or die('La consulta sobre el numero de respuestas fallo: ' . pg_last_error());
-		
+			or die('Error. Prueba de nuevo más tarde.')
+
 
 			$res = pg_fetch_array($result, null, PGSQL_ASSOC);
 			$num_resp = $res['num_resp'];
@@ -80,7 +105,7 @@
 			FROM alumnos_por_examen
 			WHERE id = $1',
 			array(intval($_REQUEST['id'])))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('Error. Prueba de nuevo más tarde.')
 
 		$res = pg_fetch_array($result, null, PGSQL_ASSOC);
 		$nota = $res['nota'];
@@ -88,26 +113,26 @@
 		if($num_resp != 1){
 
 			$result =  pg_query_params(
-				$con, 
+				$con,
 				'SELECT r2.duda AS duda, p.texto AS preg, r2.correcta AS cor, r2.texto AS res, r2.timestamp AS time, p.imagen AS img, id_materia
-				FROM preguntas AS p INNER JOIN 
-				(respuestas AS r INNER JOIN respuestas_por_alumno AS rpa ON r.id = rpa.id_respuesta) AS r2 ON p.id = r2.id_pregunta 
+				FROM preguntas AS p INNER JOIN
+				(respuestas AS r INNER JOIN respuestas_por_alumno AS rpa ON r.id = rpa.id_respuesta) AS r2 ON p.id = r2.id_pregunta
 				WHERE r2.id_alumno_examen = $1
 				ORDER BY time',
 				array(intval($_REQUEST['id'])))
-			or die('La consulta fallo: ' . pg_last_error());
+			or die('Error. Prueba de nuevo más tarde.')
 
 		} else {
-		
+
 		$result =  pg_query_params(
-			$con, 
+			$con,
 			'SELECT p.texto AS preg, resp.texto AS resc, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS res, duda
 				FROM preguntas AS p INNER JOIN
-				(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 ) 
+				(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 )
 				AS resp	ON p.id = resp.id_pregunta
 				ORDER BY time',
 			array(intval($_REQUEST['id'])))
-		or die('La consulta abierta fallo: ' . pg_last_error());
+		or die('Error. Prueba de nuevo más tarde.')
 
 
 		}
@@ -177,6 +202,3 @@
 			?>
 	</body>
 </html>
-
-
-

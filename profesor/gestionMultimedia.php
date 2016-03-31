@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -60,14 +85,14 @@
 						<label class="control-label" for="idMateria">Elige una materia: </label>
 						<select class="form-control" name="idMateria">
 							<?php
-								$result =  pg_query_params($con, 
+								$result =  pg_query_params($con,
 									'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
-									FROM materias AS m 
+									FROM materias AS m
 										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 									WHERE pm.id_alumno = $1
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
-								or die('La consulta fallo: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.')
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
@@ -96,14 +121,14 @@
 						<label class="control-label" for="idMateria2">Elige una materia: </label>
 						<select class="form-control" name="idMateria2" onchange="updateContent()">
 							<?php
-								$result =  pg_query_params($con, 
+								$result =  pg_query_params($con,
 									'SELECT m.id AS id, m.nombre AS nombre
-									FROM materias AS m 
+									FROM materias AS m
 										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 									WHERE pm.id_alumno = $1
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
-								or die('La consulta fallo: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.')
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";

@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -9,14 +34,14 @@
 
 
     $result =  pg_query_params(
-		$con, 
+		$con,
 		'SELECT * FROM profesor_por_materia WHERE id_alumno = $1 AND id_materia = $2',
 		array($_SESSION['idUsuario'], intval($_REQUEST['id'])))
-	or die('La consulta fallo: ' . pg_last_error());
-	
+	or die('Error. Prueba de nuevo más tarde.')
+
 
 	if (pg_num_rows($result) == 1) {
-		
+
 		$result = pg_query_params(
 			$con,
 			'SELECT num_respuestas FROM materias WHERE id = $1',
@@ -26,14 +51,14 @@
 
 		if($nresp['num_respuestas']==1){
 			$result =  pg_query_params(
-				$con, 
+				$con,
 				'SELECT * FROM ratio_fallo_por_pregunta_abierta($1, $2) NATURAL JOIN preguntas;',
 				array(intval($_REQUEST['min']), intval($_REQUEST['id'])))
 			or die('La consulta fallo al calcular el ratio de fallo en preguntas abiertas');
 		} else {
 
 		$result =  pg_query_params(
-			$con, 
+			$con,
 			'SELECT * FROM ratio_fallo_por_pregunta($1, $2) NATURAL JOIN preguntas;',
 			array(intval($_REQUEST['min']), intval($_REQUEST['id'])))
 		or die('La consulta fallo al calcular el ratio de fallo por pregunta');
@@ -67,6 +92,6 @@
 	} else {
 		echo "<div class=\"alert alert-danger\" role=\"alert\"><p>No tienes permisos para acceder a la información solicitada.</p></div>";
 	}
-	
-	
+
+
 ?>

@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones.php';
@@ -21,12 +46,12 @@
 
 	// Se guarda en la base de datos
 	$con = connect()
-    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde. Si ves al técnico dile que "'. pg_last_error().'"');
+    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
     pg_query_params($con,
 		'UPDATE alumnos_por_examen SET nota = $1 WHERE id = $2;',
 		array($nota, $_SESSION['idAlumnoExamen']))
-	or die('La actualizacion falló: '.pg_last_error());
+	or die('Error. Prueba de nuevo más tarde.')
 
 	// Miramos si debe actualizarse el saco
 
@@ -34,7 +59,7 @@
 		$result = pg_query_params($con,
 		'SELECT nota FROM alumnos_por_examen WHERE id_alumno = $1 AND id_examen = $2;',
 		array($_SESSION['idUsuario'], $_SESSION['idExamen']))
-		or die('La actualizacion falló: '.pg_last_error());
+		or die('Error. Prueba de nuevo más tarde.')
 
 		// Miramos cuandos 9 ha habido
 		$nueves = 0;
@@ -51,7 +76,7 @@
 			pg_query_params($con,
 			'UPDATE saco_por_examen SET num_saco = $1 WHERE id_alumno = $2 and id_examen = $3;',
 			array($_SESSION['saco'] + 1, $_SESSION['idUsuario'], $_SESSION['idExamen']))
-			or die('La actualizacion falló: '.pg_last_error());
+			or die('Error. Prueba de nuevo más tarde.')
 		}
 	}
 
@@ -74,7 +99,7 @@
 
 	<body>
 		<?php mostrar_header(); ?>
-		
+
 		<?php
 			if ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback'])) {
 				if ($_SESSION['correcta']) {
@@ -118,14 +143,14 @@
 					$result = pg_query_params($con,
 						'SELECT mostrar_resultados FROM examenes WHERE id = $1;',
 						array($_SESSION['idExamen']))
-					or die('La busqueda falló: '.pg_last_error());
+					or die('Error. Prueba de nuevo más tarde.')
 
 					$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
 					if ($row['mostrar_resultados'] == 'parcial') {
 						echo "<div class=\"row\"><div class=\"col-md-12\"><p>Tu nota es ".$nota.".</p></div></div>";
 					} else if ($row['mostrar_resultados'] == 'completo') {
-						
+
 							if($_SESSION['num_respuestas'] != 1 ){
 								$result =  pg_query_params(
 								$con,
@@ -135,7 +160,7 @@
 								WHERE r2.id_alumno_examen = $1
 								ORDER BY time',
 								array(intval($_SESSION['idAlumnoExamen'])))
-							or die('La consulta fallo: ' . pg_last_error());
+							or die('Error. Prueba de nuevo más tarde.')
 						} else{
 							$result =  pg_query_params(
 								$con,
@@ -144,15 +169,15 @@
 								(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 ) AS resp 									ON p.id = resp.id_pregunta
 								ORDER BY time;',
 								array(intval($_SESSION['idAlumnoExamen'])))
-							or die('La consulta fallo: ' . pg_last_error());
+							or die('Error. Prueba de nuevo más tarde.')
 
 						}
 
 						echo "<div class=\"row\"><div class=\"col-md-12\"><h1>Resultados:</h1>";
 						echo "<p>Tu nota es ".number_format($nota, 2).".</p>";
 						echo "<p>A continuación verás tus respuestas. Aparecerán en rojo aquellas que sean incorrectas.</p></div></div>";
-						
-						
+
+
 						for ($i = 1; $res = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
 							echo "<div class=\"row\"><div class=\"col-md-12\"><section class=\"respuestas\">";
 								echo "<p class=\"lead\">[Preg. #".$i."] ".$res['preg'].":</p>";

@@ -1,22 +1,46 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
 
 <?php
 	include 'funciones.php';
-	
+
 	if (isset($_POST['token']) && isset($_POST['email']) && isset($_POST['nueva'])) {
 		$con = connect() or die ('Error. Prueba de nuevo más tarde');
 
 		$result =  pg_query_params($con, "
-			SELECT nombre 
-			FROM alumnos 
-			WHERE nombre =  $1 
+			SELECT nombre
+			FROM alumnos
+			WHERE nombre =  $1
 			AND token_creation + interval '3 hours' > NOW()
 			AND token = $2
 			", array($_POST['email'], $_POST['token']));
 
 		if (pg_num_rows($result) == 1) {
-			$salt = md5(devurandom_rand()); 
+			$salt = md5(devurandom_rand());
 			$hashed_password = crypt($_POST['nueva'], $salt);
-	
+
 			if (crypt($_POST['nueva'], $hashed_password) == $hashed_password) {
 				$result = pg_query_params($con, "UPDATE alumnos SET pass = $1, token = NULL, token_creation = NULL WHERE nombre = $2", array($hashed_password, $_POST['email']));
 
@@ -76,7 +100,7 @@
 			</div>
 		<script>
 			var iguales = false;
-			
+
 			$('input:password').on('change keyup', function () {
 				console.log('ey');
 				var nueva = $('input[name=nueva]').val();
@@ -94,9 +118,9 @@
 					$('.pass').addClass('has-error');
 				}
 			});
-			
+
 			function comprobarFormulario() {
-				return iguales;	
+				return iguales;
 			}
 		</script>
 		</main>

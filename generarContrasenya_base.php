@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones.php';
@@ -63,7 +88,7 @@ if ($es_para_colegios === TRUE) {
 	}
 
 } else if ($es_para_colegios === FALSE) {
-	
+
 	/* Para individuos */
 
 	$password = array();
@@ -76,22 +101,22 @@ if ($es_para_colegios === TRUE) {
 pg_query("BEGIN;");
 
 foreach ($password as $nombre => $pass) {
-	$salt = md5(devurandom_rand()); 
+	$salt = md5(devurandom_rand());
 	$hashed_password = crypt($pass, $salt);
-	
+
 
 	if (crypt($pass, $hashed_password) == $hashed_password) {
    		pg_query_params($con,
                         'INSERT INTO alumnos (nombre, pass, cambio_contrasenya) VALUES ($1, $2, FALSE);',
                         array($nombre, $hashed_password))
-                or die('La actualizacion falló: '.pg_last_error());
+                or die('Error. Prueba de nuevo más tarde.')
 	} else {
 		echo "<p>".$nombre." no insertado. Se aborta.</p>";
 		pg_query("ROLLBACK;");
-	} 
-		
+	}
+
 }
- 
+
 pg_query("COMMIT");
 
 /* Se deben pasar todos los resultados de crypt() como el salt para la comparación de una
@@ -104,4 +129,3 @@ pg_query("COMMIT");
 
 </body>
 </html>
-

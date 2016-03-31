@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 	include 'funciones_profesor.php';
 
@@ -9,11 +34,11 @@
 	if (isset($_REQUEST['alumno'])) { // Se trata de la llamada AJAX
 		$result =  pg_query_params($con,
 			'SELECT texto, respuesta1, respuesta2, respuesta3, respuestaok, imagen, dificultad
-			FROM preguntas_alumnos 
+			FROM preguntas_alumnos
 			WHERE id_alumno = $1
 			ORDER BY dificultad',
                         array($_REQUEST['alumno']))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('Error. Prueba de nuevo más tarde.')
 
 		if (pg_num_rows($result) == 0) {
 			echo "<p>No hay datos para mostrar.</p>";
@@ -27,8 +52,8 @@
 				}
 				echo '<p><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Correcta:</span> ' . $pregunta['respuestaok'] . '</p>';
 				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta1'] . '</p>';
-				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta2'] . '</p>';  
-				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta3'] . '</p>';  
+				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta2'] . '</p>';
+				echo '<p><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Incorrecta:</span> ' . $pregunta['respuesta3'] . '</p>';
  				echo '<p><strong>Dificultad ' . $pregunta['dificultad'] . '</strong></p>';
 				echo '</div></div>';
 			}
@@ -88,18 +113,18 @@
 							<tbody>
 							<?php
 
-								$result =  pg_query_params($con, 
-									'SELECT DISTINCT(a.nombre) AS nombre, a.id 
-									FROM alumnos AS a 
-									INNER JOIN preguntas_alumnos AS pa ON pa.id_alumno = a.id 
+								$result =  pg_query_params($con,
+									'SELECT DISTINCT(a.nombre) AS nombre, a.id
+									FROM alumnos AS a
+									INNER JOIN preguntas_alumnos AS pa ON pa.id_alumno = a.id
 									ORDER BY a.id',
 									array())
-								or die('La consulta fallo: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.')
 
 								if (pg_num_rows($result) == 0) {
 									echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td></tr>";
 								} else {
-									while ($alumno = pg_fetch_array($result, null, PGSQL_ASSOC)) { 
+									while ($alumno = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 										echo "<tr><td>".$alumno['nombre']."</td><td><input type=\"radio\" name=\"idAlumno\" value=\"".$alumno['id']."\" onclick=\"cargarPreguntas(".$alumno['id'].")\"></td></tr>";
 									}
 								}
@@ -114,5 +139,3 @@
 		</main>
 	</body>
 </html>
-
-

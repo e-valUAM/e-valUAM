@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -63,14 +88,14 @@
 							<label class="control-label" for="idMateria">Elige la materia de la que saldrán las preguntas: </label>
 							<select class="form-control" name="idMateria">
 								<?php
-									$result =  pg_query_params($con, 
+									$result =  pg_query_params($con,
 										'SELECT m.id AS id, m.nombre AS nombre
-										FROM materias AS m 
+										FROM materias AS m
 											INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 										WHERE pm.id_alumno = $1
 										ORDER BY id DESC',
 										array($_SESSION['idUsuario']))
-									or die('La consulta fallo: ' . pg_last_error());
+									or die('Error. Prueba de nuevo más tarde.')
 
 									while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 										echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
@@ -128,22 +153,22 @@
 						<tbody>
 						<?php
 
-							$result =  pg_query_params($con, 
+							$result =  pg_query_params($con,
 								'SELECT e.id AS id, e.nombre AS nombre, e.disponible AS visible, e.duracion AS tiempo,
-									m.nombre AS nombre_materia, e.num_preguntas AS num_preguntas, 
+									m.nombre AS nombre_materia, e.num_preguntas AS num_preguntas,
 									e.acepta_duda AS duda, e.mostrar_resultados AS mostrar_resultados
-								FROM examenes AS e 
+								FROM examenes AS e
 								INNER JOIN materias AS m ON e.id_materia = m.id
 								INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 								WHERE pm.id_alumno = $1 AND e.borrado = FALSE
 								ORDER BY e.id DESC',
 								array($_SESSION['idUsuario']))
-							or die('La consulta fallo: ' . pg_last_error());
+							or die('Error. Prueba de nuevo más tarde.')
 
 							if (pg_num_rows($result) == 0) {
 								echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
 							} else {
-								
+
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 
 									echo "<tr><td>".$data['nombre']."</td>";
@@ -165,12 +190,12 @@
 									}
 
 									echo "<td>".$data['mostrar_resultados']."</td>";
-									
+
 									echo "<td>";
 										//echo "<button onClick=\"editarMateria(".$data['id'].")\" type=\"button\" class=\"btn btn-primary btn-warning\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>";
 									echo "<button type=\"button\" onClick=\"borrarExamen(".$data['id'].")\" class=\"btn btn-danger\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button>";
-									echo "</td></tr>";		
-									
+									echo "</td></tr>";
+
 								}
 							}
 						?>
