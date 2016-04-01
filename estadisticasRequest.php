@@ -67,7 +67,7 @@
 				echo "<p>No hay datos suficientes para esa búsqueda.</p>";
 			}
 		} else {
-			echo "<p>No tienes permisos para acceder a la información solicitada.</p>"
+			echo "<p>No tienes permisos para acceder a la información solicitada.</p>";
 		}
 
 

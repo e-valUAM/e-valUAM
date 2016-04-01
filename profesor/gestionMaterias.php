@@ -166,7 +166,7 @@
 							GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas, m.acepta_feedback
 							ORDER BY id DESC',
 							array($_SESSION['idUsuario']))
-						or die('Error. Prueba de nuevo más tarde.')
+						or die('Error. Prueba de nuevo más tarde.');
 
 						if (pg_num_rows($result) == 0) {
 							echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td></tr>";

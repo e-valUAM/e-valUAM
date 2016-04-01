@@ -109,7 +109,7 @@ foreach ($password as $nombre => $pass) {
    		pg_query_params($con,
                         'INSERT INTO alumnos (nombre, pass, cambio_contrasenya) VALUES ($1, $2, FALSE);',
                         array($nombre, $hashed_password))
-                or die('Error. Prueba de nuevo más tarde.')
+                or die('Error. Prueba de nuevo más tarde.');
 	} else {
 		echo "<p>".$nombre." no insertado. Se aborta.</p>";
 		pg_query("ROLLBACK;");

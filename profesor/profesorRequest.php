@@ -35,7 +35,7 @@
 	}
 
 	$con = connect()
-    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.')
+    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
 	if ($_REQUEST['tipo'] == 'alumnos')
 	{
@@ -46,7 +46,7 @@
 			FROM profesor_por_materia AS pm NATURAL JOIN examenes AS e
 			WHERE pm.id_alumno = $1 AND e.id = $2',
 			array($_SESSION['idUsuario'], intval($_REQUEST['id'])))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 
 		if (pg_num_rows($result) == 1) {
 			$result =  pg_query_params(
@@ -56,7 +56,7 @@
 				WHERE id_examen = $1
 				ORDER BY tim DESC',
 				array(intval($_REQUEST['id'])))
-			or die('Error. Prueba de nuevo más tarde.')
+			or die('Error. Prueba de nuevo más tarde.');
 
 				echo "<h2>Alumnos</h2>";
 				echo "<form>";
@@ -93,7 +93,7 @@
 				INNER JOIN materias as mat ON ex.id_materia = mat.id
 				WHERE ape.id = $1',
 				array(intval($_REQUEST['id'])))
-			or die('Error. Prueba de nuevo más tarde.')
+			or die('Error. Prueba de nuevo más tarde.');
 
 
 			$res = pg_fetch_array($result, null, PGSQL_ASSOC);
@@ -105,7 +105,7 @@
 			FROM alumnos_por_examen
 			WHERE id = $1',
 			array(intval($_REQUEST['id'])))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 
 		$res = pg_fetch_array($result, null, PGSQL_ASSOC);
 		$nota = $res['nota'];
@@ -120,7 +120,7 @@
 				WHERE r2.id_alumno_examen = $1
 				ORDER BY time',
 				array(intval($_REQUEST['id'])))
-			or die('Error. Prueba de nuevo más tarde.')
+			or die('Error. Prueba de nuevo más tarde.');
 
 		} else {
 
@@ -132,7 +132,7 @@
 				AS resp	ON p.id = resp.id_pregunta
 				ORDER BY time',
 			array(intval($_REQUEST['id'])))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 
 
 		}

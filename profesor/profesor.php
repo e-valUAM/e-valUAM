@@ -1,13 +1,13 @@
 <!--
-		e-valUAM: An adaptive questionnaire environment.
-		e-valUAM: Un entorno de questionarios adaptativos.
+    e-valUAM: An adaptive questionnaire environment.
+    e-valUAM: Un entorno de questionarios adaptativos.
 
     Copyright (C) 2011-2016
-		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
-		Contact email: pablo.molins@uam.es
+    P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+    Contact email: pablo.molins@uam.es
 
 
-		This file is part of e-valUAM.
+    This file is part of e-valUAM.
 
     e-valUAM is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
@@ -28,14 +28,14 @@
 	require 'funciones_profesor.php';
 
 	$con = connect()
-    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.')
+    or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
     $nombre = $_REQUEST['nombre'];
     $contrasenya = $_REQUEST['contrasenya'];
 
 
 	$result =  pg_query_params($con, 'SELECT pass, id, admin FROM alumnos WHERE nombre =  $1 AND profesor = TRUE', array($nombre))
-	or die('Error. Prueba de nuevo más tarde.')
+	or die('Error. Prueba de nuevo más tarde.');
 
 	$pass = pg_fetch_result($result, 0, 0);
 

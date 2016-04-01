@@ -38,7 +38,7 @@
 			WHERE id_alumno = $1
 			ORDER BY dificultad',
                         array($_REQUEST['alumno']))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 
 		if (pg_num_rows($result) == 0) {
 			echo "<p>No hay datos para mostrar.</p>";
@@ -119,7 +119,7 @@
 									INNER JOIN preguntas_alumnos AS pa ON pa.id_alumno = a.id
 									ORDER BY a.id',
 									array())
-								or die('Error. Prueba de nuevo más tarde.')
+								or die('Error. Prueba de nuevo más tarde.');
 
 								if (pg_num_rows($result) == 0) {
 									echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td></tr>";

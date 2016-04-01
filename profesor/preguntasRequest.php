@@ -45,7 +45,7 @@
 		WHERE id_materia = $1 AND borrada = FALSE
 		ORDER BY dificultad,id',
 		array($_REQUEST['idMateria']))
-	or die('Error. Prueba de nuevo más tarde.')
+	or die('Error. Prueba de nuevo más tarde.');
 
 	echo "<thead><tr>";
 	echo "<th>Id</th><th>Dificultad</th><th>Enunciado</th><th>Imagen</th><th>Opciones</th>";

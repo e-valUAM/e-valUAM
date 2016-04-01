@@ -102,7 +102,7 @@
 
 						$result =  pg_query($con,
 							'SELECT ex.nombre AS nombre_ex, ma.nombre AS nombre_ma, ex.id AS id, ma.id AS ma_id FROM examenes AS ex INNER JOIN materias AS ma ON ex.id_materia = ma.id')
-						or die('Error. Prueba de nuevo más tarde.')
+						or die('Error. Prueba de nuevo más tarde.');
 
 
 						while ($examen = pg_fetch_array($result, null, PGSQL_ASSOC)) {

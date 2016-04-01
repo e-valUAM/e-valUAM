@@ -92,7 +92,7 @@
 									WHERE pm.id_alumno = $1
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
-								or die('Error. Prueba de nuevo más tarde.')
+								or die('Error. Prueba de nuevo más tarde.');
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
@@ -128,7 +128,7 @@
 									WHERE pm.id_alumno = $1
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
-								or die('Error. Prueba de nuevo más tarde.')
+								or die('Error. Prueba de nuevo más tarde.');
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";

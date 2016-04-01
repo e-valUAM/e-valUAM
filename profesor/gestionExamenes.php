@@ -95,7 +95,7 @@
 										WHERE pm.id_alumno = $1
 										ORDER BY id DESC',
 										array($_SESSION['idUsuario']))
-									or die('Error. Prueba de nuevo más tarde.')
+									or die('Error. Prueba de nuevo más tarde.');
 
 									while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 										echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
@@ -163,7 +163,7 @@
 								WHERE pm.id_alumno = $1 AND e.borrado = FALSE
 								ORDER BY e.id DESC',
 								array($_SESSION['idUsuario']))
-							or die('Error. Prueba de nuevo más tarde.')
+							or die('Error. Prueba de nuevo más tarde.');
 
 							if (pg_num_rows($result) == 0) {
 								echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";

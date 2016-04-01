@@ -51,7 +51,7 @@
     pg_query_params($con,
 		'UPDATE alumnos_por_examen SET nota = $1 WHERE id = $2;',
 		array($nota, $_SESSION['idAlumnoExamen']))
-	or die('Error. Prueba de nuevo más tarde.')
+	or die('Error. Prueba de nuevo más tarde.');
 
 	// Miramos si debe actualizarse el saco
 
@@ -59,7 +59,7 @@
 		$result = pg_query_params($con,
 		'SELECT nota FROM alumnos_por_examen WHERE id_alumno = $1 AND id_examen = $2;',
 		array($_SESSION['idUsuario'], $_SESSION['idExamen']))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 
 		// Miramos cuandos 9 ha habido
 		$nueves = 0;
@@ -76,7 +76,7 @@
 			pg_query_params($con,
 			'UPDATE saco_por_examen SET num_saco = $1 WHERE id_alumno = $2 and id_examen = $3;',
 			array($_SESSION['saco'] + 1, $_SESSION['idUsuario'], $_SESSION['idExamen']))
-			or die('Error. Prueba de nuevo más tarde.')
+			or die('Error. Prueba de nuevo más tarde.');
 		}
 	}
 
@@ -143,7 +143,7 @@
 					$result = pg_query_params($con,
 						'SELECT mostrar_resultados FROM examenes WHERE id = $1;',
 						array($_SESSION['idExamen']))
-					or die('Error. Prueba de nuevo más tarde.')
+					or die('Error. Prueba de nuevo más tarde.');
 
 					$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -160,7 +160,7 @@
 								WHERE r2.id_alumno_examen = $1
 								ORDER BY time',
 								array(intval($_SESSION['idAlumnoExamen'])))
-							or die('Error. Prueba de nuevo más tarde.')
+							or die('Error. Prueba de nuevo más tarde.');
 						} else{
 							$result =  pg_query_params(
 								$con,
@@ -169,7 +169,7 @@
 								(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 ) AS resp 									ON p.id = resp.id_pregunta
 								ORDER BY time;',
 								array(intval($_SESSION['idAlumnoExamen'])))
-							or die('Error. Prueba de nuevo más tarde.')
+							or die('Error. Prueba de nuevo más tarde.');
 
 						}
 

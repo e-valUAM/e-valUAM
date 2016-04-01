@@ -42,7 +42,7 @@
 		FROM materias
 		WHERE id = $1',
 		array($_REQUEST['idMateria']))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 
 		$data = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -52,7 +52,7 @@
 		FROM preguntas
 		WHERE id_materia = $1 AND borrada = FALSE;',
 		array($_REQUEST['idMateria']))
-		or die('Error. Prueba de nuevo más tarde.')
+		or die('Error. Prueba de nuevo más tarde.');
 	$data2 = pg_fetch_array($result, null, PGSQL_ASSOC);
 
 

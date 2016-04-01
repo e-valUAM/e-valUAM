@@ -103,7 +103,7 @@
 									INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia
 									WHERE pm.id_alumno = $1',
 									array($_SESSION['idUsuario']))
-								or die('Error. Prueba de nuevo más tarde.')
+								or die('Error. Prueba de nuevo más tarde.');
 
 								if (pg_num_rows($result) == 0) {
 									echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td></tr>";

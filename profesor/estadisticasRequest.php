@@ -37,7 +37,7 @@
 		$con,
 		'SELECT * FROM profesor_por_materia WHERE id_alumno = $1 AND id_materia = $2',
 		array($_SESSION['idUsuario'], intval($_REQUEST['id'])))
-	or die('Error. Prueba de nuevo más tarde.')
+	or die('Error. Prueba de nuevo más tarde.');
 
 
 	if (pg_num_rows($result) == 1) {
