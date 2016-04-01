@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones.php';
@@ -19,7 +44,7 @@
 
 		unset($_SESSION['id_pregunta_anterior']);
 		unset($_SESSION['id_pregunta_anteanterior']);
-	
+
 	//Comprobamos que el examen este abierto y guardamos su tipo
 
 		$result = pg_query_params($con, 'SELECT tipo_examen,feedback FROM examenes WHERE id = $1 AND disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id', array($_SESSION['idExamen']))
@@ -40,7 +65,7 @@
 			header("Location: ./eleccionExamen.php");
 	   		exit;
 		}
-		
+
 
 
 		// Ciertos parametros vienen de la base de datos.
@@ -130,25 +155,25 @@
 	{
 		// Aquí se llega después de responder a una pregunta
 		// Primero guardamos la respuesta
-		
+
 		$time = time();
 
 		$_SESSION['restante'] = ceil(($_SESSION['final'] - $time) / 60);
-		
+
 		$duda = NULL;
 		if ($_SESSION["acepta_duda"])
 			$duda = ($_REQUEST['duda'] == 't' ? 't' : 'f');
 
 		// Hacemos la query de inserción en funcion del examen
-		
+
 		if($_SESSION['num_respuestas'] == 1){ //Caso respuesta abierta
 			/* limpiamos de espacios la respuesta */
-			$respuestaAbierta = trim($_REQUEST['respuestaA']);	
+			$respuestaAbierta = trim($_REQUEST['respuestaA']);
 
 			pg_query_params($con,
 				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6);',
 				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $respuestaAbierta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
-			or die('La actualizacion falló: '.pg_last_error());
+			or die('Error. Prueba de nuevo más tarde.');
 
 			// Guardada la respuesta, actualizamos las variables que definen el examen
 			// Comprobamos si la respuesta ha sido correcta
@@ -158,7 +183,7 @@
 				$_SESSION['correcta'] = FALSE;
 			}
 				$_SESSION['numRespondidas']++;
-			
+
 
 		}
 		else{
@@ -166,7 +191,7 @@
 			pg_query_params($con,
 				'INSERT INTO respuestas_por_alumno VALUES ($1, $2, $3, $4, $5);',
 				array($_SESSION['idUsuario'], $idRespuesta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
-			or die('La actualizacion falló: '.pg_last_error());
+			or die('Error. Prueba de nuevo más tarde.');
 			// Guardada la respuesta, actualizamos las variables que definen el examen
 			// Comprobamos si la respuesta ha sido correcta
 			if (strcmp($_REQUEST['respuesta'], $_SESSION['correcta']) == 0) {
@@ -177,7 +202,7 @@
 				$_SESSION['numRespondidas']++;
 		}
 
-		
+
 
 		// Si la respuesta es correcta, lo anotamos y comprobamos si salta de nivel
 		if ($_SESSION['correcta']) {
@@ -194,7 +219,7 @@
 		if ($_SESSION['numRespondidas'] == $_SESSION['num_preguntas']) {
 			$_SESSION['sigueExamen?'] = false;
 			header("Location: ./FinExamen.php");
-			exit;	
+			exit;
 		}
 
 	} else { // Dirigia a error.php que no existia
@@ -367,7 +392,7 @@
 					<?php
 						// La query varia en funcion del tipo de examen
 						if($_SESSION['tipo_examen']=='clasico'){// Clasico
-							
+
 							if($_SESSION['num_respuestas'] == 1){//Abierta
 								$result =  pg_query_params($con,
 								'	(SELECT id, texto, imagen, audio, feedback
@@ -379,7 +404,7 @@
 									)
 								',
 								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
-								or die('La consulta de la pregunta falló: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.');
 							}
 							else{ //TEST
 
@@ -395,7 +420,7 @@
 									)
 								',
 								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
-								or die('La consulta de la pregunta falló: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.');
 						}
 						}
 						else{ //Caso examen Saco
@@ -412,7 +437,7 @@
 									)
 								',
 								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['saco'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
-							or die('La consulta de la pregunta falló: ' . pg_last_error());
+							or die('Error. Prueba de nuevo más tarde.');
 
 
 							}
@@ -429,7 +454,7 @@
 									)
 								',
 								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['saco'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
-							or die('La consulta de la pregunta falló: ' . pg_last_error());
+							or die('Error. Prueba de nuevo más tarde.');
 							}
 						}
 
@@ -470,7 +495,7 @@
 							WHERE id_pregunta = $1
 							ORDER BY RANDOM()',
 							array($pregunta['id']))
-						or die('La consulta fallo: ' . pg_last_error());
+						or die('Error. Prueba de nuevo más tarde.');
 
 						switch ($_SESSION['num_respuestas']) {
 							case 2:
@@ -489,12 +514,12 @@
 							default:
 								$class = "col-md-1";
 						}
-						
+
 						if($_SESSION['num_respuestas'] == 1){ // Caso respuesta abierta
 							$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
 
 							$_SESSION['correcta'] = $respuesta['texto'];
-							
+
 
 						}
 						else{ // respuestas tipo test
@@ -538,10 +563,10 @@
 						</div>
 					</div>
 				<?php } ?>
-				
+
 					<?php
 						if($_SESSION['num_respuestas'] == 1){ // Caso respuesta abierta
-					
+
 						echo '<form role="form">';
 						echo '	<div class="form-group col-md-6 col-md-offset-1">';
 						echo '		<label class="control-label" for="respuestaA">Respuesta: </label>';
@@ -584,8 +609,8 @@ Escribe tus respuestas en minúscula" data-trigger=" click hover">
 						}
 						pg_free_result($result);
 					?>
-				
-			</form> 
+
+			</form>
 		</footer>
 	</body>
 </html>

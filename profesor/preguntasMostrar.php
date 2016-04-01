@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -11,17 +36,17 @@
 	$con = connect()
 		or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
-	
+
 	$result = pg_query_params($con,
 		'SELECT *
 		FROM profesor_por_materia
 		WHERE id_alumno = $1 AND id_materia = $2',
 		array(intval($_SESSION['idUsuario']), intval($_REQUEST['idMateria'])));
-	
+
 	if (pg_num_rows($result) != 1) {
 		die(pg_num_rows($result));
 	}
-	
+
 
 	$result = pg_query_params($con,
 		'SELECT *
@@ -33,7 +58,7 @@
 
 	while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 		$preguntas[] = [
-			'id' => $data['id'], 
+			'id' => $data['id'],
 			'texto' => $data['texto'],
 			'dificultad' => $data['dificultad'],
 			'audio' => $data['audio'],
@@ -42,7 +67,7 @@
 	}
 
 	$result = pg_query_params($con,
-		'SELECT r.* 
+		'SELECT r.*
 		FROM respuestas AS r
 		INNER JOIN preguntas AS p ON r.id_pregunta = p.id
 		WHERE p.id_materia = $1 AND p.borrada = FALSE',
@@ -53,7 +78,7 @@
 	while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 		$respuestas[] = [
 			'id' => $data['id'],
-			'idPregunta' => $data['id_pregunta'], 
+			'idPregunta' => $data['id_pregunta'],
 			'texto' => $data['texto'],
 			'correcta' => $data['correcta'],
 			'audio' => $data['audio'],

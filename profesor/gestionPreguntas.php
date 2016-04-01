@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -12,18 +37,18 @@
 	$con = connect()
 		or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
-	
+
 	if (isset($_REQUEST['idMateria'])) {
 		$guardado = False;
 		$imagen = $_REQUEST['imagenPrincipal'] != '' ? $_REQUEST['imagenPrincipal'] : NULL;
 		$audio = $_REQUEST['audioPrincipal'] != '' ? $_REQUEST['audioPrincipal'] : NULL;
-			
+
 		pg_query("BEGIN;");
 
 		$result = pg_query_params($con,
 			'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio) VALUES ($1, $2, $3, $4, $5) RETURNING id;',
 			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], intval($_REQUEST['idMateria']), $imagen, $audio));
-		
+
 		if ($result) {
 			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -92,7 +117,7 @@
 			pg_query("ROLLBACK;");
 		}
 	}
-	
+
 ?>
 
 <!DOCTYPE html>
@@ -138,14 +163,14 @@
 						<label class="control-label" for="idMateria">Elige una materia: </label>
 						<select class="form-control" name="idMateria" onchange="updateIdMateria()">
 							<?php
-								$result =  pg_query_params($con, 
+								$result =  pg_query_params($con,
 									'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
-									FROM materias AS m 
+									FROM materias AS m
 										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 									WHERE pm.id_alumno = $1
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
-								or die('La consulta fallo: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.');
 
 								$numDificultades = array();
 								$numRespuestas = array();
@@ -158,17 +183,17 @@
 									$numDificultades[$data['id']] = $data['num_dificultades'];
 									$numRespuestas[$data['id']] = $data['num_respuestas'];
 								}
-								
+
 							?>
-							
+
 						</select>
 						<script type="text/javascript">
 							function updateIdMateria() {
 								var input = $('select[name="idMateria"]  option:selected');
 								$("#idMateria").val(input.val());
-								$('#mostrarPreguntas').attr('href', './preguntasMostrar.php?idMateria=' + input.val() + '&nombreMateria=' + input.text());							
+								$('#mostrarPreguntas').attr('href', './preguntasMostrar.php?idMateria=' + input.val() + '&nombreMateria=' + input.text());
 							}
-							
+
 						</script>
 						<br>
 						<a id="mostrarPreguntas" class="btn btn-primary" href="./preguntasMostrar.php" targe="_blank" role="button">Ver todas las preguntas</a>
@@ -251,7 +276,7 @@
 										options = "<option value=\"1\">1</option>" + options;
 								}
 
-							
+
 
 								select.html(options);
 							}
@@ -280,7 +305,7 @@
 									$('#divparametros').addClass('hidden');
 
 								}
-							
+
 							}
 
 
@@ -292,11 +317,11 @@
 							cambiarSelectNumDificultades();
 
 							updateIdMateria();
-							
-						</script>
-					</div>	
 
-							
+						</script>
+					</div>
+
+
 
 					<div class="checkbox">
 						<label>
@@ -304,7 +329,7 @@
 							¿La pregunta tiene una imagen principal?
 						</label>
 					</div>
-					
+
 						<div class="checkbox" id="divimagenRespuestasCheckbox">
 							<label>
 								<input type="checkbox" id="imagenRespuestasCheckbox" value="t" >
@@ -319,7 +344,7 @@
 						  </label>
 						</div>
 
-						
+
 						<div class="checkbox" id="divparametros">
 						  <label>
 							<input type="checkbox" id="parametros" value="t" disabled>
@@ -327,7 +352,7 @@
 						  </label>
 						</div>
 
-						
+
 					<script type="text/javascript">
 						$("#imagenRespuestasCheckbox").change(function() {
 							if(this.checked) {
@@ -466,7 +491,7 @@
 
 							$("#zona-respuestas").removeClass("has-error");
 							$("#titulo").removeClass("has-error");
-							
+
 							for (var i = 1; i <= numRespuestas[input.val()]; i++) {
 								if ($("input[name=respuesta" + i + "]").val() === "") {
 									$("#zona-respuestas").addClass("has-error");
@@ -478,7 +503,7 @@
 								$("#titulo").addClass("has-error");
 								event.preventDefault();
 							}
-							
+
 							return;
 						});
 
@@ -638,7 +663,6 @@
 				</div>
 			</div>
 		</div>
-	</main>	
+	</main>
 </body>
 </html>
-

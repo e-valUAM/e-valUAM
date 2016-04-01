@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -12,13 +37,13 @@
 	$con = connect()
 		or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
-	
+
 	if (isset($_REQUEST['nombreMateria'])) {
 		$guardado = False;
 
 		if ($_REQUEST['numDificultades'] >= 1 &&
 			$_REQUEST['numPreguntas'] >= 1 && $_REQUEST['numPreguntas'] <= 5) {
-			
+
 			//$feedback = ($_REQUEST['feedback'] == 't' ? 't' : 'f');
 
 			pg_query("BEGIN;");
@@ -26,7 +51,7 @@
 			$result = pg_query_params($con,
 				'INSERT INTO materias (nombre, num_dificultades, num_respuestas) VALUES ($1, $2, $3) RETURNING id;',
 				array($_REQUEST['nombreMateria'], $_REQUEST['numDificultades'], $_REQUEST['numPreguntas']));
-			
+
 			if ($result) {
 				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
@@ -45,7 +70,7 @@
 			}
 		}
 	}
-	
+
 ?>
 
 <!DOCTYPE html>
@@ -131,22 +156,22 @@
 					<tbody>
 					<?php
 
-						$result =  pg_query_params($con, 
+						$result =  pg_query_params($con,
 							'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades,
 								m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback
-							FROM materias AS m 
+							FROM materias AS m
 								INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 								LEFT JOIN preguntas AS p ON p.id_materia = m.id
 							WHERE pm.id_alumno = $1
 							GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas, m.acepta_feedback
 							ORDER BY id DESC',
 							array($_SESSION['idUsuario']))
-						or die('La consulta fallo: ' . pg_last_error());
+						or die('Error. Prueba de nuevo más tarde.');
 
 						if (pg_num_rows($result) == 0) {
 							echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td></tr>";
 						} else {
-							while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) { 
+							while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 								echo "<tr><td>".$data['nombre']."</td>";
 								echo "<td>".$data['num_dificultades']."</td>";
 
@@ -162,7 +187,7 @@
 									echo '<td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td>';
 								}
 								*/
-								
+
 								echo "<td>";
 									echo "<button onClick=\"editarMateria(".$data['id'].")\" type=\"button\" class=\"btn btn-primary btn-warning\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>";
 									// if ($data['count'] > 0) {
@@ -172,7 +197,7 @@
 									// } else {
 									// 	echo "<button type=\"button\" class=\"btn btn-danger\">Borrar</button>";
 									// }
-								echo "</td></tr>";		
+								echo "</td></tr>";
 							}
 						}
 					?>
@@ -198,15 +223,15 @@
 						var numDificultades = $('#form_edicion #numDificultades').val();
 						var numPreguntas = $('#form_edicion #numPreguntas').val();
 
-						$.ajax("materiasRequest.php", {data: 
-								{idMateria: idMateria, 
+						$.ajax("materiasRequest.php", {data:
+								{idMateria: idMateria,
 									nombreMateria: nombreMateria,
 									numDificultades: numDificultades,
 									numPreguntas: numPreguntas
 								}, type: "POST"})
 							.done(function(msg) {
 								if (msg == 'Ok')
-									location.reload(); 
+									location.reload();
 							})
 							.fail(function(jqXHR, textStatus) {
 								alert("Se ha producido un error al guardar los cambios. Prueba de nuevo más tarde.");
@@ -235,8 +260,6 @@
 				</div>
 			</div>
 		</div>
-	</main>	
+	</main>
 </body>
 </html>
-
-

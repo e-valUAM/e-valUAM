@@ -1,3 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <?php
 
 	include 'funciones_profesor.php';
@@ -71,19 +96,19 @@
 							<tbody>
 							<?php
 
-								$result =  pg_query_params($con, 
-									'SELECT ex.nombre AS nombre_ex, ma.nombre AS nombre_ma, ex.id AS id, ma.id AS ma_id 
-									FROM examenes AS ex 
-									INNER JOIN materias AS ma ON ex.id_materia = ma.id 
-									INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia 
+								$result =  pg_query_params($con,
+									'SELECT ex.nombre AS nombre_ex, ma.nombre AS nombre_ma, ex.id AS id, ma.id AS ma_id
+									FROM examenes AS ex
+									INNER JOIN materias AS ma ON ex.id_materia = ma.id
+									INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia
 									WHERE pm.id_alumno = $1',
 									array($_SESSION['idUsuario']))
-								or die('La consulta fallo: ' . pg_last_error());
+								or die('Error. Prueba de nuevo más tarde.');
 
 								if (pg_num_rows($result) == 0) {
 									echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td></tr>";
 								} else {
-									while ($examen = pg_fetch_array($result, null, PGSQL_ASSOC)) { 
+									while ($examen = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 										echo "<tr><td>".$examen['nombre_ex']."</td><td>".$examen['nombre_ma']."</td><td><input type=\"radio\" name=\"idExamen\" value=\"".$examen['id']."\" onclick=\"loadXMLDocAlumnos(this.value, ".$examen['ma_id'].")\"></td></tr>";
 									}
 								}
@@ -98,5 +123,3 @@
 		</main>
 	</body>
 </html>
-
-

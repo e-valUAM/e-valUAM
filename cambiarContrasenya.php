@@ -1,6 +1,31 @@
-<?php 
-	
-	include 'funciones.php'; 
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+		e-valUAM: Un entorno de questionarios adaptativos.
+
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<?php
+
+	include 'funciones.php';
 
 	//check_login();
 
@@ -16,7 +41,7 @@
     if (isset($_REQUEST['antigua'])) {
 
 		$result =  pg_query_params($con, 'SELECT pass FROM alumnos WHERE id =  $1', array($_SESSION['idUsuario']))
-		or die('La consulta fallo: ' . pg_last_error());
+		or die('Error. Prueba de nuevo más tarde.');
 
 		$pass = pg_fetch_result($result, 0, 0);
 
@@ -30,7 +55,7 @@
 		} else if ($_REQUEST['nueva1'] != $_REQUEST['nueva2']) {
 			$errorNuevas = TRUE;
 		} else {
-			$salt = md5(devurandom_rand()); 
+			$salt = md5(devurandom_rand());
 			$hashed_password = crypt($_REQUEST['nueva1'], $salt);
 
 			if (pg_affected_rows(pg_query($con, "UPDATE alumnos SET pass = '".$hashed_password."', cambio_contrasenya = FALSE WHERE id = ".$_SESSION['idUsuario'])) == 0)
@@ -116,7 +141,7 @@
 					</form>
 				</div>
 			</div>
-		</main> 
+		</main>
 		<script type="text/javascript">
 			var nueva1 = $("input[name='nueva1']");
 			var nueva2 = $("input[name='nueva2']");

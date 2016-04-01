@@ -1,6 +1,28 @@
+<!--
+		e-valUAM: An adaptive questionnaire environment.
+    Copyright (C) 2011-2016
+		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
+		Contact email: pablo.molins@uam.es
+
+
+		This file is part of e-valUAM.
+
+    e-valUAM is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+		by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    e-valUAM is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
+-->
 
 <?php
-	
+
 	include 'funciones.php';
 	session_start();
 
@@ -11,13 +33,13 @@
 	   	exit;
 
 	} else {
-	
+
 		$con = connect();
 		// Query para buscar pregunta anterior
 		$result =  pg_query_params($con,
 			'(SELECT texto, imagen, audio FROM preguntas WHERE id = $1)',
 			array($_SESSION['id_pregunta_anteanterior']));
-						
+
 		// Caso de Error en la Query o en la Conexion
 		if (pg_num_rows($result) == 0) {
 			set_mensaje('error', 'Error al mostrar pregunta respondida anteriormente');
@@ -32,20 +54,20 @@
 		if($_SESSION['num_respuestas'] == 1){ //Respuesta Abierta
 
 			$result =  pg_query_params($con,
-				'(SELECT respuesta, respuesta=texto AS correcta 
-					FROM respuestas_abiertas NATURAL JOIN respuestas 
+				'(SELECT respuesta, respuesta=texto AS correcta
+					FROM respuestas_abiertas NATURAL JOIN respuestas
 					WHERE id_pregunta = $1 and id_alumno_examen = $2)',
-				array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));			
+				array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
 
 		} else { // Respuesta Test
-	
+
 			$result =  pg_query_params($con,
 				'(SELECT texto as respuesta, correcta
-					FROM respuestas_por_alumno INNER JOIN respuestas ON id_respuesta = id 
+					FROM respuestas_por_alumno INNER JOIN respuestas ON id_respuesta = id
 					WHERE id_pregunta = $1 AND id_alumno_examen = $2)',
-				array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));	
+				array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
 		}
-	
+
 		if (pg_num_rows($result) == 0) { //Respuesta no encontrada
 
 			$respuesta['respuesta'] = 'No se ha podido encontrar el texto de su respuesta';
@@ -57,7 +79,7 @@
 		$tipo = ($respuesta['correcta']=='t') ? "correcta" : "incorrecta";
 
 		}
-	}	
+	}
 ?>
 
 
