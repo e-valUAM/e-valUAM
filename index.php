@@ -46,7 +46,7 @@
 				<div class="col-md-12">
 					<h1>Bienvenido a e-valUAM 2.0</h1>
 					<p>Para acceder es necesario que dispongas de una cuenta de usuario y de una contraseña.</p>
-					<p>Si no tienes una cuenta de usuario, o si has olvidado la clave, pregunta a tu profesor al respecto.</p>
+					<p>Si no tienes una cuenta de usuario <a href="nuevaCuenta.php">pulsa aquí</a>.</p>
 					<?php
 						if (isset($_REQUEST['error']) && $_REQUEST['error'] == 'si')
 							echo "<div class=\"alert alert-danger\" id='cajon-datos' role=\"alert\"><p>Los datos introducidos no coinciden. Prueba de nuevo.</p></div>";
@@ -68,6 +68,7 @@
 						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
 				<br>	<p><a href="recuperarContrasenya.php">¿Has olvidado la contraseña?</a></p>
+						<p><a href="nuevaCuenta.php">Crear una cuenta nueva </a></p>
 				</div>
 			</div>
 			<?php mostrar_licencia(); ?>
