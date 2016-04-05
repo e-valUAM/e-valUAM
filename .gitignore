@@ -1,1 +1,4 @@
 vendor/
+multimedia/
+!multimedia/logos
+.gitignore

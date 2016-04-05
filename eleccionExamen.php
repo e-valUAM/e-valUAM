@@ -37,7 +37,7 @@
     		$nombre = $_REQUEST['nombre'];
 	    	$contrasenya = $_REQUEST['contrasenya'];
 
-		$result =  pg_query_params($con, 'SELECT pass, id, cambio_contrasenya, profesor, admin, envio_preguntas FROM alumnos WHERE nombre =  $1', array($nombre))
+		$result =  pg_query_params($con, 'SELECT pass, id, cambio_contrasenya, profesor, admin, envio_preguntas,verificada FROM alumnos WHERE nombre =  $1', array($nombre))
 		or die('Error. Prueba de nuevo más tarde.');
 
 		$pass = pg_fetch_result($result, 0, 0);
@@ -46,6 +46,14 @@
 			header("Location: ./index.php?error=si");
    			exit;
 		}
+
+	    if (pg_fetch_result($result, 0, 6) == "f"){
+		//Caso de error
+			set_mensaje('error', 'Su cuenta no ha sido verificada, actívela siguiendo las instrucciones del mensaje que enviamos a su correo');
+			header('Location: index.php');
+			exit;
+		}
+
 
 		$_SESSION = array();
 
