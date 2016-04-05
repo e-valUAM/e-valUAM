@@ -85,8 +85,8 @@
 						$message = '<html><head><title>e-valUAM Nueva Cuenta</title></head>
 										<body>
 											<p>Recientemente has creado una cuenta en e-valUAM.</p>
-											<p>Debes verificar la cuenta, haciendo click en el siguiente enlace para comenzar a usarla:
-									<a href="https://e-valuam.ii.uam.es/verificar.php?token='.urlencode($token)."&mail=".urlencode($_POST['email']).'>
+											<p>Debes verificar la cuenta, haciendo click en el siguiente enlace para comenzar a usarla:</p>
+								<p><a href="https://e-valuam.ii.uam.es/verificar.php?token='.urlencode($token).'&mail='.urlencode($_POST['email']).'">
 									https://e-valuam.ii.uam.es/verificar.php?token='.urlencode($token).'&mail='.urlencode($_POST['email']).'</a></p>
 											<p>Si no has sido tú, sencillamente ignora este mensaje.</p>
 										</body>
