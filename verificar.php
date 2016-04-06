@@ -49,9 +49,9 @@
 				UPDATE alumnos SET verificada = true WHERE nombre = $1;
 				", array($_GET['mail']));
 			if($result){
-				set_mensaje('ok', 'Tu cuenta '.$_GET['mail'].' ha sido verificada, ya puedes comenzar a usarla');
+				set_mensaje('ok', 'Tu cuenta '.$_GET['mail'].' ha sido verificada, ya puedes comenzar a usarla.');
 			} else {
-				set_mensaje('error', 'Error al verificar la cuenta, intentelo de nuevo más tarde');
+				set_mensaje('error', 'Error al verificar la cuenta, intentelo de nuevo más tarde.');
 			}
 			header('Location: index.php');
 			exit;
@@ -95,7 +95,7 @@
 			//Error en el envío del correo
 			} else {
 				set_mensaje('error', 'Error en el envío del correo de verificación. Inténtelo más tarde o pongase en contacto
-					con el administrador a través del <a href="contacto.php">formulario de contacto</a>');
+					con el administrador a través del <a href="contacto.php">formulario de contacto</a>.');
 			}
 			header('Location: index.php');
 			exit;
@@ -105,7 +105,7 @@
 	}
 	//Caso de error
 	set_mensaje('error', 'No se ha podido completar tu solicitud. Inténtelo más tarde o pongase en contacto
-					con el administrador a través del <a href="contacto.php">formulario de contacto</a>');
+					con el administrador a través del <a href="contacto.php">formulario de contacto</a>.');
 	header('Location: index.php');
 	exit;
 	

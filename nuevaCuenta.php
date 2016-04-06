@@ -38,13 +38,13 @@
 
 				//Caso contraseñas no coinciden
 				if(	strcmp($_POST['contrasenya'],$_POST['contrasenya2'])){
-					set_mensaje('error', 'Las contraseñas no coinciden, por favor inténtelo de nuevo');
+					set_mensaje('error', 'Las contraseñas no coinciden, por favor inténtelo de nuevo.');
 
 				//Error conexion base de datos
 				} else {
 					$con = connect();
 					if(!$con){
-						set_mensaje('error', 'Error al conectarse con la base de datos, prueba de nuevo más tarde');
+						set_mensaje('error', 'Error al conectarse con la base de datos, prueba de nuevo más tarde.');
 						header("Location: ./nuevaCuenta.php");
 						exit;
 					}
@@ -57,7 +57,7 @@
 					// Caso correo utilizado
 					if (pg_num_rows($result) != 0) {
 						set_mensaje('error', 'El correo introducido ya esta en uso, si ya tiene una cuenta y ha olvidado la contraseña
-									pinche <a href="recuperarContrasenya.php">aquí</a>');
+									pinche <a href="recuperarContrasenya.php">aquí</a>.');
 						header("Location: ./nuevaCuenta.php");
 						exit;
 
@@ -105,7 +105,7 @@
 						//Error en el envío del correo
 						} else {
 							set_mensaje('error', 'Error en el envío del correo de verificación. Inténtelo más tarde o pongase en contacto
-									con el administrador a través del <a href="contacto.php">formulario de contacto</a>');
+									con el administrador a través del <a href="contacto.php">formulario de contacto</a>.');
 						}
 						header('Location: index.php');
 						exit;
