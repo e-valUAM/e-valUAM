@@ -127,6 +127,14 @@
 							</tr>
 						</thead>
 						<tbody>
+
+							<tr>
+								<td> Cuestionario sobre hábitos en uso de videojuegos</td>
+								<td> - </td>
+								<td><a class="btn btn-primary" href="gammingTest.php">Continuar</a></td>
+							</tr>
+
+
 							<?php
 								$result = pg_query($con, 'SELECT nombre, duracion, id FROM examenes WHERE disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id')
 								or die('Error. Prueba de nuevo más tarde.');
