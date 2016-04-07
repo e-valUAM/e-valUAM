@@ -112,6 +112,9 @@
 						<?php imprimir_captcha(); ?>
 						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
+					<br>
+					<p><a href ="./index.php">Volver a la página principal</p>
+
 				</div>
 			</div>
 		</main>
