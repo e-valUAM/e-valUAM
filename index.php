@@ -47,6 +47,7 @@
 					<h1>Bienvenido a e-valUAM 2.0</h1>
 					<p>Para acceder es necesario que dispongas de una cuenta de usuario y de una contraseña.</p>
 					<p>Si no tienes una cuenta de usuario <a href="nuevaCuenta.php">pulsa aquí</a>.</p>
+
 					<?php
 						if (isset($_REQUEST['error']) && $_REQUEST['error'] == 'si')
 							echo "<div class=\"alert alert-danger\" id='cajon-datos' role=\"alert\"><p>Los datos introducidos no coinciden. Prueba de nuevo.</p></div>";
@@ -58,7 +59,7 @@
 				<div class="col-md-12">
 					<form action="eleccionExamen.php" method="post">
 						<div class="form-group" id="cajon-datos">
-							<label for="nombre">Nombre de usuario</label>
+							<label for="nombre">Correo electrónico / Nombre de usuario</label>
 							<input type="text" class="form-control" name="nombre" placeholder="Introduce tu nombre de usuario">
 						</div>
 						<div class="form-group" id="cajon-datos">

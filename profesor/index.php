@@ -39,13 +39,24 @@
 
 	<body>
 
+		<script type="text/javascript">
+			$(function () {$('[data-toggle="popover"]').popover()})
+		</script>
+
 	<?php include 'funciones_profesor.php'; mostrar_header_profesor(); ?>
 
 		<section class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
 					<h1>Bienvenido a e-valUAM 2.0 - Zona del profesor</h1>
-					<p>Para acceder es necesario que dispongas de una cuenta de usuario y de una contraseña. Además, deberá ser una cuenta de profesor.</p>
+					<p>Para acceder es necesario que dispongas de una cuenta de usuario y de una contraseña.</p>
+					<p>Si no tienes una cuenta de usuario <a href="nuevaCuenta.php">pulsa aquí</a>.  
+					<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Cuentas" 
+						data-content="En e-valUAM todas las cuentas permiten tanto realizar exámenes, como gestionar asignaturas propias, dependiendo si se accede desde la zona del alumno o del profesor" data-trigger="click hover">
+						<span class="sr-only">Información</span>
+						</span>
+					</p>
+					<p> Si quiere realizar exámenes debe acceder desde la <a href="../index.php">zona para alumnos</a>.</p>
 				</div>
 			</div>
 
@@ -66,7 +77,7 @@
 				<div class="col-md-12">
 					<form role="form" action="profesor.php" method="post">
 						<div class="form-group" id=cajon-datos>
-							<label for="nombre">Nombre de usuario</label>
+							<label for="nombre">Correo electrónico / Nombre de usuario</label>
 							<input type="text" class="form-control" name="nombre" placeholder="Introduce tu nombre de usuario">
 						</div>
 						<div class="form-group" id=cajon-datos>
@@ -75,6 +86,8 @@
 						</div>
 						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
+				<br>	<p><a href="../recuperarContrasenya.php">¿Has olvidado la contraseña?</a></p>
+						<p><a href="../nuevaCuenta.php">Crear una cuenta nueva </a></p>
 				</div>
 			</div>
 		</section>

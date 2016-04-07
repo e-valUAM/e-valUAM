@@ -42,7 +42,7 @@
 		<?php mostrar_header_link(); ?>
 
 		<div style="text-align:center">
-				<iframe src="https://docs.google.com/forms/d/1ZUiJeYvg1Firk2gczNXXzEfNEXis-catw_p68hG2vqU/viewform?embedded=true" width="960" height="500" frameborder="0" marginheight="0" marginwidth="0">Cargando...</iframe>
+				<iframe src="https://docs.google.com/forms/d/1ZUiJeYvg1Firk2gczNXXzEfNEXis-catw_p68hG2vqU/viewform?embedded=true" width="100%" height="2800" frameborder="0" marginheight="0" marginwidth="0">Cargando...</iframe>
 		</div>
 			<?php //mostrar_licencia(); ?>
 	

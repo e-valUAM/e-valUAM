@@ -96,7 +96,7 @@
 							Debes verificar la cuenta, haciendo click en el siguiente enlace para comenzar a usarla:
 							https://e-valuam.ii.uam.es/verificar.php?token=' . urlencode($token) . '&mail=' . urlencode($_POST['email']);
 
-						$resultado = enviar_email('Recuperar la contraseña de e-valUAM', $_POST['email'], $message, TRUE, $mensaje_plano);
+						$resultado = enviar_email('Creación de cuenta de e-valUAM', $_POST['email'], $message, TRUE, $mensaje_plano);
 
 						//Todo OK
 						if($resultado) {
@@ -163,6 +163,9 @@
 						<div id="mensaje" class="hidden alert alert-danger" role="alert"><p>Las contraseñas no coinciden.</p></div>
 						<button type="submit" class="btn btn-primary" value="Continuar" disabled>Continuar</button>
 					</form>
+					<br>
+					<p><a href ="./index.php">Volver a la página principal</p>
+
 				</div>
 			</div>
 		</main>

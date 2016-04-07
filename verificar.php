@@ -29,6 +29,7 @@
 	if (isset($_GET['token']) && isset($_GET['mail'])) {
 		$con = connect();
 
+		//Comprobacion conexion con base de datos
 		if(!$con){
 			set_mensaje('error', 'Error al establecer conexión con la base de datos');
 			header('Location: index.php');
@@ -36,7 +37,29 @@
 		}
 
 		$result =  pg_query_params($con, "
-			SELECT nombre FROM alumnos
+			SELECT nombre, verificada FROM alumnos
+			WHERE nombre =  $1",
+			 array($_GET['mail']));
+
+		//Comprobaciones existencias de cuenta
+		if (pg_affected_rows($result) == 1){
+
+			$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+
+			//Caso cuenta ya autentificada
+			if($line['verificada'] == 't'){
+				set_mensaje('ok', 'La cuenta '.$_GET['mail'].' ya había sido autentificada previamente.');
+				header('Location: index.php');
+				exit;
+			} 
+
+		} else { //Caso cuenta no disponible
+			set_mensaje('error',
+			 'No hemos encontrado una cuenta con el correo '.$_GET['mail'].', asegurate de que te has registrado correctamente.');
+		}
+
+		$result =  pg_query_params($con, "
+			SELECT nombre, verificada FROM alumnos
 			WHERE nombre =  $1
 			AND token_creation + interval '3 days' > NOW()
 			AND token = $2
@@ -48,8 +71,12 @@
 			$result =  pg_query_params($con, "
 				UPDATE alumnos SET verificada = true WHERE nombre = $1;
 				", array($_GET['mail']));
+
+			//Todo OK
 			if($result){
 				set_mensaje('ok', 'Tu cuenta '.$_GET['mail'].' ha sido verificada, ya puedes comenzar a usarla.');
+
+			//Error de actualizacion
 			} else {
 				set_mensaje('error', 'Error al verificar la cuenta, intentelo de nuevo más tarde.');
 			}
@@ -87,7 +114,7 @@
 				Debes verificar la cuenta, haciendo click en el siguiente enlace para comenzar a usarla:
 				https://e-valuam.ii.uam.es/verificar.php?token=' . urlencode($token) . '&mail=' . urlencode($_GET['mail']);
 
-			$resultado = enviar_email('Recuperar la contraseña de e-valUAM', $_GET['mail'], $message, TRUE, $mensaje_plano);
+			$resultado = enviar_email('Verificar cuenta de e-valUAM', $_GET['mail'], $message, TRUE, $mensaje_plano);
 
 			//Todo OK
 			if($resultado) {
