@@ -50,7 +50,7 @@
 				<div class="col-md-12">
 					<h1>Bienvenido a e-valUAM 2.0 - Zona del profesor</h1>
 					<p>Para acceder es necesario que dispongas de una cuenta de usuario y de una contraseña.</p>
-					<p>Si no tienes una cuenta de usuario <a href="nuevaCuenta.php">pulsa aquí</a>.  
+					<p>Si no tienes una cuenta de usuario <a href="../nuevaCuenta.php">pulsa aquí</a>.  
 					<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Cuentas" 
 						data-content="En e-valUAM todas las cuentas permiten tanto realizar exámenes, como gestionar asignaturas propias, dependiendo si se accede desde la zona del alumno o del profesor" data-trigger="click hover">
 						<span class="sr-only">Información</span>

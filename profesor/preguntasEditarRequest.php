@@ -165,7 +165,7 @@
 				if($dataMateria['num_respuestas']> 1){
 					$i = 2;
 					while ($respuesta = pg_fetch_array($result, null, PGSQL_ASSOC)) {
-						echo 'He entrado aqui'.$dataMateria['numrespuestas'];
+						echo $dataMateria['numrespuestas'];
 						echo respuestaNum($i, $respuesta['texto'], $respuesta['imagen'], $respuesta['audio']);
 						$i += 1;
 					}
