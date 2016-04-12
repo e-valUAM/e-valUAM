@@ -92,12 +92,9 @@
 
 	<!-- Mensaje OK / Error -->
 	<?php if (isset($guardado) && $guardado) { ?>
-		<script type="text/javascript">
-			// Borrar los campos
-		</script>
 		<div class="row">
 			<div class="col-md-12">
-				<div class="alert alert-success" role="alert"><p>¡Asignatura correctamente guardada! <a class="alert-link" href="gestionMaterias.php">Empieza a añadir materias.</a></p></div>
+				<div class="alert alert-success" role="alert"><p>¡Asignatura correctamente guardada! <a class="alert-link" href="gestionMaterias.php">Comienza a añadir materias.</a></p></div>
 			</div>
 		</div>
 	<?php } else if (isset($guardado)) { ?>
@@ -108,56 +105,52 @@
 		</div>
 
 	<?php } ?>
+		<!-- Scripts -->
+		<script type="text/javascript">
+			$(function () {$('[data-toggle="popover"]').popover()})
+		</script>
 
+
+		<!-- Registro asignaturas -->
 		<div class="row">
 			<div class="col-md-6">
 				<h2>Añadir una nueva asignatura</h2>
 				<form action="gestionAsignaturas.php" role="form" method="post">
 
 					<div class="form-group">
-						<label class="control-label" for="nombreAsignatura">Nombre de la asignatura: </label>
+						<label class="control-label" for="nombreAsignatura">Nombre de la asignatura: <span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Asignaturas" 
+						data-content="Las asignaturas permiten agrupar materias y permitir que alumnos se inscriban a ellas para visualizar los exámenes. Para regular el acceso es posible establecer contraseñas" data-trigger="click hover">
+						<span class="sr-only">Información</span>
+						</span> </label>
 						<input class="form-control" type="text" name="nombreAsignatura" size="20" placeholder="Nombre de la asignatura" required>
 					</div>
 
 					<div class="form-group">
 						<label class="control-label" for="descripcionAsignatura">Breve descripcion pública: </label>
-						<textarea class="form-control" name="descripcionAsignatura" row="3" placeholder="Descripcion de la asignatura" required></textarea/>
+				<textarea class="form-control" name="descripcionAsignatura" row="3" style="resize:vertical" placeholder="Descripcion de la asignatura" required></textarea/>
 					</div>
 
 					<div class="form-group">
 						<label class="control-label" for="passAsignatura">Contraseña (Opcional) </label>
-						<input class="form-control" type="text" name="nombreAsignatura" size="20" placeholder="Nombre de la asignatura">
+						<input class="form-control" type="password" name="passAsignatura" size="20" placeholder="Contraseña">
 					</div>
 
 					<div class="form-group">
-						<label class="control-label" for="nombreAsignatura">Repita la contraseña </label>
-						<input class="form-control" type="text" name="nombreAsignatura" size="20" placeholder="Nombre de la asignatura">
+						<label class="control-label" for="passAsignatura2">Repita la contraseña </label>
+						<input class="form-control" type="password" name="passAsignatura2" size="20" placeholder="Repita la contraseña">
 					</div>
 
-
-
-					</div>
-					<!--
-					<div class="checkbox">
-					  <label>
-					    <input type="checkbox" name="feedback" value="t">
-					    ¿Las preguntas tienen retroalimentación?
-					  </label>
-					</div>
-					-->
-					<button type="submit" class="btn btn-primary">Guardar</button>
+					<button type="submit" id="btn-load" class="btn btn-primary">Guardar</button>
 				</form>
 			</div>
 			<div class="col-md-6">
-				<h2>Editar las materias</h2>
+				<h2>Editar Asignaturas</h2>
 
 				<table class="table table-hover">
 					<thead><tr>
-						<th>Nombre de la materia</th>
-						<th>Número de niveles</th>
-						<th>Número de respuestas</th>
-						<!-- <th>Número de preguntas creadas</th> -->
-						<!-- <th>Feedback</th> -->
+						<th>Nombre de la asignatura</th>
+						<th>Contraseña habilitada</th>
+						<th>Número de participantes</th>
 						<th>Opciones</th>
 					</tr></thead>
 					<tbody>
@@ -210,6 +203,38 @@
 					?>
 					</tbody>
 				</table>
+
+		<script type="text/javascript">
+				var nueva1 = $("input[name='passAsignatura']");
+				var nueva2 = $("input[name='passAsignatura2']");
+
+				function checkContrasenyas() {
+
+					if (nueva1.val() == nueva2.val()) {
+						$("button[value='Continuar']").removeAttr("disabled");
+						if (!$("#mensaje").hasClass("hidden"))
+							$("#mensaje").addClass("hidden");
+					} else {
+						if (!$("button[value='Continuar']").attr("disabled"))
+							$("button[value='Continuar']").attr("disabled", "disabled");
+						$("#mensaje").removeClass("hidden");
+					}
+				}
+
+				nueva1.keyup(checkContrasenyas);
+				nueva2.keyup(checkContrasenyas);
+
+				$(function(){
+					var $btn = $(':button');
+					$btn.click(function(){
+						var $this = $(this);
+						$this.attr('disabled', 'disabled').html("Cargando...");
+						setTimeout(function () {
+							$this.removeAttr('disabled').html('Continuar');
+						}, 3000)
+					});
+				})
+		</script>
 
 				<script type="text/javascript">
 					function editarMateria(id) {

@@ -57,10 +57,10 @@
 				echo "<li role=\"presentation\" ". ($file == 'gestionPreguntas.php' ? "class=\"active\"" : "") ."><a href=\"gestionPreguntas.php\">Preguntas</a></li>";
 				echo "<li role=\"presentation\" ". ($file == 'gestionExamenes.php' ? "class=\"active\"" : "") ."><a href=\"gestionExamenes.php\">Exámenes</a></li>";
 				echo "<li role=\"presentation\" ". ($file == 'gestionMultimedia.php' ? "class=\"active\"" : "") ."><a href=\"gestionMultimedia.php\">Ficheros multimedia</a></li>";
-				echo "<li role=\"presentation\" ". ($file == 'recuperarExamenes.php' ? "class=\"active\"" : "") ."><a href=\"recuperarExamenes.php\">Recuperar examenes</a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'recuperarExamenes.php' ? "class=\"active\"" : "") ."><a href=\"recuperarExamenes.php\">Estadísticas</a></li>";
 				//echo "<li role=\"presentation\" ". ($file == 'estadisticas.php' ? "class=\"active\"" : "") ."><a href=\"estadisticas.php\">Estadísticas</a></li>";
-				echo "<li role=\"presentation\" ><a href=\"../cambiarContrasenya.php\">Cambiar la contraseña</a></li>";
-				echo "<li role=\"presentation\" ". ($file == 'ayuda.php' ? "class=\"active\"" : "") ."><a href=\"ayuda.php\">Ayuda y novedades <span class=\"text-info glyphicon glyphicon-bell\"  aria-hidden=\"true\"></span></a></li>";
+				echo "<li role=\"presentation\" ><a href=\"../cambiarContrasenya.php\">Contraseña</a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'ayuda.php' ? "class=\"active\"" : "") ."><a href=\"ayuda.php\">Ayuda <span class=\"text-info glyphicon glyphicon-bell\"  aria-hidden=\"true\"></span></a></li>";
 				echo "<li role=\"presentation\" ><a href=\"salir.php\">Salir</a></li>";
 			echo "</ul>";
 		echo "</nav>";
