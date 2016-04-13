@@ -37,6 +37,7 @@
 					echo "<img class=\"img-responsive\" id=\"logo_ope\" src=\"../multimedia/logos/ope.bmp\">";
 				echo "</div>";
 			echo "</div>";
+					mostrar_mensaje();
 		echo "</header>";
 	}
 
@@ -52,16 +53,19 @@
 	function mostrar_navegacion_profesor($file) {
 
 		echo "<nav class=\"container-fluid\">";
+
 			echo "<ul class=\"nav nav-tabs nav-justified\">";
-				echo "<li role=\"presentation\" ". ($file == 'gestionMaterias.php' ? "class=\"active\"" : "") ."><a href=\"gestionMaterias.php\">Materias</a></li>";
-				echo "<li role=\"presentation\" ". ($file == 'gestionPreguntas.php' ? "class=\"active\"" : "") ."><a href=\"gestionPreguntas.php\">Preguntas</a></li>";
-				echo "<li role=\"presentation\" ". ($file == 'gestionExamenes.php' ? "class=\"active\"" : "") ."><a href=\"gestionExamenes.php\">Exámenes</a></li>";
+
+				echo "<li role=\"presentation\" ". ($file == 'gestionAsignaturas.php' ? "class=\"active\"" : "") ."><a href=\"gestionAsignaturas.php\">&nbsp; &nbsp; Asignaturas &nbsp; &nbsp; &nbsp;  </a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'gestionMaterias.php' ? "class=\"active\"" : "") ."><a href=\"gestionMaterias.php\">&nbsp; &nbsp; Materias &nbsp; &nbsp; &nbsp; </a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'gestionPreguntas.php' ? "class=\"active\"" : "") ."><a href=\"gestionPreguntas.php\">&nbsp; &nbsp; Preguntas &nbsp; &nbsp; </a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'gestionExamenes.php' ? "class=\"active\"" : "") ."><a href=\"gestionExamenes.php\">&nbsp; &nbsp; Exámenes &nbsp; &nbsp; &nbsp; </a></li>";
 				echo "<li role=\"presentation\" ". ($file == 'gestionMultimedia.php' ? "class=\"active\"" : "") ."><a href=\"gestionMultimedia.php\">Ficheros multimedia</a></li>";
-				echo "<li role=\"presentation\" ". ($file == 'recuperarExamenes.php' ? "class=\"active\"" : "") ."><a href=\"recuperarExamenes.php\">Estadísticas</a></li>";
-				//echo "<li role=\"presentation\" ". ($file == 'estadisticas.php' ? "class=\"active\"" : "") ."><a href=\"estadisticas.php\">Estadísticas</a></li>";
-				echo "<li role=\"presentation\" ><a href=\"../cambiarContrasenya.php\">Contraseña</a></li>";
-				echo "<li role=\"presentation\" ". ($file == 'ayuda.php' ? "class=\"active\"" : "") ."><a href=\"ayuda.php\">Ayuda <span class=\"text-info glyphicon glyphicon-bell\"  aria-hidden=\"true\"></span></a></li>";
-				echo "<li role=\"presentation\" ><a href=\"salir.php\">Salir</a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'recuperarExamenes.php' ? "class=\"active\"" : "") ."><a href=\"recuperarExamenes.php\">Recuperar Examenes</a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'estadisticas.php' ? "class=\"active\"" : "") ."><a href=\"estadisticas.php\">&nbsp; &nbsp; Estadísticas &nbsp; &nbsp; &nbsp; </a></li>";
+				echo "<li role=\"presentation\" ><a href=\"../cambiarContrasenya.php\">Cambiar contraseña</a></li>";
+				echo "<li role=\"presentation\" ". ($file == 'ayuda.php' ? "class=\"active\"" : "") ."><a href=\"ayuda.php\">Ayuda y novedades <span class=\"text-info glyphicon glyphicon-bell\"  aria-hidden=\"true\"></span></a></li>";
+				echo "<li role=\"presentation\" ><a href=\"salir.php\">&nbsp; Salir &nbsp; &nbsp; &nbsp; &nbsp; </a></li>";
 			echo "</ul>";
 		echo "</nav>";
 	}

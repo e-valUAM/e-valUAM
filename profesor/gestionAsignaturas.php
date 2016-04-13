@@ -68,6 +68,11 @@
 				pg_query("ROLLBACK;");
 			}
 		}
+		if($guardado){
+			set_mensaje('ok', 'Asignatura guardada correctamente. Pulsa aquí para crear materias <a href="gestionMaterias.php">aquí</a>.');
+		} else {
+			set_mensaje('error', 'Error al guardar la asignatura');
+		}
 	}
 
 ?>
@@ -89,27 +94,10 @@
 	<?php mostrar_header_profesor(); mostrar_navegacion_profesor(basename(__FILE__)); ?>
 
 	<main class="container-fluid">
-
-	<!-- Mensaje OK / Error -->
-	<?php if (isset($guardado) && $guardado) { ?>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="alert alert-success" role="alert"><p>¡Asignatura correctamente guardada! <a class="alert-link" href="gestionMaterias.php">Comienza a añadir materias.</a></p></div>
-			</div>
-		</div>
-	<?php } else if (isset($guardado)) { ?>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="alert alert-danger" role="alert"><p>Se ha producido un error. Vuelve a probar más tarde.</p></div>
-			</div>
-		</div>
-
-	<?php } ?>
 		<!-- Scripts -->
 		<script type="text/javascript">
 			$(function () {$('[data-toggle="popover"]').popover()})
 		</script>
-
 
 		<!-- Registro asignaturas -->
 		<div class="row">
@@ -132,12 +120,12 @@
 
 					<div class="form-group">
 						<label class="control-label" for="passAsignatura">Contraseña (Opcional) </label>
-						<input class="form-control" type="password" name="passAsignatura" size="20" placeholder="Contraseña">
+						<input class="form-control" id="mensaje" type="password" name="passAsignatura" size="20" placeholder="Contraseña">
 					</div>
 
 					<div class="form-group">
 						<label class="control-label" for="passAsignatura2">Repita la contraseña </label>
-						<input class="form-control" type="password" name="passAsignatura2" size="20" placeholder="Repita la contraseña">
+						<input class="form-control" id="mensaje" type="password" name="passAsignatura2" size="20" placeholder="Repita la contraseña">
 					</div>
 
 					<button type="submit" id="btn-load" class="btn btn-primary">Guardar</button>
@@ -149,7 +137,7 @@
 				<table class="table table-hover">
 					<thead><tr>
 						<th>Nombre de la asignatura</th>
-						<th>Contraseña habilitada</th>
+						<th>Contraseña</th>
 						<th>Número de participantes</th>
 						<th>Opciones</th>
 					</tr></thead>
@@ -179,14 +167,6 @@
 									echo "<td>".$data['num_respuestas']."</td>";
 								else
 									echo "<td>Respuesta abierta</td>";
-								//echo "<td>".($data['count'] != "1" ? $data['count'] : 0)."</td>";
-								/*
-								if ($data['feedback'] == 't') {
-									echo '<td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></td>';
-								} else {
-									echo '<td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td>';
-								}
-								*/
 
 								echo "<td>";
 									echo "<button onClick=\"editarMateria(".$data['id'].")\" type=\"button\" class=\"btn btn-primary btn-warning\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>";
