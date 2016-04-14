@@ -38,24 +38,33 @@
 		or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
 
-	if (isset($_REQUEST['nombreAsignatura'])) {
+	if (isset($_POST['nombreAsignatura'])) {
+
 		$guardado = False;
 
-		if (0) {
-
-			//$feedback = ($_REQUEST['feedback'] == 't' ? 't' : 'f');
+		//Comprobacion contrasenhas iguales
+		if (isset($_POST['passAsignatura']) && isset($_POST['passAsignatura2'])) {
+			if($_POST['passAsignatura'] != $_POST['passAsignatura2']){
+				set_mensaje('error', 'Error las contraseñas no coinciden');
+				header("Location: ./gestionAsignaturas.php");
+				exit;
+			}
+		}
+			//Encriptamos la contraseña
+			$salt = md5(devurandom_rand());
+			$pass = ($_POST['passAsignatura'] == null || $_POST['passAsignatura'] == '' ? null : crypt($_POST['passAsignatura'], $salt));
 
 			pg_query("BEGIN;");
 
 			$result = pg_query_params($con,
-				'INSERT INTO materias (nombre, num_dificultades, num_respuestas) VALUES ($1, $2, $3) RETURNING id;',
-				array($_REQUEST['nombreMateria'], $_REQUEST['numDificultades'], $_REQUEST['numPreguntas']));
+				'INSERT INTO asignaturas (nombre, descripcion, pass) VALUES ($1, $2, $3) RETURNING id;',
+				array($_POST['nombreAsignatura'], $_POST['descripcionAsignatura'], $pass));
 
 			if ($result) {
 				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
 				$result = pg_query_params($con,
-					'INSERT INTO profesor_por_materia (id_materia, id_alumno) VALUES ($1, $2);',
+					'INSERT INTO profesor_por_asignatura (id_asignatura, id_alumno) VALUES ($1, $2);',
 					array($row['id'], $_SESSION['idUsuario']));
 
 				if ($result) {
@@ -67,7 +76,7 @@
 			} else {
 				pg_query("ROLLBACK;");
 			}
-		}
+		
 		if($guardado){
 			set_mensaje('ok', 'Asignatura guardada correctamente. Pulsa aquí para crear materias <a href="gestionMaterias.php">aquí</a>.');
 		} else {
@@ -115,7 +124,7 @@
 
 					<div class="form-group">
 						<label class="control-label" for="descripcionAsignatura">Breve descripcion pública: </label>
-				<textarea class="form-control" name="descripcionAsignatura" row="3" style="resize:vertical" placeholder="Descripcion de la asignatura" required></textarea/>
+				<textarea class="form-control" name="descripcionAsignatura" row="3" style="resize:none" placeholder="Descripcion de la asignatura" required></textarea/>
 					</div>
 
 					<div class="form-group">
@@ -137,46 +146,41 @@
 				<table class="table table-hover">
 					<thead><tr>
 						<th>Nombre de la asignatura</th>
+						<th>Descripcion</th>
 						<th>Contraseña</th>
-						<th>Número de participantes</th>
 						<th>Opciones</th>
 					</tr></thead>
 					<tbody>
 					<?php
 
 						$result =  pg_query_params($con,
-							'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades,
-								m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback
-							FROM materias AS m
-								INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
-								LEFT JOIN preguntas AS p ON p.id_materia = m.id
-							WHERE pm.id_alumno = $1
-							GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas, m.acepta_feedback
+							'SELECT nombre,id,descripcion,pass,borrada 
+							FROM asignaturas 
+							INNER JOIN profesor_por_asignatura ON id_asignatura = id 
+							WHERE id_alumno = $1 
 							ORDER BY id DESC',
 							array($_SESSION['idUsuario']))
 						or die('Error. Prueba de nuevo más tarde.');
 
+						//Caso no hay asignaturas
 						if (pg_num_rows($result) == 0) {
-							echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td></tr>";
+							echo "<tr><td>Aún no hay asignaturas para mostrar.</td><td></td><td></td><td></td><td></td></tr>";
+
+						// Mostramos las asignaturas
 						} else {
 							while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 								echo "<tr><td>".$data['nombre']."</td>";
-								echo "<td>".$data['num_dificultades']."</td>";
+								echo "<td>".substr($data['descripcion'],0,30)."...</td>";
+								//echo "<td>""</td>";
 
-								if($data['num_respuestas'] != 1)
-									echo "<td>".$data['num_respuestas']."</td>";
-								else
-									echo "<td>Respuesta abierta</td>";
-
+								$icono = ($data['pass'] == null || $data['pass'] =='' ) ? "glyphicon glyphicon-eye-open" : "glyphicon glyphicon-lock";
+								
+								echo "<td>  <span class='".$icono."'aria-hidden='true'></span></td>";
 								echo "<td>";
-									echo "<button onClick=\"editarMateria(".$data['id'].")\" type=\"button\" class=\"btn btn-primary btn-warning\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>";
-									// if ($data['count'] > 0) {
-									// 	echo "<div data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"No podrás borrar esta materia hasta que no borres todas su preguntas\">";
-									// 	echo "<button type=\"button\" onClick=\"borrarPregunta(".$data['id'].")\" class=\"btn btn-danger\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button>";
-									// 	echo "</div>";
-									// } else {
-									// 	echo "<button type=\"button\" class=\"btn btn-danger\">Borrar</button>";
-									// }
+									/* Proximamente editar asignatura con modal */
+
+								echo "<button type=\"button\" class=\"btn btn-primary btn-warning\" disabled><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>";
+
 								echo "</td></tr>";
 							}
 						}
@@ -190,14 +194,14 @@
 
 				function checkContrasenyas() {
 
-					if (nueva1.val() == nueva2.val()) {
+					if (nueva1.val() != nueva2.val()) {
 						$("button[value='Continuar']").removeAttr("disabled");
-						if (!$("#mensaje").hasClass("hidden"))
-							$("#mensaje").addClass("hidden");
+						if (!$("#btn-load").hasClass("hidden"))
+							$("#btn-load").addClass("hidden");
 					} else {
 						if (!$("button[value='Continuar']").attr("disabled"))
 							$("button[value='Continuar']").attr("disabled", "disabled");
-						$("#mensaje").removeClass("hidden");
+						$("#btn-load").removeClass("hidden");
 					}
 				}
 
@@ -205,7 +209,7 @@
 				nueva2.keyup(checkContrasenyas);
 
 				$(function(){
-					var $btn = $(':button');
+					var $btn = $("#btn-load");
 					$btn.click(function(){
 						var $this = $(this);
 						$this.attr('disabled', 'disabled').html("Cargando...");
@@ -215,7 +219,7 @@
 					});
 				})
 		</script>
-
+<!--
 				<script type="text/javascript">
 					function editarMateria(id) {
 
@@ -251,7 +255,7 @@
 						});
 					};
 				</script>
-
+-->
 				<!-- Modal -->
 				<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 				  <div class="modal-dialog">
