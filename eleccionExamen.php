@@ -122,31 +122,44 @@
 						<thead>
 							<tr>
 								<th>Nombre</th>
-								<th>Duración (min)</th>
+								<th>Asignatura</th>
+								<th>Materia</th>
+								<th>Duración</th>
 								<th>Seleccionar</th>
 							</tr>
 						</thead>
 						<tbody>
 
 							<tr>
-								<td> Cuestionario sobre hábitos en uso de videojuegos</td>
+								<td> Cuestionario sobre hábitos en el uso de videojuegos</td>
+								<td> e-valUAM </td>
+								<td> Videojuegos </td>
 								<td> - </td>
 								<td><a class="btn btn-primary" href="gammingTest.php">Continuar</a></td>
 							</tr>
 
 
 							<?php
-								$result = pg_query($con, 'SELECT nombre, duracion, id FROM examenes WHERE disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible AND borrado = false ORDER BY id')
+								$result = pg_query_params($con, 'SELECT e.id, e.nombre, e.duracion,m.nombre AS materia,a.nombre AS asignatura 
+											FROM examenes AS e
+											INNER JOIN materias as m ON m.id = id_materia
+											INNER JOIN asignaturas AS a on id_asignatura = a.id
+											WHERE disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible 
+											AND e.borrado = false AND a.borrada = false 
+											AND a.id IN (SELECT s.id_asignatura FROM alumno_por_asignaturas AS s WHERE s.id_alumno = $1 )
+											ORDER BY e.id', array($_SESSION['idUsuario']) )
 								or die('Error. Prueba de nuevo más tarde.');
 
 								// Imprimiendo los resultados en HTML
 								while ($line = pg_fetch_array($result, null)) {
-								    if ($_SESSION['idUsuario'] >= 1213 && $_SESSION['idUsuario'] <= 1264 && ($line['id'] != 46 && $line['id'] != 49))
-									continue;
+								    //if ($_SESSION['idUsuario'] >= 1213 && $_SESSION['idUsuario'] <= 1264 && ($line['id'] != 46 && $line['id'] != 49))
+									//continue;
 
 								    echo "\t<tr>\n";
 								    echo "\t\t<td>".$line['nombre']."</td>\n";
-								    echo "\t\t<td>".$line['duracion']."</td>\n";
+								    echo "\t\t<td>".$line['asignatura']."</td>\n";
+								    echo "\t\t<td>".$line['materia']."</td>\n";
+								    echo "\t\t<td>".$line['duracion']."'</td>\n";
 								    echo "\t\t<td><a class=\"btn btn-primary\" href=\"Examen.php?idExamen=".$line['id']."\">Continuar</a></td>";
 								    echo "\t</tr>\n";
 								}
@@ -156,6 +169,7 @@
 							?>
 						</tbody>
 					</table>
+					<p>Puedes inscribirte a nuevas asignaturas <a href="./eleccionAsignaturas.php">aquí.</a></p>
 					<p>Si quieres cambiar tu contraseña, pulsa <a href="./cambiarContrasenya.php">aquí.</a></p>
 				</div>
 			</div>

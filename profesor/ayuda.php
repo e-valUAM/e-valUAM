@@ -50,10 +50,7 @@
 		<main class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
-					<h2>Novedades</h2>
-					<p>Para acceder a las preguntas enviada por los alumnos, <a href="visorPreguntasAlumnos.php">pulsa aquí.</a></p>
-					<br>
-					<br>
+					
 
 					<h2>Introducción</h2>
 					<p>En e-valUAM todo se organiza en torno a tres conceptos principales: materias, preguntas y exámenes.</p>
