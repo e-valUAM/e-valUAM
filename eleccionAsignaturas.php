@@ -43,13 +43,56 @@
         exit;
 	}
 
+	
+	/*if(isset($_REQUEST['inscripcion'])){ //Caso formulario de inscripcion
+		
+		if($_REQUEST['inscripcion'] == 't'){ //Caso inscripcion
+			
+			if(isset($_REQUEST['apuntado']) && $_REQUEST['apuntado']= 'f'){ //Caso nueva inscripcion
+
+							
+				if(isset($_REQUEST['p'])){ //Caso Contraseña	
+
+
+				} else { //Caso sin contraseña
+
+
+
+				}
+
+			} else { // Caso inscrito anteriormente pero borrado
+								
+				if(isset($_REQUEST['p'])){ //Caso Contraseña
+
+
+				} else { //Caso sin contraseña
+
+
+
+				}
+
+
+			}
+
+
+		} else if($_REQUEST['inscripcion'] == 'f'){ //Caso de borrado
+
+
+
+
+		} else { //Caso de error
+
+
+		}
+	}*/
+
 	//Buscamos las asignaturas disponibles
 	$result =  pg_query_params($con,
-							'SELECT nombre,id,descripcion,pass,
+							"SELECT nombre,id,descripcion,pass != '' AS pass,
 							id IN (SELECT id FROM alumno_por_asignaturas WHERE id_alumno = $1) AS apuntado  
 							FROM asignaturas 
 							WHERE borrada = false
-							ORDER BY nombre,id ',
+							ORDER BY nombre,id",
 							array($_SESSION['idUsuario']))
 							or die('Error. Prueba de nuevo más tarde.');
 
@@ -111,23 +154,37 @@
 									echo "<tr><td>Aún no hay asignaturas para mostrar.</td><td></td><td></td><td></td></tr>";
 								}
 
-								// Imprimiendo los resultados en HTML
-								while ($line = pg_fetch_array($result, null)) {
+								// Imprimiendo tabla en HTML
+								while($line = pg_fetch_array($result, null)) {
 
+									//Campos comunes a todos
 								    echo "\t<tr>\n";
 								    echo "\t\t<td>".$line['nombre']."</td>\n";
 								    echo "\t\t<td>".$line['descripcion']."</td>\n";
 
-								$icono = ($line['pass'] == null || $line['pass'] =='' ) ? "glyphicon glyphicon-eye-open" : "glyphicon glyphicon-lock";
+									$icono = ($line['pass'] != 't' ) ? "glyphicon glyphicon-eye-open" : "glyphicon glyphicon-lock";
 									echo "<td>  <span class='".$icono."'aria-hidden='true'></span></td>";
-									if($line['apuntado']='f')
-echo "\t\t<td><button type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal'>Inscribirse</button></td>";
-								    	
 
-//echo "\t\t<td><a class=\"btn btn-primary\" href=\"Examen.php?idExamen=".$line['id']."\">Inscribirse</a></td>";
-									else
-								    	echo "\t\t<td><a class=\"btn btn-primary\" href=\"Examen.php?idExamen=".$line['id']."\">Cancelar</a></td>";
-								    echo "\t</tr>\n";
+									//Imprimimos boton con link
+									echo "<td>";
+									if($line['apuntado'] == 't'){ //Caso borrado
+
+										echo "<a class='btn btn-danger' href='eleccionAsignaturas.php?id=".$line['id']."?inscripcion=f'>Cancelar</a>";
+
+									} else { //Caso apuntarse
+
+										if($line['pass'] != 't'){ //Caso sin contraseña
+											echo "<a class='btn btn-primary' href='eleccionAsignaturas.php?id=".$line['id']."?inscripcion=t'>";
+											echo "Inscribirse</a>";
+
+										} else { //Caso con contraseña
+echo "<button type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal' onclick=\"rel('".$line['id'].")'\">";
+											echo "Inscribirse</button>";
+
+										}
+									}
+
+									echo "</td></tr>";
 								}
 
 								// Liberando el conjunto de resultados
@@ -135,22 +192,29 @@ echo "\t\t<td><button type='button' class='btn btn-primary' data-toggle='modal' 
 							?>
 						</tbody>
 					</table>
-					<script language="javascript" type="text/javascript"> 
-					//<![CDATA[ 
-					var tableFilters = {
-							col_2: "none",
-							col_3: "none",
-							paging: true,
-							paging_length: 50
-						}
-
-					setFilterGrid("tablaAsignaturas",0,tableFilters); 
-					//]]> 
-					</script> 
-
 					<p>Si quieres volver a la pagina de exámenes, pulsa <a href="./eleccionExamen.php">aquí.</a></p>
 				</div>
 			</div>
+
+			<!-- Scripts -->
+			<script language="javascript" type="text/javascript"> 
+				var tableFilters = {
+					col_2: "none",
+					col_3: "none",
+					paging: true,
+					paging_length: 50
+				}
+				setFilterGrid("tablaAsignaturas",0,tableFilters); 
+			</script> 
+
+			<script language="javascript" type="text/javascript">
+				function rel(var id){
+
+					System.log("Funcion rel llamada con id" + id);
+
+				}
+			</script>
+
 
 			<!-- Modal Inscripcion-->
 			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
