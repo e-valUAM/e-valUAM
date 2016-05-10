@@ -146,7 +146,8 @@
 											INNER JOIN asignaturas AS a on id_asignatura = a.id
 											WHERE disponible = true AND comienzo < now() AND now() < comienzo + tiempo_disponible 
 											AND e.borrado = false AND a.borrada = false 
-											AND a.id IN (SELECT s.id_asignatura FROM alumno_por_asignaturas AS s WHERE s.id_alumno = $1 )
+											AND a.id IN (SELECT s.id_asignatura FROM alumno_por_asignaturas AS s WHERE s.id_alumno = $1 
+											AND activo=true)
 											ORDER BY e.id', array($_SESSION['idUsuario']) )
 								or die('Error. Prueba de nuevo más tarde.');
 
