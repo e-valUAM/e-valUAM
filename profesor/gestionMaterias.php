@@ -44,13 +44,13 @@
 		if ($_REQUEST['numDificultades'] >= 1 &&
 			$_REQUEST['numPreguntas'] >= 1 && $_REQUEST['numPreguntas'] <= 5) {
 
-			//$feedback = ($_REQUEST['feedback'] == 't' ? 't' : 'f');
 
 			pg_query("BEGIN;");
 
+
 			$result = pg_query_params($con,
-				'INSERT INTO materias (nombre, num_dificultades, num_respuestas) VALUES ($1, $2, $3) RETURNING id;',
-				array($_REQUEST['nombreMateria'], $_REQUEST['numDificultades'], $_REQUEST['numPreguntas']));
+				'INSERT INTO materias (nombre, num_dificultades, num_respuestas, id_asignatura) VALUES ($1, $2, $3, $4) RETURNING id;',
+				array($_REQUEST['nombreMateria'], $_REQUEST['numDificultades'], $_REQUEST['numPreguntas'],$_REQUEST['idAsignatura']) );
 
 			if ($result) {
 				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
@@ -112,9 +112,38 @@
 			<div class="col-md-6">
 				<h2>Añadir una nueva materia</h2>
 				<form action="gestionMaterias.php" role="form" method="post">
+				
+				<div class="form-group">
+						<label class="control-label" for="idAsignatura">Elige una asignatura: </label>
+						<select class="form-control" name="idAsignatura" required>
+							<?php
+
+								$result =  pg_query_params($con,
+									'SELECT id,nombre 
+									 FROM Asignaturas INNER JOIN profesor_por_asignatura 
+									 ON id = id_asignatura 
+									 WHERE id_alumno = $1 AND borrada=false ;',
+									array($_SESSION['idUsuario']))
+								or die('Error. Prueba de nuevo más tarde.');
+
+
+								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
+									if (isset($_REQUEST['idMateria']) && $_REQUEST['idMateria'] == $data['id'])
+										echo "<option value=\"".$data['id']."\" selected>".$data['nombre']."</option>";
+									else
+										echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
+									$numDificultades[$data['id']] = $data['num_dificultades'];
+									$numRespuestas[$data['id']] = $data['num_respuestas'];
+								}
+							?>
+
+						</select>
+					</div>
+
+
 					<div class="form-group">
 						<label class="control-label" for="nombreMateria">Escribe el nombre de la materia que quieres crear: </label>
-						<input class="form-control" type="text" name="nombreMateria" size="20" placeholder="Nombre de la materia">
+						<input class="form-control" type="text" name="nombreMateria" size="20" placeholder="Nombre de la materia" required>
 					</div>
 					<div class="form-group">
 						<label class="control-label" for="numDificultades">Elige el número de niveles que tendrán los exámenes: </label>
@@ -147,6 +176,7 @@
 				<table class="table table-hover">
 					<thead><tr>
 						<th>Nombre de la materia</th>
+						<th>Asignatura</th>
 						<th>Número de niveles</th>
 						<th>Número de respuestas</th>
 						<!-- <th>Número de preguntas creadas</th> -->
@@ -158,13 +188,14 @@
 
 						$result =  pg_query_params($con,
 							'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades,
-								m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback
-							FROM materias AS m
+								m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback, a.nombre AS nombre_asignatura
+								FROM materias AS m
 								INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
 								LEFT JOIN preguntas AS p ON p.id_materia = m.id
-							WHERE pm.id_alumno = $1
-							GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas, m.acepta_feedback
-							ORDER BY id DESC',
+								INNER JOIN asignaturas as a ON id_asignatura = a.id
+								WHERE pm.id_alumno = $1
+								GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas,a.nombre, m.acepta_feedback
+								ORDER BY id DESC',
 							array($_SESSION['idUsuario']))
 						or die('Error. Prueba de nuevo más tarde.');
 
@@ -173,6 +204,7 @@
 						} else {
 							while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 								echo "<tr><td>".$data['nombre']."</td>";
+								echo "<td>".$data['nombre_asignatura']."</td>";
 								echo "<td>".$data['num_dificultades']."</td>";
 
 								if($data['num_respuestas'] != 1)
