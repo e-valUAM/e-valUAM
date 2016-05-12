@@ -88,14 +88,27 @@
 							<label class="control-label" for="idMateria">Elige la materia de la que saldrán las preguntas: </label>
 							<select class="form-control" name="idMateria">
 								<?php
-									$result =  pg_query_params($con,
-										'SELECT m.id AS id, m.nombre AS nombre
-										FROM materias AS m
+
+									//Caso admin
+									if($_SESSION['admin'] == 't'){
+										$result =  pg_query($con,
+											'SELECT m.id AS id, m.nombre AS nombre
+											FROM materias AS m
 											INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
-										WHERE pm.id_alumno = $1
-										ORDER BY id DESC',
-										array($_SESSION['idUsuario']))
-									or die('Error. Prueba de nuevo más tarde.');
+											ORDER BY id DESC')
+										or die('Error. Prueba de nuevo más tarde.');
+									//Profesor normal
+									} else {
+										$result =  pg_query_params($con,
+											'SELECT m.id AS id, m.nombre AS nombre
+											FROM materias AS m
+												INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+											WHERE pm.id_alumno = $1
+											ORDER BY id DESC',
+											array($_SESSION['idUsuario']))
+										or die('Error. Prueba de nuevo más tarde.');
+
+									}
 
 									while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 										echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
@@ -152,18 +165,33 @@
 						</tr></thead>
 						<tbody>
 						<?php
+							//Admin
+							if($_SESSION['admin'] == 't'){
+								$result =  pg_query($con,
+									'SELECT e.id AS id, e.nombre AS nombre, e.disponible AS visible, e.duracion AS tiempo,
+										m.nombre AS nombre_materia, e.num_preguntas AS num_preguntas,
+										e.acepta_duda AS duda, e.mostrar_resultados AS mostrar_resultados
+									FROM examenes AS e
+									INNER JOIN materias AS m ON e.id_materia = m.id
+									INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+									WHERE e.borrado = FALSE
+									ORDER BY e.id DESC')
+								or die('Error. Prueba de nuevo más tarde.');
 
-							$result =  pg_query_params($con,
-								'SELECT e.id AS id, e.nombre AS nombre, e.disponible AS visible, e.duracion AS tiempo,
-									m.nombre AS nombre_materia, e.num_preguntas AS num_preguntas,
-									e.acepta_duda AS duda, e.mostrar_resultados AS mostrar_resultados
-								FROM examenes AS e
-								INNER JOIN materias AS m ON e.id_materia = m.id
-								INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
-								WHERE pm.id_alumno = $1 AND e.borrado = FALSE
-								ORDER BY e.id DESC',
-								array($_SESSION['idUsuario']))
-							or die('Error. Prueba de nuevo más tarde.');
+
+							} else {
+								$result =  pg_query_params($con,
+									'SELECT e.id AS id, e.nombre AS nombre, e.disponible AS visible, e.duracion AS tiempo,
+										m.nombre AS nombre_materia, e.num_preguntas AS num_preguntas,
+										e.acepta_duda AS duda, e.mostrar_resultados AS mostrar_resultados
+									FROM examenes AS e
+									INNER JOIN materias AS m ON e.id_materia = m.id
+									INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+									WHERE pm.id_alumno = $1 AND e.borrado = FALSE
+									ORDER BY e.id DESC',
+									array($_SESSION['idUsuario']))
+								or die('Error. Prueba de nuevo más tarde.');
+							}
 
 							if (pg_num_rows($result) == 0) {
 								echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";

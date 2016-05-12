@@ -153,14 +153,26 @@
 					<tbody>
 					<?php
 
-						$result =  pg_query_params($con,
-							'SELECT nombre,id,descripcion,pass,borrada 
-							FROM asignaturas 
-							INNER JOIN profesor_por_asignatura ON id_asignatura = id 
-							WHERE id_alumno = $1 
-							ORDER BY id DESC',
-							array($_SESSION['idUsuario']))
-						or die('Error. Prueba de nuevo más tarde.');
+						//Caso admin
+						if($_SESSION['admin'] == 't'){
+							$result =  pg_query($con,
+								'SELECT nombre,id,descripcion,pass,borrada 
+								FROM asignaturas 
+								INNER JOIN profesor_por_asignatura ON id_asignatura = id 
+								ORDER BY id DESC')
+							or die('Error. Prueba de nuevo más tarde.');
+
+						//Profesor normal
+						} else {
+							$result =  pg_query_params($con,
+								'SELECT nombre,id,descripcion,pass,borrada 
+								FROM asignaturas 
+								INNER JOIN profesor_por_asignatura ON id_asignatura = id 
+								WHERE id_alumno = $1 
+								ORDER BY id DESC',
+								array($_SESSION['idUsuario']))
+							or die('Error. Prueba de nuevo más tarde.');
+						}
 
 						//Caso no hay asignaturas
 						if (pg_num_rows($result) == 0) {

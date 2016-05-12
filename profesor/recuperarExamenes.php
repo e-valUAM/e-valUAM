@@ -95,6 +95,16 @@
 							</tr></thead>
 							<tbody>
 							<?php
+							if($_SESSION['admin'] == 't'){
+
+								$result =  pg_query($con,
+									'SELECT ex.nombre AS nombre_ex, ma.nombre AS nombre_ma, ex.id AS id, ma.id AS ma_id
+									FROM examenes AS ex
+									INNER JOIN materias AS ma ON ex.id_materia = ma.id
+									INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia')
+								or die('Error. Prueba de nuevo más tarde.');
+
+							} else {
 
 								$result =  pg_query_params($con,
 									'SELECT ex.nombre AS nombre_ex, ma.nombre AS nombre_ma, ex.id AS id, ma.id AS ma_id
@@ -104,6 +114,7 @@
 									WHERE pm.id_alumno = $1',
 									array($_SESSION['idUsuario']))
 								or die('Error. Prueba de nuevo más tarde.');
+							}
 
 								if (pg_num_rows($result) == 0) {
 									echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td></tr>";

@@ -118,14 +118,25 @@
 						<select class="form-control" name="idAsignatura" required>
 							<?php
 
-								$result =  pg_query_params($con,
-									'SELECT id,nombre 
-									 FROM Asignaturas INNER JOIN profesor_por_asignatura 
-									 ON id = id_asignatura 
-									 WHERE id_alumno = $1 AND borrada=false ;',
-									array($_SESSION['idUsuario']))
-								or die('Error. Prueba de nuevo más tarde.');
+								//Caso admin
+								if($_SESSION['admin'] == 't'){
+									$result =  pg_query($con,
+										'SELECT id,nombre 
+										 FROM Asignaturas INNER JOIN profesor_por_asignatura 
+										 ON id = id_asignatura 
+										 WHERE borrada=false ;')
+										or die('Error. Prueba de nuevo más tarde.');
 
+								//Caso profesor
+								} else {
+									$result =  pg_query_params($con,
+										'SELECT id,nombre 
+										 FROM Asignaturas INNER JOIN profesor_por_asignatura 
+										 ON id = id_asignatura 
+										 WHERE id_alumno = $1 AND borrada=false ;',
+										array($_SESSION['idUsuario']))
+										or die('Error. Prueba de nuevo más tarde.');
+								}
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									if (isset($_REQUEST['idMateria']) && $_REQUEST['idMateria'] == $data['id'])
@@ -186,18 +197,36 @@
 					<tbody>
 					<?php
 
-						$result =  pg_query_params($con,
-							'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades,
-								m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback, a.nombre AS nombre_asignatura
-								FROM materias AS m
-								INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
-								LEFT JOIN preguntas AS p ON p.id_materia = m.id
-								INNER JOIN asignaturas as a ON id_asignatura = a.id
-								WHERE pm.id_alumno = $1
-								GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas,a.nombre, m.acepta_feedback
-								ORDER BY id DESC',
-							array($_SESSION['idUsuario']))
-						or die('Error. Prueba de nuevo más tarde.');
+						//Caso admin
+						if($_SESSION['admin'] == 't'){
+							$result =  pg_query($con,
+								'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades,
+									m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback, a.nombre AS nombre_asignatura
+									FROM materias AS m
+									INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+									LEFT JOIN preguntas AS p ON p.id_materia = m.id
+									INNER JOIN asignaturas as a ON id_asignatura = a.id
+									GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas,a.nombre, m.acepta_feedback
+									ORDER BY id DESC')
+							or die('Error. Prueba de nuevo más tarde.');
+
+
+						} else {
+
+							$result =  pg_query_params($con,
+								'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades,
+									m.num_respuestas AS num_respuestas, COUNT(*) AS count, m.acepta_feedback AS feedback, a.nombre AS nombre_asignatura
+									FROM materias AS m
+									INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+									LEFT JOIN preguntas AS p ON p.id_materia = m.id
+									INNER JOIN asignaturas as a ON id_asignatura = a.id
+									WHERE pm.id_alumno = $1
+									GROUP BY m.id, m.nombre, m.num_dificultades, m.num_respuestas,a.nombre, m.acepta_feedback
+									ORDER BY id DESC',
+								array($_SESSION['idUsuario']))
+							or die('Error. Prueba de nuevo más tarde.');
+
+						}
 
 						if (pg_num_rows($result) == 0) {
 							echo "<tr><td>Aún no hay datos para mostrar.</td><td></td><td></td><td></td><td></td></tr>";

@@ -113,13 +113,21 @@
 							</thead>
 							<tbody>
 							<?php
-
-								$result =  pg_query_params($con,
-									'SELECT ma.nombre AS nombre_ma, ma.id AS ma_id
-									FROM  materias AS ma INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia
-									WHERE pm.id_alumno = $1', array($_SESSION['idUsuario']))
-								or die('Error. Prueba de nuevo más tarde.');
-
+								//Caso admin
+								if($_SESSION['admin'] == 't'){
+									$result =  pg_query($con,
+										'SELECT ma.nombre AS nombre_ma, ma.id AS ma_id
+										FROM  materias AS ma INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia
+											ORDER BY ma_id DESC')
+									or die('Error. Prueba de nuevo más tarde.');
+								//Caso profesor
+								} else {
+									$result =  pg_query_params($con,
+										'SELECT ma.nombre AS nombre_ma, ma.id AS ma_id
+										FROM  materias AS ma INNER JOIN profesor_por_materia AS pm ON ma.id = pm.id_materia
+										WHERE pm.id_alumno = $1 ORDER BY ma_id DESC', array($_SESSION['idUsuario']))
+									or die('Error. Prueba de nuevo más tarde.');
+								}
 								if (pg_num_rows($result) == 0) {
 									echo "<tr><td>Aún no hay datos para mostrar.</td><td></td></tr>";
 								} else {

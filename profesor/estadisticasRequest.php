@@ -40,7 +40,7 @@
 	or die('Error. Prueba de nuevo más tarde.');
 
 
-	if (pg_num_rows($result) == 1) {
+	if (pg_num_rows($result) == 1 || $_SESSION['admin'] == 't') {
 
 		$result = pg_query_params(
 			$con,

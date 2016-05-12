@@ -85,6 +85,17 @@
 						<label class="control-label" for="idMateria">Elige una materia: </label>
 						<select class="form-control" name="idMateria">
 							<?php
+
+							if($_SESSION['admin'] == 't'){
+								$result =  pg_query($con,
+									'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
+									FROM materias AS m
+										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+									ORDER BY id DESC')
+								or die('Error. Prueba de nuevo más tarde.');
+
+							} else {
+
 								$result =  pg_query_params($con,
 									'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
 									FROM materias AS m
@@ -93,6 +104,8 @@
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
 								or die('Error. Prueba de nuevo más tarde.');
+
+							}
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
@@ -121,6 +134,18 @@
 						<label class="control-label" for="idMateria2">Elige una materia: </label>
 						<select class="form-control" name="idMateria2" onchange="updateContent()">
 							<?php
+
+							if($_SESSION['admin'] == 't'){
+								$result =  pg_query($con,
+									'SELECT m.id AS id, m.nombre AS nombre
+									FROM materias AS m
+										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+									ORDER BY id DESC')
+								or die('Error. Prueba de nuevo más tarde.');
+
+
+							} else {
+
 								$result =  pg_query_params($con,
 									'SELECT m.id AS id, m.nombre AS nombre
 									FROM materias AS m
@@ -129,6 +154,8 @@
 									ORDER BY id DESC',
 									array($_SESSION['idUsuario']))
 								or die('Error. Prueba de nuevo más tarde.');
+							}
+								
 
 								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
 									echo "<option value=\"".$data['id']."\">".$data['nombre']."</option>";
