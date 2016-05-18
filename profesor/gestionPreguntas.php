@@ -22,16 +22,37 @@
 		$ficheroName = $_FILES["fichero"]["name"];	
 		$fich = $_FILES["fichero"];
 		$idmateria = intval($_REQUEST['idMateria']);	
+		$numParametros = $_REQUEST['numParametros'];
+		$dificultad = intval($_REQUEST['dificultad']);
+		$pregunta = $_REQUEST['titulo'];
 
+		//Iniciamos transaccion
 		pg_query("BEGIN;");
 
+		// Preguntas parametricas
 		if($param =='t'){
-			echo'tiene parametros';
 
 			$result = pg_query_params($con,
-				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script,fichero) 
-					VALUES ($1, $2, $3, $4, $5,$6,$7,$8,$9) RETURNING id;',
-			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], $idmateria, $imagen, $audio,$feedback,$param,$ficheroName,$fich));
+				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script) 
+					VALUES ($1, $2, $3, $4, $5,$6,$7,$8) RETURNING id;',
+			array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error   ".pg_last_error());
+
+			pg_query("COMMIT;");
+			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+			$idPregunta = $row['id'];
+
+			for($i=1; $i <= $numParametros; $i++){
+echo row['id'].'  '.$i.floatval($_REQUEST['parametromin'.$i]).floatval($_REQUEST['parametromax'.$i]).'  ';
+
+				$result = pg_query_params($con,
+				'INSERT INTO parametros (id_pregunta, orden, min, max) VALUES ($1, $2, $3, $4);',
+			array($idPregunta , $i, floatval($_REQUEST['parametromin'.$i]), floatval($_REQUEST['parametromax'.$i])))
+			or die("error   ".pg_last_error());
+
+
+			}
+
+
 
 		pg_query("COMMIT;");
 
