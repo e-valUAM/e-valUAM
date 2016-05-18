@@ -71,8 +71,9 @@
 						//Generamos un token para la verifiacion
 						$token = md5(devurandom_rand() . $_POST['email'] . time());
 
+						//Inicialmente todas las cuentas tienen permiso de alumno y profesor
 						$result =  pg_query_params($con,
-						'INSERT INTO alumnos (nombre, cambio_contrasenya, pass,token,token_creation) VALUES ($1,false,$2,$3,now())',
+						'INSERT INTO alumnos (nombre, cambio_contrasenya, profesor, pass,token,token_creation) VALUES ($1,false,true,$2,$3,now())',
 							array($_POST['email'],$hashed_password,$token));
 
 						//Caso de error al añadir

@@ -17,82 +17,110 @@
 		$guardado = False;
 		$imagen = $_REQUEST['imagenPrincipal'] != '' ? $_REQUEST['imagenPrincipal'] : NULL;
 		$audio = $_REQUEST['audioPrincipal'] != '' ? $_REQUEST['audioPrincipal'] : NULL;
-			
+		$feedback = $_REQUEST['feedPregunta'] != '' ? $_REQUEST['feedPregunta'] : NULL;
+		$param = $_REQUEST['parametric'] == 't' ? 't' : 'f';
+		$ficheroName = $_FILES["fichero"]["name"];	
+		$fich = $_FILES["fichero"];
+		$idmateria = intval($_REQUEST['idMateria']);	
+
 		pg_query("BEGIN;");
 
-		$result = pg_query_params($con,
-			'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback) VALUES ($1, $2, $3, $4, $5,$6) RETURNING id;',
+		if($param =='t'){
+			echo'tiene parametros';
+
+			$result = pg_query_params($con,
+				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script,fichero) 
+					VALUES ($1, $2, $3, $4, $5,$6,$7,$8,$9) RETURNING id;',
+			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], $idmateria, $imagen, $audio,$feedback,$param,$ficheroName,$fich));
+
+		pg_query("COMMIT;");
+
+		$guardado = True;	
+
+
+
+
+
+
+
+
+		} else {
+			echo 'no tiene parametros';
+
+			$result = pg_query_params($con,
+				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback) VALUES ($1, $2, $3, $4, $5,$6) RETURNING id;',
 			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], intval($_REQUEST['idMateria']), $imagen, $audio,$_REQUEST['feedPregunta']));
 		
-		/* Insecion Primera respuesta */
-		if ($result && isset($_REQUEST['respuesta1']) && $_REQUEST['respuesta1']!='') {
-			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+			/* Insecion Primera respuesta */
+			if ($result && isset($_REQUEST['respuesta1']) && $_REQUEST['respuesta1']!='') {
+				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
 
-			$imagen = $_REQUEST['respuestaImagen1'] != '' ? $_REQUEST['respuestaImagen1'] : NULL;
-			$audio = $_REQUEST['respuestaAudio1'] != '' ? $_REQUEST['respuestaAudio1'] : NULL;
+				$imagen = $_REQUEST['respuestaImagen1'] != '' ? $_REQUEST['respuestaImagen1'] : NULL;
+				$audio = $_REQUEST['respuestaAudio1'] != '' ? $_REQUEST['respuestaAudio1'] : NULL;
 
-			$correcto = pg_query_params($con,
-				'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, true, $2, $3, $4);',
-				array(trim($_REQUEST['respuesta1']), $row['id'], $imagen, $audio));
+				$correcto = pg_query_params($con,
+					'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, true, $2, $3, $4);',
+					array(trim($_REQUEST['respuesta1']), $row['id'], $imagen, $audio));
 
-			/* Segunda respuesta */
-			if ($correcto && isset($_REQUEST['respuesta2']) && $_REQUEST['respuesta2'] !='') {
+				/* Segunda respuesta */
+				if ($correcto && isset($_REQUEST['respuesta2']) && $_REQUEST['respuesta2'] !='') {
 
-				$imagen = $_REQUEST['respuestaImagen2'] != '' ? $_REQUEST['respuestaImagen2'] : NULL;
-				$audio = $_REQUEST['respuestaAudio2'] != '' ? $_REQUEST['respuestaAudio2'] : NULL;
+					$imagen = $_REQUEST['respuestaImagen2'] != '' ? $_REQUEST['respuestaImagen2'] : NULL;
+					$audio = $_REQUEST['respuestaAudio2'] != '' ? $_REQUEST['respuestaAudio2'] : NULL;
 
 			
-				$result2 = pg_query_params($con,
-					'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-					array(trim($_REQUEST['respuesta2']), $row['id'], $imagen, $audio));
-
-				$correcto = $correcto && $result2;
-			/* Tercera Respuesta */
-			if ($correcto && isset($_REQUEST['respuesta3']) && $_REQUEST['respuesta3'] !='') {
-
-				$imagen = $_REQUEST['respuestaImagen3'] != '' ? $_REQUEST['respuestaImagen3'] : NULL;
-				$audio = $_REQUEST['respuestaAudio3'] != '' ? $_REQUEST['respuestaAudio3'] : NULL;
-
-				$result3 = pg_query_params($con,
-					'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-					array(trim($_REQUEST['respuesta3']), $row['id'], $imagen, $audio));
-
-				$correcto = $result3;
-				/* Cuarta respuesta */
-				if ($correcto && isset($_REQUEST['respuesta4']) && $_REQUEST['respuesta4'] !='') {
-
-					$imagen = $_REQUEST['respuestaImagen4'] != '' ? $_REQUEST['respuestaImagen4'] : NULL;
-					$audio = $_REQUEST['respuestaAudio4'] != '' ? $_REQUEST['respuestaAudio4'] : NULL;
-
-					$result4 = pg_query_params($con,
+					$result2 = pg_query_params($con,
 						'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-						array(trim($_REQUEST['respuesta4']), $row['id'], $imagen, $audio));
+						array(trim($_REQUEST['respuesta2']), $row['id'], $imagen, $audio));
 
-					$correcto = $result4;
+					$correcto = $correcto && $result2;
+				/* Tercera Respuesta */
+				if ($correcto && isset($_REQUEST['respuesta3']) && $_REQUEST['respuesta3'] !='') {
 
-					if ($correcto && isset($_REQUEST['respuesta5'])) {
+					$imagen = $_REQUEST['respuestaImagen3'] != '' ? $_REQUEST['respuestaImagen3'] : NULL;
+					$audio = $_REQUEST['respuestaAudio3'] != '' ? $_REQUEST['respuestaAudio3'] : NULL;
 
-						$imagen = $_REQUEST['respuestaImagen5'] != '' ? $_REQUEST['respuestaImagen5'] : NULL;
-						$audio = $_REQUEST['respuestaAudio5'] != '' ? $_REQUEST['respuestaAudio5'] : NULL;
+					$result3 = pg_query_params($con,
+						'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
+						array(trim($_REQUEST['respuesta3']), $row['id'], $imagen, $audio));
 
-						$result5 = pg_query_params($con,
+					$correcto = $result3;
+					/* Cuarta respuesta */
+					if ($correcto && isset($_REQUEST['respuesta4']) && $_REQUEST['respuesta4'] !='') {
+
+						$imagen = $_REQUEST['respuestaImagen4'] != '' ? $_REQUEST['respuestaImagen4'] : NULL;
+						$audio = $_REQUEST['respuestaAudio4'] != '' ? $_REQUEST['respuestaAudio4'] : NULL;
+
+						$result4 = pg_query_params($con,
 							'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-							array(trim($_REQUEST['respuesta5']), $row['id'], $imagen, $audio));
+							array(trim($_REQUEST['respuesta4']), $row['id'], $imagen, $audio));
 
-						$correcto = $result5;
+						$correcto = $result4;
+
+						if ($correcto && isset($_REQUEST['respuesta5'])) {
+
+							$imagen = $_REQUEST['respuestaImagen5'] != '' ? $_REQUEST['respuestaImagen5'] : NULL;
+							$audio = $_REQUEST['respuestaAudio5'] != '' ? $_REQUEST['respuestaAudio5'] : NULL;
+
+							$result5 = pg_query_params($con,
+								'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
+								array(trim($_REQUEST['respuesta5']), $row['id'], $imagen, $audio));
+
+							$correcto = $result5;
+							}
 						}
 					}
 				}
-			}
 
-			if ($correcto) {
-				$guardado = True;
-				pg_query("COMMIT;");
+				if ($correcto) {
+					$guardado = True;
+					pg_query("COMMIT;");
+				} else {
+					pg_query("ROLLBACK;");
+				}
 			} else {
 				pg_query("ROLLBACK;");
 			}
-		} else {
-			pg_query("ROLLBACK;");
 		}
 	}
 
@@ -269,7 +297,7 @@
 					</div>	
 
 							
-
+					<div class="form-group">		
 					<div class="checkbox">
 						<label>
 							<input type="checkbox" id="imagenPrincipalCheckbox" value="t">
@@ -293,7 +321,7 @@
 
 						<div class="checkbox" id="divfeedbackCheckbox">
 						  <label>
-							<input type="checkbox" id="feedbackCheckbox" value="t">
+							<input type="checkbox" id="feedbackCheckbox" name='feed' value="t">
 							¿La pregunta tiene feedback personalizado?
 							<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Feedback" data-content="Permite mostrar un mensaje personalizado al alumno después de responder la pregunta" data-trigger="click hover">
 								 <span class="sr-only">Información</span>
@@ -304,14 +332,14 @@
 						
 						<div class="checkbox" id="divparametros">
 						  <label>
-							<input type="checkbox" id="parametrosCheckbox" value="t">
+							<input type="checkbox" id="parametrosCheckbox" name='parametric' value="t">
 							¿La pregunta tiene parámetros? 
 							<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Parametros" data-content="Permite incluir valores parametrizados en tus preguntas para que la pregunta mostrada siempre sea diferente. Solo implementable en preguntas de respuesta abierta" data-trigger="click hover">
 								 <span class="sr-only">Información</span>
 							</span>
 						  </label>
 						</div>
-
+</div>
 						
 					<script type="text/javascript">
 						$("#imagenRespuestasCheckbox").change(function() {
@@ -417,7 +445,7 @@
 								ret += '<label class="control-label" for="respuesta' + num + '">Respuesta #' + num + ': </label>';
 							}
 
-							ret += '<input class="form-control" type="text" name="respuesta' + num + '">';
+							ret += '<input class="form-control" type="text" value="" name="respuesta' + num + '">';
 							ret += '</div>';
 
 							// Texto con el nombre de la imagen
@@ -509,22 +537,22 @@
 					function cambiarZonaParametros()  {
 						var selectP = $('input[name="numParametros"]');						
 						var padre = $('#inputParametros');
-							//padre.empty();
 							var html = '';
 							var n = parseInt(selectP.val());
 
 							html += '<div class="form-group paramcontainer">';
-							
+					html += '<p>Utiliza la coma (,) como separador decimal en los formularios del rango de parámetros</p>';							
+
 							for(var i=1; i<=n;i++){
 								
 								html += '<label class="control-label">Nº'+i+'</label><br>';
 								html += '<div class="col-xs-6">';
-								html += '<label class="control-label" for="parametromax' + i + '">Valor Máximo</label>'
-								html += '<input class="form-control" type="number" step="0.001" name="parametromax' + i + '" required>';
+								html += '<label class="control-label" for="parametromin' + i + '">Valor Mínimo</label>'
+								html += '<input class="form-control" type="number" step="0.001" name="parametromin' + i + '" >';
 								html += '</div>';
 								html += '<div class="col-xs-6">';
-								html += '<label class="control-label" for="parametromin' + i + '">Valor Mínimo</label>'
-								html += '<input class="form-control" type="number" step="0.001" name="parametromin' + i + '" required>';
+								html += '<label class="control-label" for="parametromax' + i + '">Valor Máximo</label>'
+								html += '<input class="form-control" type="number" step="0.001" name="parametromax' + i + '" >';
 								html += '</div>';
 								
 							}
@@ -551,12 +579,12 @@
 							$("#zona-respuestas").removeClass("has-error");
 							$("#titulo").removeClass("has-error");
 							
-							for (var i = 1; i <= numRespuestas[input.val()]; i++) {
+							/*for (var i = 1; i <= numRespuestas[input.val()]; i++) {
 								if ($("input[name=respuesta" + i + "]").val() === "") {
 									$("#zona-respuestas").addClass("has-error");
 									event.preventDefault();
 								}
-							}
+							}*/
 
 							if ($("input[name=titulo]").val() === "") {
 								$("#titulo").addClass("has-error");
