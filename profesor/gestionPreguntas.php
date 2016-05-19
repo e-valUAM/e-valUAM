@@ -19,10 +19,7 @@
 		$audio = $_REQUEST['audioPrincipal'] != '' ? $_REQUEST['audioPrincipal'] : NULL;
 		$feedback = $_REQUEST['feedPregunta'] != '' ? $_REQUEST['feedPregunta'] : NULL;
 		$param = $_REQUEST['parametric'] == 't' ? 't' : 'f';
-		$ficheroName = $_FILES["fichero"]["name"];	
-		$fich = $_FILES["fichero"];
 		$idmateria = intval($_REQUEST['idMateria']);	
-		$numParametros = $_REQUEST['numParametros'];
 		$dificultad = intval($_REQUEST['dificultad']);
 		$pregunta = $_REQUEST['titulo'];
 
@@ -32,41 +29,93 @@
 		// Preguntas parametricas
 		if($param =='t'){
 
-			$result = pg_query_params($con,
-				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script) 
-					VALUES ($1, $2, $3, $4, $5,$6,$7,$8) RETURNING id;',
-			array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error   ".pg_last_error());
+			//Comprobamos que el fichero esta subido
+			if(isset($_FILES["fichero"]) && $_FILES["fichero"]["name"]!='' ){
 
-			pg_query("COMMIT;");
-			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
-			$idPregunta = $row['id'];
+				$ficheroName = $_FILES["fichero"]["name"];	
+				$fich = $_FILES["fichero"];
+				$numParametros = $_REQUEST['numParametros'];
 
-			for($i=1; $i <= $numParametros; $i++){
-echo row['id'].'  '.$i.floatval($_REQUEST['parametromin'.$i]).floatval($_REQUEST['parametromax'.$i]).'  ';
-
+				//Insertamos la pregunta
 				$result = pg_query_params($con,
-				'INSERT INTO parametros (id_pregunta, orden, min, max) VALUES ($1, $2, $3, $4);',
-			array($idPregunta , $i, floatval($_REQUEST['parametromin'.$i]), floatval($_REQUEST['parametromax'.$i])))
-			or die("error   ".pg_last_error());
+					'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script) 
+						VALUES ($1, $2, $3, $4, $5,$6,$7,$8) RETURNING id;',
+				array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error");
 
+				//Extraemos el id de la pregunta
+				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+				$idPregunta = $row['id'];
 
+				$correcto = TRUE;
+				//Insertamos los parametros
+				for($i=1; $i <= $numParametros && $correcto; $i++){
+
+					//Comprobamos que se hayan rellenado todos los parametros
+					if($_REQUEST['parametromin'.$i]=='' || $_REQUEST['parametromax'.$i]==''){
+						set_mensaje('error', 'Parametro '.$i.': sin rellenar.');
+						$correcto = False;
+						break;
+					}
+
+					$min = floatval($_REQUEST['parametromin'.$i]);
+					$max = floatval($_REQUEST['parametromax'.$i]);
+
+					if($max <= $min){
+						set_mensaje('error', 'Parametro '.$i.': el mínimo es mayor que el máximo.');
+						$correcto = False;
+						break;
+					}
+
+					$correcto = pg_query_params($con,
+						'INSERT INTO parametros (id_pregunta, orden, min, max) VALUES ($1, $2, $3, $4);',
+						array($idPregunta , $i, $min, $max))
+						or die("error");
+				}
+			
+				//Guardamos el fichero	
+				if($correcto){
+					$target_dir = "../scriptPregunta/" . $_REQUEST['idMateria'] . "/";
+					$target_file = $target_dir . basename($fich["name"]);
+					$uploadOk = 1;
+					$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+					// Allow certain file formats
+					if($imageFileType != "m") {
+						$uploadOk = 0;
+					}
+
+					// Check if $uploadOk is set to 0 by an error
+					if ($uploadOk == 0) {
+						set_mensaje('error','Fichero inválido. Formatos aceptados: .m');
+					} else {
+						if (!is_dir($target_dir)) {
+							mkdir($target_dir);
+						}
+
+						if (move_uploaded_file($_FILES["fichero"]["tmp_name"], $target_file)) {
+							$correcto = TRUE;
+						} else {
+							set_mensaje('error','Error al subir el fichero');
+							$correcto = FALSE;
+						}
+					}
+				}
+				//Cerramos la transaccion si no ha habido errores
+				if($correcto){
+					pg_query("COMMIT;");
+					$guardado = True;	
+					set_mensaje('ok','¡Pregunta correctamente guardada!');
+				} else {
+					pg_query("ROLLBACK;");
+	
+				}
+
+			//Fichero sin subir
+			} else {
+				set_mensaje('error','Debes subir un fichero');
 			}
-
-
-
-		pg_query("COMMIT;");
-
-		$guardado = True;	
-
-
-
-
-
-
-
-
+		//Pregunta sin parametros
 		} else {
-			echo 'no tiene parametros';
 
 			$result = pg_query_params($con,
 				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback) VALUES ($1, $2, $3, $4, $5,$6) RETURNING id;',
@@ -136,16 +185,17 @@ echo row['id'].'  '.$i.floatval($_REQUEST['parametromin'.$i]).floatval($_REQUEST
 				if ($correcto) {
 					$guardado = True;
 					pg_query("COMMIT;");
+					set_mensaje('ok','¡Pregunta correctamente guardada!');
 				} else {
 					pg_query("ROLLBACK;");
 				}
 			} else {
 				pg_query("ROLLBACK;");
+				set_mensaje('error','Se ha producido un error. Vuelve a probar más tarde');
+
 			}
 		}
 	}
-
-
 
 		//Caso admin
 		if($_SESSION['admin'] == 't'){
@@ -193,23 +243,6 @@ echo row['id'].'  '.$i.floatval($_REQUEST['parametromin'.$i]).floatval($_REQUEST
 	<?php mostrar_header_profesor(); mostrar_navegacion_profesor(basename(__FILE__)); ?>
 
 	<main class="container-fluid">
-
-	<?php if (isset($guardado) && $guardado) { ?>
-		<script type="text/javascript">
-			// Borar los campos
-		</script>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="alert alert-success" role="alert"><p>¡Pregunta correctamente guardada!</p></div>
-			</div>
-		</div>
-	<?php } else if (isset($guardado)) { ?>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="alert alert-danger" role="alert"><p>Se ha producido un error. Vuelve a probar más tarde.</p></div>
-			</div>
-		</div>
-	<?php } ?>
 
 		<div class="row">
 			<div class="col-md-12">
