@@ -395,7 +395,7 @@
 
 							if($_SESSION['num_respuestas'] == 1){//Abierta
 								$result =  pg_query_params($con,
-								'	(SELECT id, texto, imagen, audio, feedback
+								'	(SELECT id, texto, imagen, audio, feedback,parametros,script
 									FROM preguntas
 									WHERE id_materia = $1 and dificultad = $2 and borrada = FALSE
 									AND id NOT IN (SELECT f2.id FROM respuestas_abiertas AS f1,
@@ -404,7 +404,7 @@
 									)
 								',
 								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
-								or die('Error. Prueba de nuevo más tarde.');
+								or die('Error obteniendo la pregunta. Prueba de nuevo más tarde.');
 							}
 							else{ //TEST
 
@@ -426,7 +426,7 @@
 						else{ //Caso examen Saco
 							if($_SESSION['num_respuestas'] == 1){//Abierta
 								$result =  pg_query_params($con,
-								'	(SELECT id, texto, imagen, audio, feedback
+								'	(SELECT id, texto, imagen, audio, feedback, parametros, script
 									FROM preguntas
 									WHERE id_materia = $1 AND dificultad = $2 AND borrada = FALSE AND saco = $3
 									AND id NOT IN
@@ -465,7 +465,32 @@
 							exit;
 						}
 
+
 						$pregunta = pg_fetch_array($result, rand(0, pg_num_rows($result) - 1), PGSQL_ASSOC);
+
+						//Caso parametrica, generamos parametros y sustituimos texto
+						if($_SESSION['num_respuestas'] == 1){
+							if($_SESSION['parametros']=='t'){
+
+								$paramQuery =  pg_query_params($con,
+									'SELECT id, orden, min, max 
+									FROM parametros 
+									WHERE id_pregunta = $1 AND borrada = FALSE
+									ORDER BY orden ASC;',
+									array($pregunta['id']))
+								or die('Error. Prueba de nuevo más tarde.');
+
+
+							//Generamos parametros y sustituimos en el texto
+							for ($i = 1; $parametrosLimites = pg_fetch_array($paramQuery, null, PGSQL_ASSOC); $i++) {
+
+								//De momento todos los parametros son de 3 cifras decimales
+								$parametros[$i]= mt_rand(floor( $parametrosLimites['min']*1000),floor( $parametrosLimites['max']*1000))/1000;
+								$pregunta['texto'] = str_replace("$".$i, $parametros[$i], $pregunta['texto']);
+
+							}
+						}
+					}
 
 						echo "<h1 class=\"activaAudioPrincipal\" id=\"textoPregunta\">".$pregunta['texto']."</h1>";
 
@@ -482,6 +507,8 @@
 						$_SESSION['id_pregunta_anteanterior']= $_SESSION['id_pregunta_anterior'];
 						$_SESSION['id_pregunta_anterior']=$pregunta['id'];
 						$_SESSION['feedback'] = $pregunta['feedback'];
+						$_SESSION['parametros'] = $pregunta['parametros'];
+						$_SESSION['script'] = $pregunta['script'];
 					?>
 				</div>
 			</div>
@@ -516,11 +543,21 @@
 						}
 
 						if($_SESSION['num_respuestas'] == 1){ // Caso respuesta abierta
-							$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
+							//Caso preguntas parametricas
+							if($_SESSION['parametros']=='t'){
 
-							$_SESSION['correcta'] = $respuesta['texto'];
+							//Aqui se deberia llamar a matlab y generar la respuesta correcta
+
+							/* provisionalmente el primer parametro es la respuesta correcta */
+							$_SESSION['correcta']=$parametros[1]; 
 
 
+							
+							} else { //Preguntas abiertas normales
+								$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
+								$_SESSION['correcta'] = $respuesta['texto'];
+
+							}
 						}
 						else{ // respuestas tipo test
 							for ($i = 0; $respuestas = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
