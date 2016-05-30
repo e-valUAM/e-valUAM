@@ -2,3 +2,4 @@ vendor/
 multimedia/
 !multimedia/logos
 scriptPregunta/
+.gitignore
