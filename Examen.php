@@ -548,8 +548,27 @@
 
 							//Aqui se deberia llamar a matlab y generar la respuesta correcta
 
-							/* provisionalmente el primer parametro es la respuesta correcta */
-							$_SESSION['correcta']=$parametros[1]; 
+							$path = 'cd /var/www/html/e-valUAM/scriptPregunta/'.$_SESSION['materias_id'].'/;';
+
+							$matlab = 'matlab -nodisplay -nojvm -r "'.before_last('.m', $_SESSION['script']).'(';
+
+
+
+							for($j=1;$j<$i;$j++){
+
+								if($j != 1)
+									$matlab=$matlab.",";
+
+								$matlab = $matlab.$parametros[$j];
+							}
+							
+
+							$matlab = $matlab.'),quit;"';
+
+                            $solve = shell_exec($path.$matlab);
+
+
+							$_SESSION['correcta']=trim(after("=",$solve));
 
 
 							

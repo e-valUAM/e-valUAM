@@ -184,5 +184,23 @@
 
 		return $mail->send();
 	}
+	function strrevpos($instr, $needle)
+	{
+		$rev_pos = strpos (strrev($instr), strrev($needle));
+		if ($rev_pos===false) return false;
+		else return strlen($instr) - $rev_pos - strlen($needle);
+	};
+
+
+	function after ($this, $inthat)
+    {
+        if (!is_bool(strpos($inthat, $this)))
+        return substr($inthat, strpos($inthat,$this)+strlen($this));
+    }
+
+	function before_last ($this, $inthat)
+    {
+        return substr($inthat, 0, strrevpos($inthat, $this));
+    }
 
 ?>

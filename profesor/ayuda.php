@@ -56,15 +56,20 @@
 					<p>En e-valUAM todo se organiza en torno a cuatro conceptos principales: asignaturas, materias, preguntas y exámenes.</p>
 
 					<h4>Asignaturas</h4>
-					<p>Es posible crear <strong><a href='gestionAsignaturas.php'>asignaturas</a></strong> para incluir materias en ella, los alumnos podrán inscribirse a ellas desde el menu de inscripción, en el portal para alumnos. Una vez inscritos podrán realizar los exámenes de las materias incluidas en la asignatura. Es posible hacer privada una asignatura con una contraseña, para tener control de quién puede acceder al contenido.</p>
+					<p>Es posible crear <strong><a href='gestionAsignaturas.php'>asignaturas</a></strong> para incluir materias en ellas, los alumnos podrán inscribirse a ellas desde el menu de inscripción, en el portal para alumnos. Una vez inscritos podrán realizar los exámenes de las materias incluidas en la asignatura. Es posible hacer privada una asignatura con una contraseña, para tener control de quién puede acceder al contenido.</p>
 					<p> A la hora de crear una asignatura se solicitará un nombre, que será público para todo el mundo junto a una descripción breve y opcionalmente una contraseña</p>
 
 					<h4>Materias</h4>
-					<p> Las <strong><a href='gestionMaterias.php'>materias</a></strong> permiten agrupar preguntas de un mismo tipo, están pensadas para incluir preguntas de un determinado tema, pues los exámenes se realizan sobre las preguntas de una materia.</p>
+					<p> Las <strong><a href='gestionMaterias.php'>materias</a></strong> permiten agrupar preguntas de un mismo tipo, están pensadas para incluir preguntas de un determinado tema, pues los exámenes se realizan sobre las preguntas de una materia común.</p>
 					<p>Para crear una materia es necesario especificar un nombre público y a que asignatura pertenece, si no has creado una anteriormente puedes hacerlo <a href='gestionAsignaturas.php'>aquí</a>. Hay que elegir el número de niveles que tendrán los exámenes de la materia y el tipo de pregunta, las cuales pueden ser tipo test (de 2 a 5 respuestas) o preguntas abiertas</p>
 
 					<h4>Preguntas</h4>
-					<p>Una <strong>pregunta</strong> es exactamente lo que parece: una cuestión que los alumnos deberán responder. Tiene una respuesta correcta y varias incorrectas, además de poder contener imágenes o grabaciones de audio.</p>
+					<p>Una <strong><a href='gestionPreguntas.php'>pregunta</a></strong> es exactamente lo que parece: una cuestión que los alumnos deberán responder. Hay dos tipos principales de preguntas, tipo test y de respuesta abierta,
+
+
+
+
+Tiene una respuesta correcta y varias incorrectas, además de poder contener imágenes o grabaciones de audio.</p>
 					<p>Las preguntas se dividen en <strong>niveles</strong>. Los niveles menores agrupan las preguntas más básicas mientras que los niveles más altos agrupan las preguntas avanzadas. Un alumno no responderá preguntas de un nivel alto hasta que no haya respondido correctamente suficientes preguntas del nivel anterior. El número de pregutnas que deberá responder dependerá del número de niveles total y del número de preguntas que tenga un examen (por ejemplo, si el examen tiene 30 preguntas y tres niveles, deberá responder correctamente 10 preguntas del primer nivel para empezar a ver pregutnas del segundo nivel, y otras 10 correctas para pasar al tercer nivel).</p>
 					<p>Todas las preguntas pertenecen a una <strong>materia</strong>, que no es más que un conjunto de preguntas con un tema común y unas características iguales (número de niveles y número de respuestas)</p>
 					<p>Las preguntas se agrupan en materias para que un mismo conjunto de preguntas, es decir, para una misma materia, se puedan plantear varios exámenes distintos. Un <strong>examen</strong> define cuántas preguntas tendrán que responder los alumnos y en cuánto tiempo, además de un par de cuestiones adicionales, como si podrán ver los resultados al final o si podrán marcar si dudaban al responder la pregunta.</p>
