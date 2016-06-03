@@ -488,6 +488,11 @@
 								$parametros[$i]= mt_rand(floor( $parametrosLimites['min']*1000),floor( $parametrosLimites['max']*1000))/1000;
 								$pregunta['texto'] = str_replace("$".$i, $parametros[$i], $pregunta['texto']);
 
+								//Guardamos los parámetros generados
+								pg_query_params($con,
+									'INSERT INTO parametros_por_alumno (id_parametro,id_alumno_examen,valor) VALUES ($1,$2,$3);',
+									array( $parametrosLimites['id'],$_SESSION['idAlumnoExamen'] , $parametros[$i]));
+
 							}
 						}
 					}
@@ -548,7 +553,7 @@
 
 							//Aqui se deberia llamar a matlab y generar la respuesta correcta
 
-							$path = 'cd /var/www/html/e-valUAM/scriptPregunta/'.$_SESSION['materias_id'].'/;';
+							$path = 'cd scriptPregunta/'.$_SESSION['materias_id'].'/;';
 
 							$matlab = 'matlab -nodisplay -nojvm -r "'.before_last('.m', $_SESSION['script']).'(';
 
@@ -570,7 +575,7 @@
 
 							$_SESSION['correcta']=trim(after("=",$solve));
 
-
+							//echo $_SESSION['correcta']; /*<- descomentar para debuggear */
 							
 							} else { //Preguntas abiertas normales
 								$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);

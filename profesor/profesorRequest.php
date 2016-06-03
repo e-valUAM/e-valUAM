@@ -88,7 +88,7 @@
 		//Buscamos el numero de respuestas que tiene el examen
 		$result =  pg_query_params(
 				$con,
-				'SELECT mat.num_respuestas as num_resp
+				'SELECT mat.num_respuestas as num_resp, mat.id as id_materia
 				FROM (alumnos_por_examen AS ape  INNER JOIN examenes AS ex ON ape.id_examen = ex.id)
 				INNER JOIN materias as mat ON ex.id_materia = mat.id
 				WHERE ape.id = $1',
@@ -98,6 +98,7 @@
 
 			$res = pg_fetch_array($result, null, PGSQL_ASSOC);
 			$num_resp = $res['num_resp'];
+			$id_materia = $res['id_materia'];
 
 		$result = pg_query_params(
 			$con,
@@ -126,7 +127,7 @@
 
 		$result =  pg_query_params(
 			$con,
-			'SELECT p.texto AS preg, resp.texto AS resc, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS res, duda
+			'SELECT p.texto AS preg, resp.texto AS resc, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS res, duda, parametros
 				FROM preguntas AS p INNER JOIN
 				(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 )
 				AS resp	ON p.id = resp.id_pregunta
@@ -176,7 +177,7 @@
 
 						echo "<h3>[Preg. #".$i."] ".$res['preg'].":</h3>";
 						if (strlen($res['img']) >= 5) {
-								echo "<img id=\"imagen\" src=\"../multimedia".$res['id_materia']."/".$res['img']."\"/>"; //ID EXAMEN
+								echo "<img id=\"imagen\" src=\"../multimedia/".$id_materia."/".$res['img']."\"/>"; //ID EXAMEN
 						}
 
 						if ($res['duda'] == 't') {
