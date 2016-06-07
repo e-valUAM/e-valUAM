@@ -37,7 +37,7 @@
 		$con = connect();
 		// Query para buscar pregunta anterior
 		$result =  pg_query_params($con,
-			'(SELECT texto, imagen, audio FROM preguntas WHERE id = $1)',
+			'(SELECT texto, imagen, audio, parametros FROM preguntas WHERE id = $1)',
 			array($_SESSION['id_pregunta_anteanterior']));
 
 		// Caso de Error en la Query o en la Conexion
@@ -53,12 +53,40 @@
 		// Query para buscar Respuesta anterior
 		if($_SESSION['num_respuestas'] == 1){ //Respuesta Abierta
 
-			$result =  pg_query_params($con,
-				'(SELECT respuesta, respuesta=texto AS correcta
-					FROM respuestas_abiertas NATURAL JOIN respuestas
-					WHERE id_pregunta = $1 and id_alumno_examen = $2)',
-				array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+			if($pregunta['parametros']){ //Parametrica
+				//Sustituimos los parametros que salieron en la pregunta
 
+				$params =  pg_query_params($con,
+					'SELECT valor FROM parametros_por_alumno AS pa 
+					 INNER JOIN parametros AS p 
+					 ON pa.id_parametro = p.id 
+					 WHERE id_pregunta = $1 AND id_alumno_examen = $2
+					 ORDER BY orden ASC;',
+					array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+
+
+				//Sustituimos parametros salidos
+				for ($i = 1; $parametros = pg_fetch_array($params, null, PGSQL_ASSOC); $i++) {
+					$pregunta = str_replace("$".$i, $parametros['valor'], $pregunta);
+				}
+
+				$result =  pg_query_params($con,
+					'SELECT respuesta, respuesta=respuesta_correcta AS correcta 
+					 FROM respuestas_abiertas 
+					 WHERE id_alumno_examen = $2 AND id_pregunta = $1;',
+					array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+
+			} else { //Normal
+
+				$result =  pg_query_params($con,
+					'(SELECT respuesta, respuesta=texto AS correcta
+						FROM respuestas_abiertas NATURAL JOIN respuestas
+						WHERE id_pregunta = $1 and id_alumno_examen = $2)',
+					array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+
+
+			}
+			
 		} else { // Respuesta Test
 
 			$result =  pg_query_params($con,

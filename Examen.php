@@ -168,8 +168,6 @@
 
 		if($_SESSION['num_respuestas'] == 1){ //Caso respuesta abierta
 
-			echo trim($_REQUEST['respuestaA']);
-
 			/* limpiamos de espacios la respuesta */
 			$respuestaAbierta = trim($_REQUEST['respuestaA']);
 
@@ -216,6 +214,17 @@
 				$_SESSION['nivel']++;
 				$_SESSION['numEnNivel'] = 0;
 			}
+		}
+
+		//Mostramos mensaje de feedback
+		if($_SESSION['feedback_examen']){
+
+			$mensaje = ($_SESSION['correcta']) ? "<p>Respuesta Correcta</p>" : "<p>Respuesta Incorrecta</p>";
+			$mensaje = $mensaje."<p>".$_SESSION['feedback']."</p>";
+			$mensaje = $mensaje."<p>Pulse <a target=\"_blank\" href='Anterior.php'>aqui</a> para ver la pregunta anterior</p>";
+
+			set_mensaje(($_SESSION['correcta']) ? "ok" : "error", $mensaje);
+
 		}
 
 		// Sea correcta o no, debemos comprobar si es el fin del examen
@@ -349,7 +358,8 @@
 		</div>
 
 		<?php
-			if ($_SESSION['numRespondidas'] > 0 && ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback']))) {
+			//if desactualizado, nunca entrará en el
+			if (($_SESSION['numRespondidas'] > 0 && ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback'])))&& false) {
 				if ($_SESSION['correcta']) {
 		?>
 			<div class="container-fluid">
@@ -359,6 +369,7 @@
 			  <span class="sr-only">Cerrar</span>
 			</button>
 
+			
 			<?php if (isset($_SESSION['feedback'])) { ?>
 					<p><?php echo $_SESSION['feedback'];?></p></div>
 					<?php if($_SESSION['feedback_examen']='t')
@@ -507,17 +518,18 @@
 						}
 					}
 
-						echo "<h1 class=\"activaAudioPrincipal\" id=\"textoPregunta\">".$pregunta['texto']."</h1>";
+
+						$preg = "<h1 class=\"activaAudioPrincipal\" id=\"textoPregunta\">".$pregunta['texto']."</h1>";
 
 						if (strlen($pregunta['imagen']) >= 5) {
-							echo "<img class=\"img-responsive activaAudioPrincipal\"  id=\"imagen\" src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['imagen']."\"/>";
+							$preg = $preg. "<img class=\"img-responsive activaAudioPrincipal\"  id=\"imagen\" src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['imagen']."\"/>";
 						}
 
 						if (isset($pregunta['audio'])) {
-							echo "<audio controls preload=\"auto\" id=\"audioPrincipal\">";
-							echo "<source src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['audio']."\" type=\"audio/mpeg\">";
-							echo "Tu navegador no soporta audio. Por favor, actualiza <a href=\"http://browsehappy.com/\">a un navegador más moderno.</a>";
-							echo "</audio>";
+							$preg = $preg. "<audio controls preload=\"auto\" id=\"audioPrincipal\">";
+							$preg = $preg. "<source src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['audio']."\" type=\"audio/mpeg\">";
+							$preg = $preg. "Tu navegador no soporta audio. Por favor, actualiza <a href=\"http://browsehappy.com/\">a un navegador más moderno.</a>";
+							$preg = $preg. "</audio>";
 						}
 						$_SESSION['id_pregunta_anteanterior']= $_SESSION['id_pregunta_anterior'];
 						$_SESSION['id_pregunta_anterior']=$pregunta['id'];
@@ -595,17 +607,19 @@
 								//Si ha ido todo bien cerramos la transaccion
 								} else {
 									pg_query($con,'COMMIT;');
-
+									echo $preg;
 								}
 
 							
 							} else { //Preguntas abiertas normales
+								echo $preg;
 								$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
 								$_SESSION['correcta'] = $respuesta['texto'];
 
 							}
 						}
 						else{ // respuestas tipo test
+							echo $preg;
 							for ($i = 0; $respuestas = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
 								echo "<div class=\"$class\">";
 								echo "<p class=\"lead\" id=\"respueta\">".$respuestas['texto']."</p>";
