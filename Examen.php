@@ -167,12 +167,15 @@
 		// Hacemos la query de inserción en funcion del examen
 
 		if($_SESSION['num_respuestas'] == 1){ //Caso respuesta abierta
+
+			echo trim($_REQUEST['respuestaA']);
+
 			/* limpiamos de espacios la respuesta */
 			$respuestaAbierta = trim($_REQUEST['respuestaA']);
 
 			pg_query_params($con,
-				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6);',
-				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $respuestaAbierta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
+				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6,$7,$8);',
+				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $respuestaAbierta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda,$_SESSION['correcta'],$_SESSION['parametros']))
 			or die('Error. Prueba de nuevo más tarde.');
 
 			// Guardada la respuesta, actualizamos las variables que definen el examen
@@ -468,9 +471,14 @@
 
 						$pregunta = pg_fetch_array($result, rand(0, pg_num_rows($result) - 1), PGSQL_ASSOC);
 
+						TRANSACCION:
 						//Caso parametrica, generamos parametros y sustituimos texto
 						if($_SESSION['num_respuestas'] == 1){
 							if($_SESSION['parametros']=='t'){
+
+								//Iniciamos transaccion
+
+								pg_query($con,'BEGIN;');
 
 								$paramQuery =  pg_query_params($con,
 									'SELECT id, orden, min, max 
@@ -480,6 +488,8 @@
 									array($pregunta['id']))
 								or die('Error. Prueba de nuevo más tarde.');
 
+
+							
 
 							//Generamos parametros y sustituimos en el texto
 							for ($i = 1; $parametrosLimites = pg_fetch_array($paramQuery, null, PGSQL_ASSOC); $i++) {
@@ -551,31 +561,43 @@
 							//Caso preguntas parametricas
 							if($_SESSION['parametros']=='t'){
 
-							//Aqui se deberia llamar a matlab y generar la respuesta correcta
+								//Aqui se deberia llamar a matlab y generar la respuesta correcta
 
-							$path = 'cd scriptPregunta/'.$_SESSION['materias_id'].'/;';
+								$path = 'cd scriptPregunta/'.$_SESSION['materias_id'].'/;';
 
-							$matlab = 'matlab -nodisplay -nojvm -r "'.before_last('.m', $_SESSION['script']).'(';
+								$matlab = 'matlab -nodisplay -nojvm -r "'.before_last('.m', $_SESSION['script']).'(';
 
 
 
-							for($j=1;$j<$i;$j++){
+								for($j=1;$j<$i;$j++){
 
-								if($j != 1)
-									$matlab=$matlab.",";
+									if($j != 1)
+										$matlab=$matlab.",";
 
-								$matlab = $matlab.$parametros[$j];
-							}
+									$matlab = $matlab.$parametros[$j];
+								}
 							
 
-							$matlab = $matlab.'),quit;"';
+								$matlab = $matlab.'),quit;"';
 
-                            $solve = shell_exec($path.$matlab);
+		                        $solve = shell_exec($path.$matlab);
 
 
-							$_SESSION['correcta']=trim(after("=",$solve));
+								$_SESSION['correcta']=trim(after("=",$solve));
 
-							//echo $_SESSION['correcta']; /*<- descomentar para debuggear */
+
+								//Error en la llamada a matlab por alguna razon(permisos/sobrecarga...)
+								if($_SESSION['correcta'] == null || $_SESSION['correcta']==''){
+
+									pg_query($con,'ROLLBACK;');
+									goto TRANSACCION;
+
+								//Si ha ido todo bien cerramos la transaccion
+								} else {
+									pg_query($con,'COMMIT;');
+
+								}
+
 							
 							} else { //Preguntas abiertas normales
 								$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
