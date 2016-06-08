@@ -53,7 +53,7 @@
 		// Query para buscar Respuesta anterior
 		if($_SESSION['num_respuestas'] == 1){ //Respuesta Abierta
 
-			if($pregunta['parametros']){ //Parametrica
+			if($pregunta['parametros']=='t'){ //Parametrica
 				//Sustituimos los parametros que salieron en la pregunta
 
 				$params =  pg_query_params($con,
@@ -76,16 +76,13 @@
 					 WHERE id_alumno_examen = $2 AND id_pregunta = $1;',
 					array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
 
-			} else { //Normal
+			}
 
 				$result =  pg_query_params($con,
-					'(SELECT respuesta, respuesta=texto AS correcta
-						FROM respuestas_abiertas NATURAL JOIN respuestas
-						WHERE id_pregunta = $1 and id_alumno_examen = $2)',
-					array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
-
-
-			}
+				'SELECT respuesta, respuesta=respuesta_correcta AS correcta 
+				 FROM respuestas_abiertas 
+				 WHERE id_alumno_examen = $2 AND id_pregunta = $1;',
+				array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
 			
 		} else { // Respuesta Test
 
