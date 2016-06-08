@@ -23,8 +23,6 @@
     along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!-- El programador no se hace responsable en ningún caso de las barbaridades de código que puede encontrar
-	 escritas en este fichero -->
 
 <?php
 	require '/var/www/db_pass/db_string.php';
@@ -71,6 +69,10 @@
 
 	function set_mensaje($tipo, $mensaje) {
 		$_SESSION['_mensaje'] = array('tipo' => $tipo, 'texto' => $mensaje);
+	}
+
+	function borrar_mensaje() {
+		$_SESSION['_mensaje'] = NULL;
 	}
 
 	function mostrar_header() {
