@@ -23,6 +23,7 @@
     along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
+
 <?php
 	require '/var/www/db_pass/db_string.php';
 
@@ -68,6 +69,10 @@
 
 	function set_mensaje($tipo, $mensaje) {
 		$_SESSION['_mensaje'] = array('tipo' => $tipo, 'texto' => $mensaje);
+	}
+
+	function borrar_mensaje() {
+		$_SESSION['_mensaje'] = NULL;
 	}
 
 	function mostrar_header() {
@@ -184,5 +189,23 @@
 
 		return $mail->send();
 	}
+	function strrevpos($instr, $needle)
+	{
+		$rev_pos = strpos (strrev($instr), strrev($needle));
+		if ($rev_pos===false) return false;
+		else return strlen($instr) - $rev_pos - strlen($needle);
+	};
+
+
+	function after ($this, $inthat)
+    {
+        if (!is_bool(strpos($inthat, $this)))
+        return substr($inthat, strpos($inthat,$this)+strlen($this));
+    }
+
+	function before_last ($this, $inthat)
+    {
+        return substr($inthat, 0, strrevpos($inthat, $this));
+    }
 
 ?>

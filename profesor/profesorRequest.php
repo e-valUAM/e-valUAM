@@ -88,7 +88,7 @@
 		//Buscamos el numero de respuestas que tiene el examen
 		$result =  pg_query_params(
 				$con,
-				'SELECT mat.num_respuestas as num_resp
+				'SELECT mat.num_respuestas as num_resp, mat.id as id_materia
 				FROM (alumnos_por_examen AS ape  INNER JOIN examenes AS ex ON ape.id_examen = ex.id)
 				INNER JOIN materias as mat ON ex.id_materia = mat.id
 				WHERE ape.id = $1',
@@ -98,6 +98,7 @@
 
 			$res = pg_fetch_array($result, null, PGSQL_ASSOC);
 			$num_resp = $res['num_resp'];
+			$id_materia = $res['id_materia'];
 
 		$result = pg_query_params(
 			$con,
@@ -124,15 +125,20 @@
 
 		} else {
 
-		$result =  pg_query_params(
-			$con,
-			'SELECT p.texto AS preg, resp.texto AS resc, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS res, duda
-				FROM preguntas AS p INNER JOIN
-				(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 )
-				AS resp	ON p.id = resp.id_pregunta
-				ORDER BY time',
-			array(intval($_REQUEST['id'])))
-		or die('Error. Prueba de nuevo más tarde.');
+			$result =  pg_query_params(
+				$con,
+				'(SELECT p.texto AS preg, resp.texto AS resc, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS res, duda, parametros
+					FROM preguntas AS p INNER JOIN
+					(SELECT * FROM respuestas AS r NATURAL JOIN respuestas_abiertas AS rpa  WHERE id_alumno_examen = $1 )
+					AS resp	ON p.id = resp.id_pregunta
+					WHERE parametros = false) UNION 
+					(SELECT p.texto AS preg, rpa.respuesta_correcta AS resc, rpa.timestamp AS time, 
+					p.imagen AS img, rpa.respuesta AS res, duda, parametros
+					FROM preguntas AS p INNER JOIN respuestas_abiertas AS rpa ON p.id = rpa.id_pregunta
+					WHERE id_alumno_examen = $1)
+					ORDER BY time',
+				array(intval($_REQUEST['id'])))
+			or die('Error. Prueba de nuevo más tarde.'.pg_last_error());
 
 
 		}
@@ -172,11 +178,30 @@
 				echo "</div></div>";
 
 				for ($i = 1; $res = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
+
+					if($res['parametros']=='t'){ //Parametrica
+						//Sustituimos los parametros que salieron en la pregunta
+						$params =  pg_query_params($con,
+						'SELECT valor FROM parametros_por_alumno AS pa 
+						INNER JOIN parametros AS p 
+					    ON pa.id_parametro = p.id 
+					    WHERE id_pregunta = $1 AND id_alumno_examen = $2
+						ORDER BY orden ASC;',
+						array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+
+
+						//Sustituimos parametros salidos
+						for ($i = 1; $parametros = pg_fetch_array($params, null, PGSQL_ASSOC); $i++) {
+							$res['preg'] = str_replace("$".$i, $parametros['valor'], $res['preg']);
+						}
+					}
+
+
 					echo "<section class=\"row\"><div class=\"col-md-12\">";
 
 						echo "<h3>[Preg. #".$i."] ".$res['preg'].":</h3>";
 						if (strlen($res['img']) >= 5) {
-								echo "<img id=\"imagen\" src=\"../multimedia".$res['id_materia']."/".$res['img']."\"/>"; //ID EXAMEN
+								echo "<img id=\"imagen\" src=\"../multimedia/".$id_materia."/".$res['img']."\"/>"; //ID EXAMEN
 						}
 
 						if ($res['duda'] == 't') {

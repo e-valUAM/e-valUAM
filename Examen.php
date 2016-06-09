@@ -167,12 +167,13 @@
 		// Hacemos la query de inserción en funcion del examen
 
 		if($_SESSION['num_respuestas'] == 1){ //Caso respuesta abierta
+
 			/* limpiamos de espacios la respuesta */
 			$respuestaAbierta = trim($_REQUEST['respuestaA']);
 
 			pg_query_params($con,
-				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6);',
-				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $respuestaAbierta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda))
+				'INSERT INTO respuestas_abiertas VALUES ($1, $2, $3, $4, $5, $6,$7,$8);',
+				array($_SESSION['idUsuario'], $_SESSION['id_pregunta_anterior'], $respuestaAbierta, date(DATE_ISO8601, $time), $_SESSION['idAlumnoExamen'], $duda,$_SESSION['correcta'],$_SESSION['parametros']))
 			or die('Error. Prueba de nuevo más tarde.');
 
 			// Guardada la respuesta, actualizamos las variables que definen el examen
@@ -213,6 +214,17 @@
 				$_SESSION['nivel']++;
 				$_SESSION['numEnNivel'] = 0;
 			}
+		}
+
+		//Mostramos mensaje de feedback
+		if($_SESSION['feedback_examen']){
+
+			$mensaje = ($_SESSION['correcta']) ? "<p>Respuesta Correcta</p>" : "<p>Respuesta Incorrecta</p>";
+			$mensaje = $mensaje."<p>".$_SESSION['feedback']."</p>";
+			$mensaje = $mensaje."<p>Pulse <a target=\"_blank\" href='Anterior.php'>aqui</a> para ver la pregunta anterior</p>";
+
+			set_mensaje(($_SESSION['correcta']) ? "ok" : "error", $mensaje);
+
 		}
 
 		// Sea correcta o no, debemos comprobar si es el fin del examen
@@ -346,7 +358,8 @@
 		</div>
 
 		<?php
-			if ($_SESSION['numRespondidas'] > 0 && ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback']))) {
+			//if desactualizado, nunca entrará en el
+			if (($_SESSION['numRespondidas'] > 0 && ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback'])))&& false) {
 				if ($_SESSION['correcta']) {
 		?>
 			<div class="container-fluid">
@@ -356,6 +369,7 @@
 			  <span class="sr-only">Cerrar</span>
 			</button>
 
+			
 			<?php if (isset($_SESSION['feedback'])) { ?>
 					<p><?php echo $_SESSION['feedback'];?></p></div>
 					<?php if($_SESSION['feedback_examen']='t')
@@ -395,7 +409,7 @@
 
 							if($_SESSION['num_respuestas'] == 1){//Abierta
 								$result =  pg_query_params($con,
-								'	(SELECT id, texto, imagen, audio, feedback
+								'	(SELECT id, texto, imagen, audio, feedback,parametros,script
 									FROM preguntas
 									WHERE id_materia = $1 and dificultad = $2 and borrada = FALSE
 									AND id NOT IN (SELECT f2.id FROM respuestas_abiertas AS f1,
@@ -404,7 +418,7 @@
 									)
 								',
 								array($_SESSION['materias_id'], $_SESSION['nivel'], $_SESSION['idUsuario'], $_SESSION['idAlumnoExamen']))
-								or die('Error. Prueba de nuevo más tarde.');
+								or die('Error obteniendo la pregunta. Prueba de nuevo más tarde.');
 							}
 							else{ //TEST
 
@@ -426,7 +440,7 @@
 						else{ //Caso examen Saco
 							if($_SESSION['num_respuestas'] == 1){//Abierta
 								$result =  pg_query_params($con,
-								'	(SELECT id, texto, imagen, audio, feedback
+								'	(SELECT id, texto, imagen, audio, feedback, parametros, script
 									FROM preguntas
 									WHERE id_materia = $1 AND dificultad = $2 AND borrada = FALSE AND saco = $3
 									AND id NOT IN
@@ -465,23 +479,65 @@
 							exit;
 						}
 
+
 						$pregunta = pg_fetch_array($result, rand(0, pg_num_rows($result) - 1), PGSQL_ASSOC);
 
-						echo "<h1 class=\"activaAudioPrincipal\" id=\"textoPregunta\">".$pregunta['texto']."</h1>";
+
+						do {
+						$guardado = TRUE;
+						//Caso parametrica, generamos parametros y sustituimos texto
+						if($_SESSION['num_respuestas'] == 1){
+							if($_SESSION['parametros']=='t'){
+
+								//Iniciamos transaccion
+
+								pg_query($con,'BEGIN;');
+
+								$paramQuery =  pg_query_params($con,
+									'SELECT id, orden, min, max 
+									FROM parametros 
+									WHERE id_pregunta = $1 AND borrada = FALSE
+									ORDER BY orden ASC;',
+									array($pregunta['id']))
+								or die('Error. Prueba de nuevo más tarde.');
+
+
+							
+
+							//Generamos parametros y sustituimos en el texto
+							for ($i = 1; $parametrosLimites = pg_fetch_array($paramQuery, null, PGSQL_ASSOC); $i++) {
+
+								//De momento todos los parametros son de 3 cifras decimales
+								$parametros[$i]= mt_rand(floor( $parametrosLimites['min']*1000),floor( $parametrosLimites['max']*1000))/1000;
+								$pregunta['texto'] = str_replace("$".$i, $parametros[$i], $pregunta['texto']);
+
+								//Guardamos los parámetros generados
+								pg_query_params($con,
+									'INSERT INTO parametros_por_alumno (id_parametro,id_alumno_examen,valor) VALUES ($1,$2,$3);',
+									array( $parametrosLimites['id'],$_SESSION['idAlumnoExamen'] , $parametros[$i]));
+
+							}
+						}
+					}
+
+
+						$preg = "<h1 class=\"activaAudioPrincipal\" id=\"textoPregunta\">".$pregunta['texto']."</h1>";
 
 						if (strlen($pregunta['imagen']) >= 5) {
-							echo "<img class=\"img-responsive activaAudioPrincipal\"  id=\"imagen\" src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['imagen']."\"/>";
+							$preg = $preg. "<img class=\"img-responsive activaAudioPrincipal\"  id=\"imagen\" src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['imagen']."\"/>";
 						}
 
 						if (isset($pregunta['audio'])) {
-							echo "<audio controls preload=\"auto\" id=\"audioPrincipal\">";
-							echo "<source src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['audio']."\" type=\"audio/mpeg\">";
-							echo "Tu navegador no soporta audio. Por favor, actualiza <a href=\"http://browsehappy.com/\">a un navegador más moderno.</a>";
-							echo "</audio>";
+							$preg = $preg. "<audio controls preload=\"auto\" id=\"audioPrincipal\">";
+							$preg = $preg. "<source src=\"./multimedia/".$_SESSION['materias_id']."/".$pregunta['audio']."\" type=\"audio/mpeg\">";
+							$preg = $preg. "Tu navegador no soporta audio. Por favor, actualiza <a href=\"http://browsehappy.com/\">a un navegador más moderno.</a>";
+							$preg = $preg. "</audio>";
 						}
 						$_SESSION['id_pregunta_anteanterior']= $_SESSION['id_pregunta_anterior'];
 						$_SESSION['id_pregunta_anterior']=$pregunta['id'];
 						$_SESSION['feedback'] = $pregunta['feedback'];
+						$_SESSION['parametros'] = $pregunta['parametros'];
+						$_SESSION['script'] = $pregunta['script'];
 					?>
 				</div>
 			</div>
@@ -516,13 +572,57 @@
 						}
 
 						if($_SESSION['num_respuestas'] == 1){ // Caso respuesta abierta
-							$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
+							//Caso preguntas parametricas
+							if($_SESSION['parametros']=='t'){
 
-							$_SESSION['correcta'] = $respuesta['texto'];
+								//Aqui se deberia llamar a matlab y generar la respuesta correcta
+
+								$path = 'cd scriptPregunta/'.$_SESSION['materias_id'].'/;';
+
+								$matlab = 'matlab -nodisplay -nojvm -r "'.before_last('.m', $_SESSION['script']).'(';
 
 
+
+								for($j=1;$j<$i;$j++){
+
+									if($j != 1)
+										$matlab=$matlab.",";
+
+									$matlab = $matlab.$parametros[$j];
+								}
+							
+
+								$matlab = $matlab.'),quit;"';
+
+		                        $solve = shell_exec($path.$matlab);
+
+
+								$_SESSION['correcta']=trim(after("=",$solve));
+
+
+								//Error en la llamada a matlab por alguna razon(permisos/sobrecarga...)
+								if($_SESSION['correcta'] == null || $_SESSION['correcta']==''){
+
+									pg_query($con,'ROLLBACK;');
+									$guardado = FALSE;
+									
+
+								//Si ha ido todo bien cerramos la transaccion
+								} else {
+									pg_query($con,'COMMIT;');
+									echo $preg;
+								}
+
+							
+							} else { //Preguntas abiertas normales
+								echo $preg;
+								$respuesta = pg_fetch_array($result, null, PGSQL_ASSOC);
+								$_SESSION['correcta'] = $respuesta['texto'];
+
+							}
 						}
 						else{ // respuestas tipo test
+							echo $preg;
 							for ($i = 0; $respuestas = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
 								echo "<div class=\"$class\">";
 								echo "<p class=\"lead\" id=\"respueta\">".$respuestas['texto']."</p>";
@@ -546,6 +646,10 @@
 								$_SESSION['respuestas'][$letras[$i]] = $respuestas['id'];
 							}
 						}
+
+					//Aqui el while del do while
+					} while($guardado == FALSE );
+
 					?>
 			</div>
 		</main>

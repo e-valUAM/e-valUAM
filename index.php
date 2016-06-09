@@ -54,18 +54,7 @@
 					?>
 				</div>
 			</div>
-			<script>
-				$(function(){
-					var $btn = $('#btn-load');
-					$btn.click(function(){
-						var $this = $(this);
-						$this.attr('disabled', 'disabled').html("Cargando...");
-						setTimeout(function () {
-							$this.removeAttr('disabled').html('Continuar');
-						}, 3000)
-					});
-				})
-			</script>
+			
 			<div class="row">
 				<div class="col-md-12">
 					<form action="eleccionExamen.php" method="post">
@@ -77,7 +66,7 @@
 							<label for="nombre">Contraseña</label>
 							<input type="password" class="form-control" name="contrasenya" placeholder="Tu contraseña">
 						</div>
-						<button type="submit" class="btn btn-primary" id="btn-load" value="Continuar">Continuar</button>
+						<button type="submit" class="btn btn-primary" value="Continuar">Continuar</button>
 					</form>
 				<br>	<p><a href="recuperarContrasenya.php">¿Has olvidado la contraseña?</a></p>
 						<p><a href="nuevaCuenta.php">Crear una cuenta nueva </a></p>

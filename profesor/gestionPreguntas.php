@@ -1,28 +1,3 @@
-<!--
-		e-valUAM: An adaptive questionnaire environment.
-		e-valUAM: Un entorno de questionarios adaptativos.
-
-    Copyright (C) 2011-2016
-		P. Molins, P. Marcos with P. Rodríguez, F. Jurado & G. M. Sacha.
-		Contact email: pablo.molins@uam.es
-
-
-		This file is part of e-valUAM.
-
-    e-valUAM is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-		by the Free Software Foundation, either version 3 of the License, or
-    any later version.
-
-    e-valUAM is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with e-valUAM.  If not, see <http://www.gnu.org/licenses/>.
--->
-
 <?php
 
 	include 'funciones_profesor.php';
@@ -37,87 +12,217 @@
 	$con = connect()
 		or die('No se ha podido conectar con la base de datos. Prueba de nuevo más tarde.');
 
-
+	/* Insercion de la pregunta */
 	if (isset($_REQUEST['idMateria'])) {
 		$guardado = False;
 		$imagen = $_REQUEST['imagenPrincipal'] != '' ? $_REQUEST['imagenPrincipal'] : NULL;
 		$audio = $_REQUEST['audioPrincipal'] != '' ? $_REQUEST['audioPrincipal'] : NULL;
+		$feedback = $_REQUEST['feedPregunta'] != '' ? $_REQUEST['feedPregunta'] : NULL;
+		$param = $_REQUEST['parametric'] == 't' ? 't' : 'f';
+		$idmateria = intval($_REQUEST['idMateria']);	
+		$dificultad = intval($_REQUEST['dificultad']);
+		$pregunta = $_REQUEST['titulo'];
 
+		//Iniciamos transaccion
 		pg_query("BEGIN;");
 
-		$result = pg_query_params($con,
-			'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio) VALUES ($1, $2, $3, $4, $5) RETURNING id;',
-			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], intval($_REQUEST['idMateria']), $imagen, $audio));
+		// Preguntas parametricas
+		if($param =='t'){
 
-		if ($result) {
-			$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+			//Comprobamos que el fichero esta subido
+			if(isset($_FILES["fichero"]) && $_FILES["fichero"]["name"]!='' ){
 
-			$imagen = $_REQUEST['respuestaImagen1'] != '' ? $_REQUEST['respuestaImagen1'] : NULL;
-			$audio = $_REQUEST['respuestaAudio1'] != '' ? $_REQUEST['respuestaAudio1'] : NULL;
+				$ficheroName = $_FILES["fichero"]["name"];	
+				$fich = $_FILES["fichero"];
+				$numParametros = $_REQUEST['numParametros'];
 
-			$correcto = pg_query_params($con,
-				'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, true, $2, $3, $4);',
-				array($_REQUEST['respuesta1'], $row['id'], $imagen, $audio));
+				//Insertamos la pregunta
+				$result = pg_query_params($con,
+					'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script) 
+						VALUES ($1, $2, $3, $4, $5,$6,$7,$8) RETURNING id;',
+				array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error");
 
-			if ($correcto && isset($_REQUEST['respuesta2'])) {
+				//Extraemos el id de la pregunta
+				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+				$idPregunta = $row['id'];
 
-			$imagen = $_REQUEST['respuestaImagen2'] != '' ? $_REQUEST['respuestaImagen2'] : NULL;
-			$audio = $_REQUEST['respuestaAudio2'] != '' ? $_REQUEST['respuestaAudio2'] : NULL;
+				$correcto = TRUE;
+				//Insertamos los parametros
+				for($i=1; $i <= $numParametros && $correcto; $i++){
 
-			$result2 = pg_query_params($con,
-				'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-				array($_REQUEST['respuesta2'], $row['id'], $imagen, $audio));
+					//Comprobamos que se hayan rellenado todos los parametros
+					if($_REQUEST['parametromin'.$i]=='' || $_REQUEST['parametromax'.$i]==''){
+						set_mensaje('error', 'Parametro '.$i.': sin rellenar.');
+						$correcto = False;
+						break;
+					}
 
-			$correcto = $correcto && $result2;
+					$min = floatval($_REQUEST['parametromin'.$i]);
+					$max = floatval($_REQUEST['parametromax'.$i]);
 
-			if ($correcto && isset($_REQUEST['respuesta3'])) {
+					if($max <= $min){
+						set_mensaje('error', 'Parametro '.$i.': el mínimo es mayor que el máximo.');
+						$correcto = False;
+						break;
+					}
 
-				$imagen = $_REQUEST['respuestaImagen3'] != '' ? $_REQUEST['respuestaImagen3'] : NULL;
-				$audio = $_REQUEST['respuestaAudio3'] != '' ? $_REQUEST['respuestaAudio3'] : NULL;
+					$correcto = pg_query_params($con,
+						'INSERT INTO parametros (id_pregunta, orden, min, max) VALUES ($1, $2, $3, $4);',
+						array($idPregunta , $i, $min, $max))
+						or die("error");
+				}
+			
+				//Guardamos el fichero	
+				if($correcto){
+					$target_dir = "../scriptPregunta/" . $_REQUEST['idMateria'] . "/";
+					$target_file = $target_dir . basename($fich["name"]);
+					$uploadOk = 1;
+					$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-				$result3 = pg_query_params($con,
-					'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-					array($_REQUEST['respuesta3'], $row['id'], $imagen, $audio));
+					// Allow certain file formats
+					if($imageFileType != "m") {
+						$uploadOk = 0;
+					}
 
-				$correcto = $result3;
+					// Check if $uploadOk is set to 0 by an error
+					if ($uploadOk == 0) {
+						set_mensaje('error','Fichero inválido. Formatos aceptados: .m');
+					} else {
+						if (!is_dir($target_dir)) {
+							mkdir($target_dir);
+						}
 
-				if ($correcto && isset($_REQUEST['respuesta4'])) {
-
-					$imagen = $_REQUEST['respuestaImagen4'] != '' ? $_REQUEST['respuestaImagen4'] : NULL;
-					$audio = $_REQUEST['respuestaAudio4'] != '' ? $_REQUEST['respuestaAudio4'] : NULL;
-
-					$result4 = pg_query_params($con,
-						'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-						array($_REQUEST['respuesta4'], $row['id'], $imagen, $audio));
-
-					$correcto = $result4;
-
-					if ($correcto && isset($_REQUEST['respuesta5'])) {
-
-						$imagen = $_REQUEST['respuestaImagen5'] != '' ? $_REQUEST['respuestaImagen5'] : NULL;
-						$audio = $_REQUEST['respuestaAudio5'] != '' ? $_REQUEST['respuestaAudio5'] : NULL;
-
-						$result5 = pg_query_params($con,
-							'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
-							array($_REQUEST['respuesta5'], $row['id'], $imagen, $audio));
-
-						$correcto = $result5;
+						if (move_uploaded_file($_FILES["fichero"]["tmp_name"], $target_file)) {
+							$correcto = TRUE;
+						} else {
+							set_mensaje('error','Error al subir el fichero');
+							$correcto = FALSE;
 						}
 					}
 				}
-			}
+				//Cerramos la transaccion si no ha habido errores
+				if($correcto){
+					pg_query("COMMIT;");
+					$guardado = True;	
+					set_mensaje('ok','¡Pregunta correctamente guardada!');
+				} else {
+					pg_query("ROLLBACK;");
+	
+				}
 
-			if ($correcto) {
-				$guardado = True;
-				pg_query("COMMIT;");
+			//Fichero sin subir
+			} else {
+				set_mensaje('error','Debes subir un fichero');
+			}
+		//Pregunta sin parametros
+		} else {
+
+			$result = pg_query_params($con,
+				'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback) VALUES ($1, $2, $3, $4, $5,$6) RETURNING id;',
+			array(intval($_REQUEST['dificultad']), $_REQUEST['titulo'], intval($_REQUEST['idMateria']), $imagen, $audio,$_REQUEST['feedPregunta']));
+		
+			/* Insecion Primera respuesta */
+			if ($result && isset($_REQUEST['respuesta1']) && $_REQUEST['respuesta1']!='') {
+				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
+
+				$imagen = $_REQUEST['respuestaImagen1'] != '' ? $_REQUEST['respuestaImagen1'] : NULL;
+				$audio = $_REQUEST['respuestaAudio1'] != '' ? $_REQUEST['respuestaAudio1'] : NULL;
+
+				$correcto = pg_query_params($con,
+					'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, true, $2, $3, $4);',
+					array(trim($_REQUEST['respuesta1']), $row['id'], $imagen, $audio));
+
+				/* Segunda respuesta */
+				if ($correcto && isset($_REQUEST['respuesta2']) && $_REQUEST['respuesta2'] !='') {
+
+					$imagen = $_REQUEST['respuestaImagen2'] != '' ? $_REQUEST['respuestaImagen2'] : NULL;
+					$audio = $_REQUEST['respuestaAudio2'] != '' ? $_REQUEST['respuestaAudio2'] : NULL;
+
+			
+					$result2 = pg_query_params($con,
+						'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
+						array(trim($_REQUEST['respuesta2']), $row['id'], $imagen, $audio));
+
+					$correcto = $correcto && $result2;
+				/* Tercera Respuesta */
+				if ($correcto && isset($_REQUEST['respuesta3']) && $_REQUEST['respuesta3'] !='') {
+
+					$imagen = $_REQUEST['respuestaImagen3'] != '' ? $_REQUEST['respuestaImagen3'] : NULL;
+					$audio = $_REQUEST['respuestaAudio3'] != '' ? $_REQUEST['respuestaAudio3'] : NULL;
+
+					$result3 = pg_query_params($con,
+						'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
+						array(trim($_REQUEST['respuesta3']), $row['id'], $imagen, $audio));
+
+					$correcto = $result3;
+					/* Cuarta respuesta */
+					if ($correcto && isset($_REQUEST['respuesta4']) && $_REQUEST['respuesta4'] !='') {
+
+						$imagen = $_REQUEST['respuestaImagen4'] != '' ? $_REQUEST['respuestaImagen4'] : NULL;
+						$audio = $_REQUEST['respuestaAudio4'] != '' ? $_REQUEST['respuestaAudio4'] : NULL;
+
+						$result4 = pg_query_params($con,
+							'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
+							array(trim($_REQUEST['respuesta4']), $row['id'], $imagen, $audio));
+
+						$correcto = $result4;
+
+						if ($correcto && isset($_REQUEST['respuesta5'])) {
+
+							$imagen = $_REQUEST['respuestaImagen5'] != '' ? $_REQUEST['respuestaImagen5'] : NULL;
+							$audio = $_REQUEST['respuestaAudio5'] != '' ? $_REQUEST['respuestaAudio5'] : NULL;
+
+							$result5 = pg_query_params($con,
+								'INSERT INTO respuestas (texto, correcta, id_pregunta, imagen, audio) VALUES ($1, false, $2, $3, $4);',
+								array(trim($_REQUEST['respuesta5']), $row['id'], $imagen, $audio));
+
+							$correcto = $result5;
+							}
+						}
+					}
+				}
+
+				if ($correcto) {
+					$guardado = True;
+					pg_query("COMMIT;");
+					set_mensaje('ok','¡Pregunta correctamente guardada!');
+				} else {
+					pg_query("ROLLBACK;");
+				}
 			} else {
 				pg_query("ROLLBACK;");
+				set_mensaje('error','Se ha producido un error. Vuelve a probar más tarde');
+
 			}
-		} else {
-			pg_query("ROLLBACK;");
 		}
 	}
 
+		//Caso admin
+		if($_SESSION['admin'] == 't'){
+			$resultMateria =  pg_query($con, 
+						'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
+						FROM materias AS m 
+						INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+						ORDER BY id DESC')
+						or die('La consulta fallo');
+
+
+		} else {
+			$resultMateria =  pg_query_params($con, 
+						'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
+						FROM materias AS m 
+						INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
+						WHERE pm.id_alumno = $1
+						ORDER BY id DESC',
+						array($_SESSION['idUsuario']))
+						or die('La consulta fallo');
+	}
+
+	$numDificultades = array();
+	$numRespuestas = array();
+
+
+	
 ?>
 
 <!DOCTYPE html>
@@ -139,23 +244,6 @@
 
 	<main class="container-fluid">
 
-	<?php if (isset($guardado) && $guardado) { ?>
-		<script type="text/javascript">
-			// Borar los campos
-		</script>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="alert alert-success" role="alert"><p>¡Pregunta correctamente guardada!</p></div>
-			</div>
-		</div>
-	<?php } else if (isset($guardado)) { ?>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="alert alert-danger" role="alert"><p>Se ha producido un error. Vuelve a probar más tarde.</p></div>
-			</div>
-		</div>
-	<?php } ?>
-
 		<div class="row">
 			<div class="col-md-12">
 				<form>
@@ -163,31 +251,7 @@
 						<label class="control-label" for="idMateria">Elige una materia: </label>
 						<select class="form-control" name="idMateria" onchange="updateIdMateria()">
 							<?php
-
-							if($_SESSION['admin'] == 't'){
-								$result =  pg_query($con,
-									'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
-									FROM materias AS m
-										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
-									ORDER BY id DESC')
-								or die('Error. Prueba de nuevo más tarde.');
-
-
-							} else {
-								$result =  pg_query_params($con,
-									'SELECT m.id AS id, m.nombre AS nombre, m.num_dificultades AS num_dificultades, m.num_respuestas AS num_respuestas
-									FROM materias AS m
-										INNER JOIN profesor_por_materia AS pm ON m.id = pm.id_materia
-									WHERE pm.id_alumno = $1
-									ORDER BY id DESC',
-									array($_SESSION['idUsuario']))
-								or die('Error. Prueba de nuevo más tarde.');
-							}
-
-								$numDificultades = array();
-								$numRespuestas = array();
-
-								while ($data = pg_fetch_array($result, null, PGSQL_ASSOC)) {
+								while ($data = pg_fetch_array($resultMateria, null, PGSQL_ASSOC)) {
 									if (isset($_REQUEST['idMateria']) && $_REQUEST['idMateria'] == $data['id'])
 										echo "<option value=\"".$data['id']."\" selected>".$data['nombre']."</option>";
 									else
@@ -195,17 +259,17 @@
 									$numDificultades[$data['id']] = $data['num_dificultades'];
 									$numRespuestas[$data['id']] = $data['num_respuestas'];
 								}
-
+								
 							?>
-
+							
 						</select>
 						<script type="text/javascript">
 							function updateIdMateria() {
 								var input = $('select[name="idMateria"]  option:selected');
 								$("#idMateria").val(input.val());
-								$('#mostrarPreguntas').attr('href', './preguntasMostrar.php?idMateria=' + input.val() + '&nombreMateria=' + input.text());
+								$('#mostrarPreguntas').attr('href', './preguntasMostrar.php?idMateria=' + input.val() + '&nombreMateria=' + input.text());							
 							}
-
+							
 						</script>
 						<br>
 						<a id="mostrarPreguntas" class="btn btn-primary" href="./preguntasMostrar.php" targe="_blank" role="button">Ver todas las preguntas</a>
@@ -235,61 +299,10 @@
 								var select = $('select[name="dificultad"]');
 								select.empty();
 								var options = '';
-								switch (parseInt(numDificultades[input.val()])) {
-									case 25:
-										options = "<option value=\"25\">25</option>" + options;
-									case 24:
-										options = "<option value=\"24\">24</option>" + options;
-									case 23:
-										options = "<option value=\"23\">23</option>" + options;
-									case 22:
-										options = "<option value=\"22\">22</option>" + options;
-									case 21:
-										options = "<option value=\"21\">21</option>" + options;
-									case 20:
-										options = "<option value=\"20\">20</option>" + options;
-									case 19:
-										options = "<option value=\"19\">19</option>" + options;
-									case 18:
-										options = "<option value=\"18\">18</option>" + options;
-									case 17:
-										options = "<option value=\"17\">17</option>" + options;
-									case 16:
-										options = "<option value=\"16\">16</option>" + options;
-									case 15:
-										options = "<option value=\"15\">15</option>" + options;
-									case 14:
-										options = "<option value=\"14\">14</option>" + options;
-									case 13:
-										options = "<option value=\"13\">13</option>" + options;
-									case 12:
-										options = "<option value=\"12\">12</option>" + options;
-									case 11:
-										options = "<option value=\"11\">11</option>" + options;
-									case 10:
-										options = "<option value=\"10\">10</option>" + options;
-									case 9:
-										options = "<option value=\"9\">9</option>" + options;
-									case 8:
-										options = "<option value=\"8\">8</option>" + options;
-									case 7:
-										options = "<option value=\"7\">7</option>" + options;
-									case 6:
-										options = "<option value=\"6\">6</option>" + options;
-									case 5:
-										options = "<option value=\"5\">5</option>" + options;
-									case 4:
-										options = "<option value=\"4\">4</option>" + options;
-									case 3:
-										options = "<option value=\"3\">3</option>" + options;
-									case 2:
-										options = "<option value=\"2\">2</option>" + options;
-									case 1:
-										options = "<option value=\"1\">1</option>" + options;
+
+								for(i=1; i <= parseInt(numDificultades[input.val()]) ; i++){
+									options += "<option value=\"" + i + "\">" + i + "</option>";	
 								}
-
-
-
 								select.html(options);
 							}
 
@@ -317,7 +330,7 @@
 									$('#divparametros').addClass('hidden');
 
 								}
-
+							
 							}
 
 
@@ -325,23 +338,27 @@
 
 							input.change(disablecheckbox);
 
-
 							cambiarSelectNumDificultades();
 
 							updateIdMateria();
-
+							
 						</script>
-					</div>
 
+						<script type="text/javascript">
+							$(function () {
+			 					 $('[data-toggle="popover"]').popover()})
+						</script>
+					</div>	
 
-
+							
+					<div class="form-group">		
 					<div class="checkbox">
 						<label>
 							<input type="checkbox" id="imagenPrincipalCheckbox" value="t">
 							¿La pregunta tiene una imagen principal?
 						</label>
 					</div>
-
+					
 						<div class="checkbox" id="divimagenRespuestasCheckbox">
 							<label>
 								<input type="checkbox" id="imagenRespuestasCheckbox" value="t" >
@@ -356,15 +373,28 @@
 						  </label>
 						</div>
 
-
-						<div class="checkbox" id="divparametros">
+						<div class="checkbox" id="divfeedbackCheckbox">
 						  <label>
-							<input type="checkbox" id="parametros" value="t" disabled>
-							¿La pregunta tiene parámetros?
+							<input type="checkbox" id="feedbackCheckbox" name='feed' value="t">
+							¿La pregunta tiene feedback personalizado?
+							<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Feedback" data-content="Permite mostrar un mensaje personalizado al alumno después de responder la pregunta" data-trigger="click hover">
+								 <span class="sr-only">Información</span>
+							</span>
 						  </label>
 						</div>
 
-
+						
+						<div class="checkbox" id="divparametros">
+						  <label>
+							<input type="checkbox" id="parametrosCheckbox" name='parametric' value="t">
+							¿La pregunta tiene parámetros? 
+							<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Parametros" data-content="Permite incluir valores parametrizados en tus preguntas para que la pregunta mostrada siempre sea diferente. Solo implementable en preguntas de respuesta abierta" data-trigger="click hover">
+								 <span class="sr-only">Información</span>
+							</span>
+						  </label>
+						</div>
+</div>
+						
 					<script type="text/javascript">
 						$("#imagenRespuestasCheckbox").change(function() {
 							if(this.checked) {
@@ -374,6 +404,17 @@
 								$('.imagenRespuesta').removeClass('show');
 								$('.imagenRespuesta').addClass('hidden');
 								$('.imagenRespuesta input').val('');
+							}
+						});
+
+						$("#feedbackCheckbox").change(function() {
+							if(this.checked) {
+								$('#feedback').addClass('show')
+								$('#feedback').removeClass('hidden');
+							} else {
+								$('#feedback').removeClass('show');
+								$('#feedback').addClass('hidden');
+								$('#feedback input').val('');
 							}
 						});
 
@@ -399,11 +440,30 @@
 							}
 						});
 
+						$("#parametrosCheckbox").change(function() {
+							if(this.checked) {
+								$('#zona-respuestas').addClass('hidden')
+								$('#zona-respuestas').removeClass('show');
+								$('#zona-parametros').removeClass('hidden');
+								$('#zona-parametros').addClass('show');
+							} else {
+								$('#zona-respuestas').removeClass('hidden');
+								$('#zona-respuestas').addClass('show');
+								$('#zona-parametros').addClass('hidden')
+								$('#zona-parametros').removeClass('show');
+							}
+						});
+
 					</script>
 
 					<div class="form-group" id="titulo">
 						<label class="control-label" for="titulo">Pregunta: </label>
-						<input class="form-control" type="text" name="titulo" placeholder="Texto de la pregunta">
+						<textarea class="form-control" style="resize:vertical" row="3" name="titulo" placeholder="Texto de la pregunta" required></textarea>
+					</div>
+
+					<div class="form-group hidden" id="feedback">
+						<label class="control-label" for="feedPregunta">Feedback Personalizado: </label>
+						<textarea class="form-control" style="resize:vertical" row="2" name="feedPregunta" placeholder="Texto del feedback"></textarea>
 					</div>
 
 					<!-- Imagen -->
@@ -439,7 +499,7 @@
 								ret += '<label class="control-label" for="respuesta' + num + '">Respuesta #' + num + ': </label>';
 							}
 
-							ret += '<input class="form-control" type="text" name="respuesta' + num + '">';
+							ret += '<input class="form-control" type="text" value="" name="respuesta' + num + '">';
 							ret += '</div>';
 
 							// Texto con el nombre de la imagen
@@ -469,6 +529,7 @@
 							var padre = $('#zona-respuestas');
 							//padre.empty();
 							var html = '';
+
 							switch (parseInt(numRespuestas[input.val()])) {
 								case 5:
 									html = respuestaNum(5) + html;
@@ -483,18 +544,86 @@
 							}
 
 							padre.html(html);
+							
 						}
 
+						
 						input.change(cambiarZonaRespuestas);
-
+						
 						$(document).ready(cambiarZonaRespuestas);
 					</script>
-
+					<!-- Respuestas -->
 					<div class="form-group" id="zona-respuestas">
 
 					</div>
 
+					<!-- Parametros -->
 
+					<div class="form-group hidden" id="zona-parametros">
+					<p><a href="./ayuda.php">¿Necesitas ayuda con los parámetros?</a></p>
+					<div class="form-group col-xs-6">
+						<label class="control-label" for="fichero">Fichero con script de respuesta: </label>
+						<input type="file" name="fichero" class="col-xs-12" accept=".m">
+					</div>
+
+					<div class="form-group col-xs-5">
+						<label class="control-label" for="typeScript">Tipo de Script: </label>
+						<select class="form-control" name="typeScript" >					
+								<option value="matlab" selected>Matlab</option>
+						</select>
+					</div>
+
+						<div class="form-group">
+							<label class="control-label" for="numParametros">
+							Número de parametros: 
+							</label>
+							<input class="form-control" type="number" name="numParametros" min="1" max="20" value="1">
+						</div>
+
+
+
+						<div class="form-group" id="inputParametros">
+						</div>
+					</div>
+
+
+					<script>
+					function cambiarZonaParametros()  {
+						var selectP = $('input[name="numParametros"]');						
+						var padre = $('#inputParametros');
+							var html = '';
+							var n = parseInt(selectP.val());
+
+							html += '<div class="form-group paramcontainer">';
+					html += '<p>Utiliza la coma (,) como separador decimal en los formularios del rango de parámetros</p>';							
+
+							for(var i=1; i<=n;i++){
+								
+								html += '<label class="control-label">Nº'+i+'</label><br>';
+								html += '<div class="col-xs-6">';
+								html += '<label class="control-label" for="parametromin' + i + '">Valor Mínimo</label>'
+								html += '<input class="form-control" type="number" step="0.001" name="parametromin' + i + '" >';
+								html += '</div>';
+								html += '<div class="col-xs-6">';
+								html += '<label class="control-label" for="parametromax' + i + '">Valor Máximo</label>'
+								html += '<input class="form-control" type="number" step="0.001" name="parametromax' + i + '" >';
+								html += '</div>';
+								
+							}
+							html +="</div><br>";
+							padre.html(html);
+							
+						}
+
+						$(':input[type="number"]').change(cambiarZonaParametros);
+						$(document).ready(cambiarZonaParametros);
+
+
+					</script>
+
+
+
+					<br>
 					<button type="submit" class="btn btn-primary">Guardar</button>
 
 					<script type="text/javascript">
@@ -503,19 +632,19 @@
 
 							$("#zona-respuestas").removeClass("has-error");
 							$("#titulo").removeClass("has-error");
-
-							for (var i = 1; i <= numRespuestas[input.val()]; i++) {
+							
+							/*for (var i = 1; i <= numRespuestas[input.val()]; i++) {
 								if ($("input[name=respuesta" + i + "]").val() === "") {
 									$("#zona-respuestas").addClass("has-error");
 									event.preventDefault();
 								}
-							}
+							}*/
 
 							if ($("input[name=titulo]").val() === "") {
 								$("#titulo").addClass("has-error");
 								event.preventDefault();
 							}
-
+							
 							return;
 						});
 
@@ -577,29 +706,31 @@
 						data.imagenPrincipal = $('#form_edicion #imagenPrincipal').val();
 						data.audioPrincipal = $('#form_edicion #audioPrincipal').val();
 
+						if ($('#form_edicion #respuesta1').length) {
 						data.respuesta1 = $('#form_edicion #respuesta1').val();
 						data.respuestaImagen1 = $('#form_edicion #respuestaImagen1').val();
 						data.respuestaAudio1 = $('#form_edicion #respuestaAudio1').val();
 
-						if ($('#form_edicion #respuesta2').length) {
-						data.respuesta2 = $('#form_edicion #respuesta2').val();
-						data.respuestaImagen2 = $('#form_edicion #respuestaImagen2').val();
-						data.respuestaAudio2 = $('#form_edicion #respuestaAudio2').val();
+							if ($('#form_edicion #respuesta2').length) {
+							data.respuesta2 = $('#form_edicion #respuesta2').val();
+							data.respuestaImagen2 = $('#form_edicion #respuestaImagen2').val();
+							data.respuestaAudio2 = $('#form_edicion #respuestaAudio2').val();
 
-						if ($('#form_edicion #respuesta3').length) {
-							data.respuesta3 = $('#form_edicion #respuesta3').val();
-							data.respuestaImagen3 = $('#form_edicion #respuestaImagen3').val();
-							data.respuestaAudio3 = $('#form_edicion #respuestaAudio3').val();
+							if ($('#form_edicion #respuesta3').length) {
+								data.respuesta3 = $('#form_edicion #respuesta3').val();
+								data.respuestaImagen3 = $('#form_edicion #respuestaImagen3').val();
+								data.respuestaAudio3 = $('#form_edicion #respuestaAudio3').val();
 
-							if ($('#form_edicion #respuesta4').length) {
-								data.respuesta4 = $('#form_edicion #respuesta4').val();
-								data.respuestaImagen4 = $('#form_edicion #respuestaImagen4').val();
-								data.respuestaAudio4 = $('#form_edicion #respuestaAudio4').val();
+								if ($('#form_edicion #respuesta4').length) {
+									data.respuesta4 = $('#form_edicion #respuesta4').val();
+									data.respuestaImagen4 = $('#form_edicion #respuestaImagen4').val();
+									data.respuestaAudio4 = $('#form_edicion #respuestaAudio4').val();
 
-								if ($('#form_edicion #respuesta5').length) {
-									data.respuesta5 = $('#form_edicion #respuesta5').val();
-									data.respuestaImagen5 = $('#form_edicion #respuestaImagen5').val();
-									data.respuestaAudio5 = $('#form_edicion #respuestaAudio5').val();
+									if ($('#form_edicion #respuesta5').length) {
+										data.respuesta5 = $('#form_edicion #respuesta5').val();
+										data.respuestaImagen5 = $('#form_edicion #respuestaImagen5').val();
+										data.respuestaAudio5 = $('#form_edicion #respuestaAudio5').val();
+										}
 									}
 								}
 							}
@@ -675,6 +806,6 @@
 				</div>
 			</div>
 		</div>
-	</main>
+	</main>	
 </body>
 </html>

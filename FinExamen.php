@@ -28,6 +28,7 @@
 	include 'funciones.php';
 
 	session_start();
+	borrar_mensaje();
 
 	// Calculamos la nota
 	if($_SESSION['num_respuestas'] <= 1)
@@ -101,6 +102,7 @@
 		<?php mostrar_header(); ?>
 
 		<?php
+			//Dejamos el feedback antiguo sin ver pregunta anterior
 			if ($_SESSION['acepta_feedback'] || isset($_SESSION['feedback'])) {
 				if ($_SESSION['correcta']) {
 		?>
@@ -162,7 +164,9 @@
 								array(intval($_SESSION['idAlumnoExamen'])))
 							or die('Error. Prueba de nuevo más tarde.');
 						} else{
-							$result =  pg_query_params(
+
+						//Query antigua
+						/*	$result =  pg_query_params(
 								$con,
 					'SELECT p.texto AS preg, resp.correcta AS cor, resp.texto AS res, resp.timestamp AS time, p.imagen AS img, resp.respuesta AS rpa
 								FROM preguntas AS p INNER JOIN
@@ -170,7 +174,15 @@
 								ORDER BY time;',
 								array(intval($_SESSION['idAlumnoExamen'])))
 							or die('Error. Prueba de nuevo más tarde.');
-
+						*/
+							$result =  pg_query_params($con,
+							'SELECT id,texto AS preg, respuesta_correcta = respuesta AS cor, parametros,
+							 respuesta_correcta AS res, timestamp AS time, imagen AS img, respuesta AS rpa
+							 FROM preguntas INNER JOIN respuestas_abiertas
+							 ON id = id_pregunta 
+							 WHERE id_alumno_examen = $1;',
+							array(intval($_SESSION['idAlumnoExamen'])))
+							or die('Error. Prueba de nuevo más tarde.');
 						}
 
 						echo "<div class=\"row\"><div class=\"col-md-12\"><h1>Resultados:</h1>";
@@ -179,6 +191,28 @@
 
 
 						for ($i = 1; $res = pg_fetch_array($result, null, PGSQL_ASSOC); $i++) {
+
+
+
+
+							if($res['parametros']=='t'){ //Parametrica
+								//Sustituimos los parametros que salieron en la pregunta
+								$params =  pg_query_params($con,
+									'SELECT valor FROM parametros_por_alumno AS pa 
+									 INNER JOIN parametros AS p 
+									 ON pa.id_parametro = p.id 
+									 WHERE id_pregunta = $1 AND id_alumno_examen = $2
+									 ORDER BY orden ASC;',
+									array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+
+
+								//Sustituimos parametros salidos
+								for ($i = 1; $parametros = pg_fetch_array($params, null, PGSQL_ASSOC); $i++) {
+									$res['preg'] = str_replace("$".$i, $parametros['valor'], $res['preg']);
+								}
+							}
+
+
 							echo "<div class=\"row\"><div class=\"col-md-12\"><section class=\"respuestas\">";
 								echo "<p class=\"lead\">[Preg. #".$i."] ".$res['preg'].":</p>";
 								if (strlen($res['img']) >= 5) {
@@ -195,6 +229,11 @@
 										echo "<p class=\"correcta\"> ".$res['rpa']."</p>";
 									} else {
 										echo "<p class=\"incorrecta\"> ".$res['rpa']."</p>";
+
+										if($res['parametros']=='t'){
+											echo '<p>Respuesta correcta: '.$res['res'].'</p>';
+										}
+
 									}
 								}
 							echo "</section></div></div>";
