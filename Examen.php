@@ -482,7 +482,9 @@
 
 						$pregunta = pg_fetch_array($result, rand(0, pg_num_rows($result) - 1), PGSQL_ASSOC);
 
-						TRANSACCION:
+
+						do {
+						$guardado = TRUE;
 						//Caso parametrica, generamos parametros y sustituimos texto
 						if($_SESSION['num_respuestas'] == 1){
 							if($_SESSION['parametros']=='t'){
@@ -602,7 +604,8 @@
 								if($_SESSION['correcta'] == null || $_SESSION['correcta']==''){
 
 									pg_query($con,'ROLLBACK;');
-									goto TRANSACCION;
+									$guardado = FALSE;
+									
 
 								//Si ha ido todo bien cerramos la transaccion
 								} else {
@@ -643,6 +646,10 @@
 								$_SESSION['respuestas'][$letras[$i]] = $respuestas['id'];
 							}
 						}
+
+					//Aqui el while del do while
+					} while($guardado == FALSE );
+
 					?>
 			</div>
 		</main>
