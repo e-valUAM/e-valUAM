@@ -69,7 +69,7 @@
 					$correcto = pg_query_params($con,
 						'INSERT INTO parametros (id_pregunta, orden, min, max) VALUES ($1, $2, $3, $4);',
 						array($idPregunta , $i, $min, $max))
-						or die("error");
+						or die("error".pg_last_error());
 				}
 			
 				//Guardamos el fichero	
