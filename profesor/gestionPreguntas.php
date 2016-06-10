@@ -40,7 +40,7 @@
 				$result = pg_query_params($con,
 					'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script) 
 						VALUES ($1, $2, $3, $4, $5,$6,$7,$8) RETURNING id;',
-				array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error");
+				array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error".pg_last_error());
 
 				//Extraemos el id de la pregunta
 				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
