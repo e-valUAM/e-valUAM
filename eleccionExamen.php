@@ -130,6 +130,10 @@
 						</thead>
 						<tbody>
 
+					<?php
+						/*
+							//Aquí estaba el link hacia el fichero con el iframe a google forms
+							//Actualmente quitado
 							<tr>
 								<td> Cuestionario sobre hábitos en el uso de videojuegos</td>
 								<td> e-valUAM </td>
@@ -137,7 +141,8 @@
 								<td> - </td>
 								<td><a class="btn btn-primary" href="gammingTest.php">Continuar</a></td>
 							</tr>
-
+						*/
+					?>
 
 							<?php
 								$result = pg_query_params($con, 'SELECT e.id, e.nombre, e.duracion,m.nombre AS materia,a.nombre AS asignatura 
