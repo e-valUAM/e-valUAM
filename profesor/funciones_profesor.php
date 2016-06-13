@@ -50,6 +50,18 @@
 		}
 	}
 
+	function check_admin() {
+		session_start();
+
+		if (!isset($_SESSION['admin']) || $_SESSION['admin']!= 't' ) {
+			set_mensaje('error','Debes ser administrador de e-valUAM para poder visitar esta página.');
+			header("Location: ./ayuda.php");
+        exit;
+		}
+	}
+
+
+
 	function mostrar_navegacion_profesor($file) {
 
 		echo "<nav class=\"container-fluid\">";

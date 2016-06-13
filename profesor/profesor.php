@@ -34,7 +34,7 @@
     $contrasenya = $_REQUEST['contrasenya'];
 
 
-	$result =  pg_query_params($con, 'SELECT pass, id, admin FROM alumnos WHERE nombre =  $1 AND profesor = TRUE', array($nombre))
+	$result =  pg_query_params($con, 'SELECT pass, id, admin, parametricas FROM alumnos WHERE nombre =  $1 AND profesor = TRUE', array($nombre))
 	or die('Error. Prueba de nuevo más tarde.');
 
 	$pass = pg_fetch_result($result, 0, 0);
@@ -54,6 +54,8 @@
 	$_SESSION['idUsuario'] = pg_fetch_result($result, 0, 1);
 	$_SESSION['profesor'] = true;
 	$_SESSION['admin'] = (pg_fetch_result($result, 0, 2) == 't' ? true : false);
+	$_SESSION['parametricas'] = (pg_fetch_result($result, 0, 3) == 't' ? true : false);
+
 
 
 	pg_free_result($result);
