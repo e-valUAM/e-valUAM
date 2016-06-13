@@ -76,7 +76,7 @@
 						//Campo profesor true-false
 
 						$result =  pg_query_params($con,
-						'INSERT INTO alumnos (nombre, cambio_contrasenya, profesor, pass,token,token_creation) VALUES ($1,false,false,$2,$3,now())',
+						'INSERT INTO alumnos (nombre, cambio_contrasenya, profesor, pass,token,token_creation) VALUES ($1,false,true,$2,$3,now())',
 							array($_POST['email'],$hashed_password,$token));
 
 						//Caso de error al añadir

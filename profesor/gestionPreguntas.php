@@ -29,10 +29,17 @@
 		// Preguntas parametricas
 		if($param =='t'){
 
+			//Comprobacion permisos preguntas paramétricas
+			if($_SESSION['parametricas'] != true ){
+				set_mensaje('error','Necesitas permisos para poder realizar preguntas paramétricas.');
+				header("Location: ./gestionPreguntas.php");
+   				exit;
+			}
+
 			//Comprobamos que el fichero esta subido
 			if(isset($_FILES["fichero"]) && $_FILES["fichero"]["name"]!='' ){
 
-				$ficheroName = $_FILES["fichero"]["name"];	
+				$ficheroName = $_FILES["fichero"]["name"];
 				$fich = $_FILES["fichero"];
 				$numParametros = $_REQUEST['numParametros'];
 
@@ -40,7 +47,7 @@
 				$result = pg_query_params($con,
 					'INSERT INTO preguntas (dificultad, texto, id_materia, imagen, audio, feedback,parametros,script) 
 						VALUES ($1, $2, $3, $4, $5,$6,$7,$8) RETURNING id;',
-				array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error".pg_last_error());
+				array($dificultad, $pregunta, $idmateria, $imagen, $audio, $feedback, $param, $ficheroName))or die("error");
 
 				//Extraemos el id de la pregunta
 				$row = pg_fetch_array($result, null, PGSQL_ASSOC);
@@ -69,7 +76,7 @@
 					$correcto = pg_query_params($con,
 						'INSERT INTO parametros (id_pregunta, orden, min, max) VALUES ($1, $2, $3, $4);',
 						array($idPregunta , $i, $min, $max))
-						or die("error".pg_last_error());
+						or die("error");
 				}
 			
 				//Guardamos el fichero	
@@ -386,9 +393,9 @@
 						
 						<div class="checkbox" id="divparametros">
 						  <label>
-							<input type="checkbox" id="parametrosCheckbox" name='parametric' value="t">
+							<input type="checkbox" id="parametrosCheckbox" name='parametric' value="t" <?php if(!$_SESSION['parametricas'])echo 'disabled';?>>
 							¿La pregunta tiene parámetros? 
-							<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Parametros" data-content="Permite incluir valores parametrizados en tus preguntas para que la pregunta mostrada siempre sea diferente. Solo implementable en preguntas de respuesta abierta" data-trigger="click hover">
+							<span class="glyphicon glyphicon-question-sign" data-toggle="popover" title="Parametros" data-content="Permite incluir valores parametrizados en tus preguntas para que la pregunta mostrada siempre sea diferente. Solo implementable en preguntas de respuesta abierta. Necesitas permisos para poder realizar este tipo de preguntas, solicitelo en el formulario de contacto." data-trigger="click hover">
 								 <span class="sr-only">Información</span>
 							</span>
 						  </label>

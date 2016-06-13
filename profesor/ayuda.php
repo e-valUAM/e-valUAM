@@ -51,6 +51,11 @@
 			<div class="row">
 				<div class="col-md-12">
 					
+					<?php if($_SESSION['admin']=='t'){
+							echo "<p>Para gestionar cuentas de usuario pulse <a href='gestionAdmin.php'>aquí. </a>";
+							echo "(Este mensaje aparece por que tienes una cuenta de administrador)</p>";
+						} ?>
+
 
 					<h2>Introducción</h2>
 					<p>En e-valUAM todo se organiza en torno a cuatro conceptos principales: asignaturas, materias, preguntas y exámenes.</p>
@@ -87,6 +92,7 @@
 					<ul>
 					<li>
 							<h3>¿Cómo creo una pregunta paramétrica?</h3>
+							<p> Para crear una pregunta  paramétrica es necesario tener permiso especial, escriba a los desarrolladores de la página  <a href='../contacto.php'>aquí</a>  para obtenerlo</p>
 							<p>Las preguntas paramétricas son un tipo especial de pregunta abierta, pero tienen valores que cambian cuando se genera la pregunta en un examen. Al crear una nueva pregunta, de una materia con respuestas abiertas, aparecera la opción de si la pregunta tiene parámetros. Cuando esta opción es marcada aparecerá un formulario con el que especificar los parámetros</p>
 
 <p> En el texto de la pregunta, ha de ponerse $1,$2,...($ + número de parámetro) en el lugar donde aparecerá el parámetro. A su vez se ha de especificar el rango de valores que tomará cada uno. Por el momento los parámetros generados son números con 3 decimales en el rango especificado</p>
