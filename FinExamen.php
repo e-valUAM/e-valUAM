@@ -203,7 +203,7 @@
 									 ON pa.id_parametro = p.id 
 									 WHERE id_pregunta = $1 AND id_alumno_examen = $2
 									 ORDER BY orden ASC;',
-									array($_SESSION['id_pregunta_anteanterior'],$_SESSION['idAlumnoExamen']));
+									array($res['id'], $_SESSION['idAlumnoExamen']));
 
 
 								//Sustituimos parametros salidos
