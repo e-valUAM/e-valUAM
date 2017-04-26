@@ -178,6 +178,7 @@
 
 			// Guardada la respuesta, actualizamos las variables que definen el examen
 			// Comprobamos si la respuesta ha sido correcta
+			$_SESSION['textoCorrecta'] = $_SESSION['correcta'];
 			if (strcmp($respuestaAbierta, $_SESSION['correcta']) == 0) {
 				$_SESSION['correcta'] = TRUE;
 			} else {
@@ -195,6 +196,7 @@
 			or die('Error. Prueba de nuevo más tarde.');
 			// Guardada la respuesta, actualizamos las variables que definen el examen
 			// Comprobamos si la respuesta ha sido correcta
+			$_SESSION['textoCorrecta'] = $_SESSION['correcta'];
 			if (strcmp($_REQUEST['respuesta'], $_SESSION['correcta']) == 0) {
 				$_SESSION['correcta'] = TRUE;
 			} else {
@@ -219,12 +221,11 @@
 		//Mostramos mensaje de feedback
 		if($_SESSION['feedback_examen']){
 
-			$mensaje = ($_SESSION['correcta']) ? "<p>Respuesta Correcta</p>" : "<p>Respuesta Incorrecta</p>";
+			$mensaje = ($_SESSION['correcta']) ? "<p>Respuesta Correcta</p>" : "<p>Respuesta Incorrecta. La respuesta correcta era: ".$_SESSION['textoCorrecta']."</p>";
 			$mensaje = $mensaje."<p>".$_SESSION['feedback']."</p>";
 			$mensaje = $mensaje."<p>Pulse <a target=\"_blank\" href='Anterior.php'>aqui</a> para ver la pregunta anterior</p>";
 
 			set_mensaje(($_SESSION['correcta']) ? "ok" : "error", $mensaje);
-
 		}
 
 		// Sea correcta o no, debemos comprobar si es el fin del examen
